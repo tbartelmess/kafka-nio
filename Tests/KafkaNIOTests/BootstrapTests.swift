@@ -19,7 +19,7 @@ final class BootstrapTests: XCTestCase {
 
     func testBootstrapFailure() throws {
         let loop = group.next()
-        let bootstrapper = Bootstrapper(servers: [Broker(host: "not-available-01.bartelmess.io", port: 9092, rack: nil)], eventLoop: loop)
+        let bootstrapper = Bootstrapper(servers: [Broker(host: "not-available-01.bartelmess.io", port: 9092, rack: nil)], eventLoop: loop, tlsConfiguration: nil)
 
         do {
             let _ = try bootstrapper.bootstrap().wait()
@@ -37,7 +37,7 @@ final class BootstrapTests: XCTestCase {
         let hostnames = ["not-available-01.bartelmess.io", "kafka-01.bartelmess.io", "not-available-02.bartelmess.io"]
         let servers = hostnames.map { Broker(host: $0, port: 9092, rack: nil) }
 
-        let bootstrapper = Bootstrapper(servers: servers, eventLoop: loop)
+        let bootstrapper = Bootstrapper(servers: servers, eventLoop: loop, tlsConfiguration: nil)
         let _ = try bootstrapper.bootstrap().wait()
     }
 }

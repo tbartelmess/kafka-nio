@@ -18,8 +18,8 @@ extension Consumer {
         logger.info("Joining group inital (without a member ID)")
         return groupCoordinator.requestJoinGroup(groupID: self.configuration.groupID,
                                           topics: self.configuration.subscribedTopics,
-                                          sessionTimeout: Int32(self.sessionTimeout),
-                                          rebalanceTimeout: Int32(self.rebalanceTimeout),
+                                          sessionTimeout: Int32(self.configuration.sessionTimeout),
+                                          rebalanceTimeout: Int32(self.configuration.rebalanceTimeout),
                                           memberID: "",
                                           groupInstanceID: nil)
             .flatMapResult { response -> Result<String, KafkaError> in

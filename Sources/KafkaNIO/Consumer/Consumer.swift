@@ -87,6 +87,7 @@ public class Consumer {
         })
         return ClusterClient.bootstrap(servers: servers,
                                        eventLoopGroup: eventLoopGroup,
+                                       tlsConfiguration: configuration.tlsConfiguration,
                                        topics: configuration.subscribedTopics).map { clusterClient in
             Consumer(configuration: configuration,
                      clusterClient: clusterClient,
