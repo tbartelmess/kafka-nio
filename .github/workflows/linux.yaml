@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: fwal/setup-swift@v1
+    - uses: fwal/setup-swift@v1.3.0
     - uses: actions/checkout@v2
       with:
         submodules: true
