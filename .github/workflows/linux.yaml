@@ -10,10 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: fwal/setup-swift@v1
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - uses: fwal/setup-swift@v1
+    - name: Show Swift Version
+      run: swift --version
     - name: Build
       run: swift build
     - name: Test
