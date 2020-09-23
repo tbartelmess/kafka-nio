@@ -28,7 +28,7 @@ To connect to a Kafka Cluster, at least one address for a broker is required, fr
 It is possible to provide a list of "bootstrap servers", when a broker is not available the client will attempt to bootstrap using the next cluster in the list.
 
 
-`swift
+```swift
 import NIO
 import KafkaNIO
 
@@ -49,7 +49,7 @@ try consumer.setup().wait()
 
 // Poll for records
 try consumer.poll().wait()
-`
+```
 
 ## Supported Kafka Versions
 Currently, it's only tested against Kafka 2.4, the goal is to provide compatibly with all Kafka Versions from 0.9 and later.
