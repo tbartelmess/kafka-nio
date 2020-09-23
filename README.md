@@ -1,7 +1,7 @@
 # KafkaNIO
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Swift](https://img.shields.io/badge/Swift-5.2-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
-![Build Status](https://img.shields.io/github/workflow/status/tbartelmess/kafka-nio/test-on-linux)
+[![Swift](https://img.shields.io/badge/Swift-5.3-brightgreen.svg?colorA=orange&colorB=4E4E4E)](https://swift.org)
+[![Build Status](https://img.shields.io/github/workflow/status/tbartelmess/kafka-nio/test-on-linux)](https://github.com/tbartelmess/kafka-nio/actions?query=workflow%3Atest-on-linux)
 
 
 KafkaNIO is a library to interact with [Apache Kafka](https://kafka.apache.org) from the Swift Server ecosystem.
