@@ -1,0 +1,22 @@
+name: Linux
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [  main  ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - uses: fwal/setup-swift@v1
+      with:
+        swift-version: "5.2"
+    - name: Build
+      run: swift build
+    - name: Test
+      run: swift test
