@@ -62,9 +62,6 @@ public class Consumer {
     var clusterClient: ClusterClient
     var autoCommitTask: RepeatedTask?
 
-    let sessionTimeout = 10000
-    let rebalanceTimeout = 10000
-
     private var logger: Logger
 
     var state: State = .notJoined {
