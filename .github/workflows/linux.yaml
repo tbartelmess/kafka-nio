@@ -15,7 +15,7 @@ jobs:
         submodules: true
     - uses: fwal/setup-swift@v1
       with:
-        swift-version: "5.2"
+        swift-version: "5.3"
     - name: Build
       run: swift build
     - name: Test
