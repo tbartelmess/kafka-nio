@@ -13,11 +13,12 @@ This project is still in a very early state and not ready for production use, or
 
 ## Installation
 To install KafkaNIO, add the package as a dependency in your [Package.swift](https://github.com/apple/swift-package-manager/blob/master/Documentation/PackageDescriptionV4.md#dependencies).
-`
+
+```swift
 dependencies: [
     .package(url: "https://github.com/tbartelmess/kafka-nio.git", .upToNextMinor(from: "0.0.1"))
 ]
-`
+```
 ## Consumer API
 
 The Consumer API allows fetching records from a Kafka broker. The main consumer API is `poll()`, which returns an `EventLoopFuture` that gets fulfilled when all brokers that hold partitions for the subscribed topics return.
