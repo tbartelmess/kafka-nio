@@ -2,7 +2,7 @@
 
 # run jazzy
 if ! command -v jazzy > /dev/null; then
-  gem install jazzy --no-ri --no-rdoc
+  gem install jazzy
 fi
 
 jazzy --clean \
