@@ -53,5 +53,6 @@ try consumer.setup().wait()
 try consumer.poll().wait()
 ```
 
+
 ## Supported Kafka Versions
 Currently, it's only tested against Kafka 2.4, the goal is to provide compatibly with all Kafka Versions from 0.9 and later.
