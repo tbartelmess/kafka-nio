@@ -62,9 +62,6 @@ public class Consumer {
     var clusterClient: ClusterClient
     var autoCommitTask: RepeatedTask?
 
-    let sessionTimeout = 10000
-    let rebalanceTimeout = 10000
-
     private var logger: Logger
 
     var state: State = .notJoined {
@@ -90,6 +87,7 @@ public class Consumer {
         })
         return ClusterClient.bootstrap(servers: servers,
                                        eventLoopGroup: eventLoopGroup,
+                                       tlsConfiguration: configuration.tlsConfiguration,
                                        topics: configuration.subscribedTopics).map { clusterClient in
             Consumer(configuration: configuration,
                      clusterClient: clusterClient,

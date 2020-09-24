@@ -1,13 +1,20 @@
+//===----------------------------------------------------------------------===//
 //
-//  File.swift
-//  
+// This source file is part of the KafkaNIO open source project
 //
-//  Created by Thomas Bartelmess on 2020-08-30.
+// Copyright © 2020 Thomas Bartelmess.
+// Licensed under Apache License v2.0
 //
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
 
 import ArgumentParser
 import KafkaNIO
 import NIO
+import NIOSSL
 
 enum ConsoleConsumerError: Error, CustomStringConvertible {
     case invalidServer(server: String)
@@ -28,6 +35,13 @@ signal(SIGINT) { _ in
 }
 
 struct ConsoleConsumer: ParsableCommand {
+
+    enum TLSOption: String, ExpressibleByArgument {
+        case noTLS
+        case tls
+        case validateCertificates
+    }
+
     @Option(help: "List of boostrap servers")
     var bootstrapServer: [String]
 
@@ -43,6 +57,9 @@ struct ConsoleConsumer: ParsableCommand {
     @Option(help: "Rebalance Timeout")
     var rebalanceTimeout: Int = 5000
 
+    @Option(help: "TLS")
+    var tls: TLSOption = .noTLS
+
     func run() throws {
         let parsedBootstrapServers = try bootstrapServer.map { name -> SocketAddress in
             let parts = name.split(separator: ":")
@@ -55,13 +72,24 @@ struct ConsoleConsumer: ParsableCommand {
             }
             return try SocketAddress.makeAddressResolvingHost(String(host), port: port)
         }
+        var tlsConfiguration: TLSConfiguration?
+        switch tls {
+        case .tls, .validateCertificates:
+            tlsConfiguration = .clientDefault
+            if tls == .tls {
+                tlsConfiguration?.certificateVerification = .none
+            }
+        case .noTLS:
+            tlsConfiguration = nil
+        }
 
         let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
         let consumer = try Consumer.connect(configuration: .init(bootstrapServers: parsedBootstrapServers,
                                                                  subscribedTopics: [topic],
                                                                  groupID: groupID,
                                                                  sessionTimeout: sessionTimeout,
-                                                                 rebalanceTimeout: rebalanceTimeout),
+                                                                 rebalanceTimeout: rebalanceTimeout,
+                                                                 tlsConfiguration: tlsConfiguration),
                                             eventLoopGroup: eventLoopGroup).wait()
         try consumer.setup().wait()
         while !shutdown {
