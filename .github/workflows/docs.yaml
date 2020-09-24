@@ -13,7 +13,7 @@ jobs:
       with:
         submodules: true
     - name: Build Documentation
-      run: Scripts/build-docs.sh
+      run: sudo Scripts/build-docs.sh
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
