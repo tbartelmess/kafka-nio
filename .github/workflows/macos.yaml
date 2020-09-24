@@ -1,4 +1,4 @@
-name: Swift
+name: test-on-macos
 
 on:
   push:
