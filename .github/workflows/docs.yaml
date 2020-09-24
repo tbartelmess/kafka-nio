@@ -1,0 +1,23 @@
+name: test-on-linux
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [  main  ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: fwal/setup-swift@v1.3.0
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Build Documentation
+      run: Scripts/build-docs.sh
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
