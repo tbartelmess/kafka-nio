@@ -15,10 +15,8 @@ import NIO
 import NIOSSL
 extension Consumer {
 
-    /// `Consumer` configuration
+    /// `Consumer` configuration.
     public struct Configuration {
-
-
         public enum AutoCommit {
             case off
             case interval(amount: TimeAmount)
@@ -32,7 +30,13 @@ extension Consumer {
         /// List of topics the consumer is subscribed to
         public let subscribedTopics: [Topic]
 
-        /// Group ID of the consumer
+        /// A name for this client. This string is passed in each request to servers and can be used to identify specific
+        /// server-side log entries that correspond to this client.
+        /// Also submitted to GroupCoordinator for logging with respect to consumer group administration.
+        public let clientID: String
+
+        /// The name of the consumer group to join for dynamic partition assignment
+        /// and to use for fetching and committing offsets.
         public let groupID: String
 
         /// Group Instance ID of the group
@@ -48,23 +52,29 @@ extension Consumer {
         /// Auto commit settings.
         public let autoCommit: AutoCommit
 
+        /// TLS Configuration to connect to the Kafka broker.
+        /// See the [swift-nio-ssl configuration](https://apple.github.io/swift-nio-ssl/docs/current/NIOSSL/Structs/TLSConfiguration.html) for details
         public let tlsConfiguration: TLSConfiguration?
 
+        /// Control if the CRC checksum on record batches recieved from the servers should
+        /// be validated to detect corruption. Unless you have very high throughput requirements
+        /// and can handle invalid data, it's recommended enable CRC validation.
         public let crcValidation: Bool
 
         public init(bootstrapServers: [SocketAddress],
-                      subscribedTopics: [Topic],
-                      groupID: String,
-                      groupInstanceID: String? = nil,
-                      sessionTimeout: Int,
-                      rebalanceTimeout: Int,
-                      autoCommit: Configuration.AutoCommit = .interval(amount: .seconds(5)),
-                      crcValidation: Bool = true,
-                      tlsConfiguration: TLSConfiguration? = nil) {
+                    subscribedTopics: [Topic],
+                    clientID: String = "kafka-nio",
+                    groupID: String,
+                    groupInstanceID: String? = nil,
+                    sessionTimeout: Int,
+                    rebalanceTimeout: Int,
+                    autoCommit: Configuration.AutoCommit = .interval(amount: .seconds(5)),
+                    crcValidation: Bool = true,
+                    tlsConfiguration: TLSConfiguration? = nil) {
 
             self.bootstrapServers = bootstrapServers
             self.subscribedTopics = subscribedTopics
-
+            self.clientID = clientID
             self.groupID = groupID
             self.groupInstanceID = groupInstanceID
             self.sessionTimeout = sessionTimeout

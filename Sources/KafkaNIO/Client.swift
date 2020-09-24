@@ -48,7 +48,7 @@ enum ClientError: Error {
 
 extension Broker {
 
-    func connect(on eventLoop: EventLoop, tlsConfiguration: TLSConfiguration?) -> EventLoopFuture<BrokerConnection> {
+    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?) -> EventLoopFuture<BrokerConnection> {
         let messageCoder = KafkaMessageCoder()
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
@@ -74,7 +74,7 @@ extension Broker {
                    MessageToByteHandler(messageCoder),
                    ByteToMessageHandler(messageCoder)
                 ]).flatMap {
-                    let connection = try! BrokerConnection(channel: channel, logger: logger)
+                    let connection = try! BrokerConnection(clientID: clientID, channel: channel, logger: logger)
                     return connection.setup ()
                         .map { connection }
                 }
@@ -116,9 +116,11 @@ class Bootstrapper {
     let eventLoop: EventLoop
     let tlsConfiguration: TLSConfiguration?
     let logger: Logger
+    let clientID: String
 
-    init(servers: [Broker], eventLoop: EventLoop, tlsConfiguration: TLSConfiguration?, logger: Logger = .init(label: "io.bartelmess.NIOKafka.Bootstrap")) {
+    init(servers: [Broker], clientID: String, eventLoop: EventLoop, tlsConfiguration: TLSConfiguration?, logger: Logger = .init(label: "io.bartelmess.NIOKafka.Bootstrap")) {
         self.servers = servers
+        self.clientID = clientID
         self.tlsConfiguration = tlsConfiguration
         self.eventLoop = eventLoop
         self.logger = logger
@@ -141,7 +143,7 @@ class Bootstrapper {
         do {
             let broker = try nextServer()
             logger.info("Attempting to bootstrap with Server: \(broker.host):\(broker.port)")
-            broker.connect(on: eventLoop, tlsConfiguration: tlsConfiguration)
+            broker.connect(on: eventLoop, clientID: clientID, tlsConfiguration: tlsConfiguration)
                 .flatMapError { _ in
                     return self.bootstrapRecursive()
                 }
@@ -164,25 +166,28 @@ class ClusterClient {
     let eventLoop: EventLoop
     var clusterMetadata: ClusterMetadata
     var tlsConfiguration: TLSConfiguration?
+    let clientID: String
     var connectionFutures: [NodeID: EventLoopFuture<BrokerConnection>] = [:]
 
     static func bootstrap(servers: [Broker],
                           eventLoopGroup: EventLoopGroup,
+                          clientID: String,
                           tlsConfiguration: TLSConfiguration?,
                           topics:[String] = []) -> EventLoopFuture<ClusterClient> {
-        Bootstrapper(servers: servers, eventLoop: eventLoopGroup.next(), tlsConfiguration: tlsConfiguration)
+        Bootstrapper(servers: servers, clientID: clientID, eventLoop: eventLoopGroup.next(), tlsConfiguration: tlsConfiguration)
             .bootstrap()
             .flatMap { (bootstrapConnection) in
                 bootstrapConnection.requestFetchMetadata(topics: topics).map { ($0, bootstrapConnection) }
             }.map { (response, connection) -> (ClusterClient, BrokerConnection) in
                 let initalMetadata = ClusterMetadata(metadata: response)
 
-                return (ClusterClient(eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, tlsConfiguration: tlsConfiguration), connection)
+                return (ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, tlsConfiguration: tlsConfiguration), connection)
             }.flatMap { clusterClient, connection in
                 connection.close().map { clusterClient }
             }
     }
-    private init(eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadata, tlsConfiguration: TLSConfiguration?) {
+    private init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadata, tlsConfiguration: TLSConfiguration?) {
+        self.clientID = clientID
         self.eventLoopGroup = eventLoopGroup
         self.clusterMetadata = clusterMetadata
         self.tlsConfiguration = tlsConfiguration
@@ -206,6 +211,7 @@ class ClusterClient {
                 return self.eventLoop.makeFailedFuture(KafkaError.unknownNodeID)
             }
             return brokerInfo.connect(on: self.eventLoopGroup.next(),
+                                      clientID: self.clientID,
                                       tlsConfiguration: self.tlsConfiguration)
         }
     }
@@ -220,7 +226,7 @@ class ClusterClient {
             if let connectionFuture = self.connectionFutures[nodeID] {
                 return connectionFuture
             }
-            let future = brokerInfo.connect(on: self.eventLoopGroup.next(),
+            let future = brokerInfo.connect(on: self.eventLoopGroup.next(), clientID: self.clientID,
                                             tlsConfiguration: self.tlsConfiguration)
             self.connectionFutures[nodeID] = future
             return future

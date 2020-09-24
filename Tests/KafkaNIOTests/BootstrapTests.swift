@@ -20,7 +20,7 @@ final class BootstrapTests: XCTestCase {
 
     func testBootstrapFailure() throws {
         let loop = group.next()
-        let bootstrapper = Bootstrapper(servers: [Broker(host: "not-available-01.bartelmess.io", port: 9092, rack: nil)], eventLoop: loop, tlsConfiguration: nil)
+        let bootstrapper = Bootstrapper(servers: [Broker(host: "not-available-01.bartelmess.io", port: 9092, rack: nil)], clientID: "unit-tests", eventLoop: loop, tlsConfiguration: nil)
 
         do {
             let _ = try bootstrapper.bootstrap().wait()
@@ -38,7 +38,7 @@ final class BootstrapTests: XCTestCase {
         let hostnames = ["not-available-01.bartelmess.io", "kafka-01.bartelmess.io", "not-available-02.bartelmess.io"]
         let servers = hostnames.map { Broker(host: $0, port: 9092, rack: nil) }
 
-        let bootstrapper = Bootstrapper(servers: servers, eventLoop: loop, tlsConfiguration: nil)
+        let bootstrapper = Bootstrapper(servers: servers, clientID: "unit-tests", eventLoop: loop, tlsConfiguration: nil)
         let _ = try bootstrapper.bootstrap().wait()
     }
 
@@ -47,7 +47,7 @@ final class BootstrapTests: XCTestCase {
         tlsConfiguration.certificateVerification = .none
         let server =  Broker(host: "kafka-01.bartelmess.io", port: 9094, rack: nil)
         let loop = group.next()
-        let bootstrapper = Bootstrapper(servers: [server], eventLoop: loop, tlsConfiguration: tlsConfiguration)
+        let bootstrapper = Bootstrapper(servers: [server], clientID: "unit-tests", eventLoop: loop, tlsConfiguration: tlsConfiguration)
         let result = try bootstrapper.bootstrap().wait()
         let clusterMetadata = try result.requestFetchMetadata(topics: []).wait()
         XCTAssertEqual(clusterMetadata.brokers.count, 3)

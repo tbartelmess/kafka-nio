@@ -54,7 +54,9 @@ final public class BrokerConnection {
     }
 
     private var parkedResponsePromises: [CorrelationID: EventLoopPromise<KafkaResponse>] = [:]
-    init(channel: Channel, logger: Logger) throws {
+
+    init(clientID: String, channel: Channel, logger: Logger) throws {
+        self.clientID = clientID
         self.channel = channel
         self.logger = logger
     }
@@ -79,7 +81,8 @@ final public class BrokerConnection {
     }
 
     private var lastCorrelationID: CorrelationID = 0
-    let clientID = "foo"
+
+    let clientID: String
 
 
     var correlationLock = Lock()
@@ -93,7 +96,7 @@ final public class BrokerConnection {
 
     func setup() -> EventLoopFuture<Void> {
         return configureChannel().flatMap {
-            self.requestQueryAPIVersions(clientSoftwareName: "", clientSoftwareVersion: "")
+            self.requestQueryAPIVersions(clientID: self.clientID)
         }.map { response in
             self.supportedAPIVersion = response.apiKeys.map{ ($0.apiKey, $0.minVersion, $0.maxVersion) }
             self.logger.debug("Updated supported API Version")
@@ -123,14 +126,13 @@ final public class BrokerConnection {
 
     // MARK: Request APIs
 
-    func requestQueryAPIVersions(clientSoftwareName: String,
-                          clientSoftwareVersion: String) -> EventLoopFuture<ApiVersionsResponse> {
+    func requestQueryAPIVersions(clientID: String) -> EventLoopFuture<ApiVersionsResponse> {
         let version = APIVersion(3)
         let request = ApiVersionsRequest(apiVersion: version,
-                                         clientID: "foo",
+                                         clientID: clientID,
                                          correlationID: nextCorrectionID(),
-                                         clientSoftwareName: "Hello",
-                                         clientSoftwareVersion: "World")
+                                         clientSoftwareName: "kafka-nio",
+                                         clientSoftwareVersion: KafkaNIOVersion.string)
         return send(request)
     }
 

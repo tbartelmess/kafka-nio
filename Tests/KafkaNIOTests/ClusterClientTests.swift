@@ -23,8 +23,9 @@ class ClusterClientTests: XCTestCase {
         clusterClient = try ClusterClient.bootstrap(servers: [Broker(host: "kafka-01.bartelmess.io",
                                                      port: 9092,
                                                      rack: nil)],
-                                                        eventLoopGroup: eventLoopGroup,
-                                                        tlsConfiguration: nil).wait()
+                                                    eventLoopGroup: eventLoopGroup,
+                                                    clientID: "unit-tests",
+                                                    tlsConfiguration: nil).wait()
     }
 
     func testGetAll() throws {
