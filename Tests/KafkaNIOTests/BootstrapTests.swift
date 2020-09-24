@@ -1,5 +1,6 @@
 import XCTest
 import NIO
+import NIOSSL
 import Logging
 @testable import KafkaNIO
 
@@ -39,5 +40,24 @@ final class BootstrapTests: XCTestCase {
 
         let bootstrapper = Bootstrapper(servers: servers, eventLoop: loop, tlsConfiguration: nil)
         let _ = try bootstrapper.bootstrap().wait()
+    }
+
+    func testBootstrapTLS() throws {
+        var tlsConfiguration = TLSConfiguration.forClient()
+        tlsConfiguration.certificateVerification = .none
+        let server =  Broker(host: "kafka-01.bartelmess.io", port: 9094, rack: nil)
+        let loop = group.next()
+        let bootstrapper = Bootstrapper(servers: [server], eventLoop: loop, tlsConfiguration: tlsConfiguration)
+        let result = try bootstrapper.bootstrap().wait()
+        let clusterMetadata = try result.requestFetchMetadata(topics: []).wait()
+        XCTAssertEqual(clusterMetadata.brokers.count, 3)
+        let broker1 = clusterMetadata.brokers[0]
+        XCTAssertEqual(broker1.port, 9094)
+        let broker2 = clusterMetadata.brokers[1]
+        XCTAssertEqual(broker2.port, 9094)
+        let broker3 = clusterMetadata.brokers[2]
+        XCTAssertEqual(broker3.port, 9094)
+
+
     }
 }

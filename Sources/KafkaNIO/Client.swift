@@ -60,7 +60,7 @@ extension Broker {
             if let tlsConfiguration = tlsConfiguration {
                 do {
                     let context = try NIOSSLContext(configuration: tlsConfiguration)
-                    let tlsHandler = try NIOSSLClientHandler(context: context, serverHostname: host)
+                    let tlsHandler = try NIOSSLClientHandler(context: context, serverHostname: nil)
                     setupTLSFuture = channel.pipeline.addHandler(tlsHandler)
                 } catch {
                     setupTLSFuture = eventLoop.makeFailedFuture(error)
