@@ -9,8 +9,8 @@ on:
 jobs:
   build:
     strategy:
-    matrix:
-      kafka_version: [0.9.0.1, 0.10.2.2, 0.11.0.3, 1.1.1, 2.4.0, 2.5.0]
+      matrix:
+        kafka_version: [0.9.0.1, 0.10.2.2, 0.11.0.3, 1.1.1, 2.4.0, 2.5.0]
     runs-on: ubuntu-latest
     steps:
     - uses: fwal/setup-swift@v1.3.0
