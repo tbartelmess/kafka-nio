@@ -15,7 +15,6 @@ jobs:
     env:
       KAFKA_VERSION: "${{ matrix.kafka_version }}"
     steps:
-    - uses: fwal/setup-swift@v1.3.0
     - uses: actions/checkout@v2
       with:
         submodules: true
@@ -27,3 +26,5 @@ jobs:
       run: echo $KAFKA_VERSION
     - name: Install Kafka
       run: ./build_integration.sh
+    - uses: fwal/setup-swift@v1.3.0
+
