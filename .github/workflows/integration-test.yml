@@ -7,6 +7,9 @@ on:
     branches: [  main  ]
 
 jobs:
+  strategy:
+    matrix:
+      kafka_version: [0.9.0.1, 0.10.2.2, 0.11.0.3, 1.1.1, 2.4.0, 2.5.0]
   build:
     runs-on: ubuntu-latest
     steps:
@@ -18,3 +21,7 @@ jobs:
       run: swift --version
     - name: Install Java
       run: sudo apt update && sudo apt install openjdk-11-jdk
+    - name: Print Kafka Version
+      run: echo $KAFKA_VERSION
+      env:
+       - KAFKA_VERSION: ${{ matrix.node }}
