@@ -24,4 +24,4 @@ jobs:
     - name: Print Kafka Version
       run: echo $KAFKA_VERSION
       env:
-       - KAFKA_VERSION: "${{ matrix.node }}"
+        KAFKA_VERSION: "${{ matrix.node }}"
