@@ -1,10 +1,15 @@
+//===----------------------------------------------------------------------===//
 //
-//  File.swift
-//  
+// This source file is part of the KafkaNIO open source project
 //
-//  Created by Thomas Bartelmess on 2020-09-26.
+// Copyright © 2020 Thomas Bartelmess.
+// Licensed under Apache License v2.0
 //
-
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
 import Foundation
 
 enum KeytoolError: Error {
