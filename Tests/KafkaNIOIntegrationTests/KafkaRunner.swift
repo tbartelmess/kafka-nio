@@ -260,9 +260,9 @@ struct KafkaLogWatcher: LogWatcher {
         }
         if message.level == .error || message.level == .fatal {
             // Failed startup
-            let _ = eventLoop.submit {
-                startupPromise.fail(KafkaError.error(message))
-            }
+//            let _ = eventLoop.submit {
+//                startupPromise.fail(KafkaError.error(message))
+//            }
         }
     }
 
