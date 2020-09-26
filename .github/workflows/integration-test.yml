@@ -27,3 +27,7 @@ jobs:
     - uses: fwal/setup-swift@v1.3.0
     - name: Show Swift Version
       run: swift --version
+    - name: Build
+      run: swift build
+    - name: Test
+      run: swift test --filter KafkaNIOIntegrationTests
