@@ -31,8 +31,7 @@ let package = Package(
             name: "KafkaNIOTests",
             dependencies: ["KafkaNIO"]),
         .testTarget(name: "KafkaNIOIntegrationTests",
-                    dependencies: ["KafkaNIO", "Stencil",
-                                   .product(name: "Crypto", package: "swift-crypto")]),
+                    dependencies: ["KafkaNIO", "Stencil"]),
         .target(name: "ConsoleConsumer",
                 dependencies: [.byName(name: "KafkaNIO"),
                                .product(name: "ArgumentParser", package: "swift-argument-parser")
