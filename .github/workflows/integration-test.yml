@@ -17,4 +17,4 @@ jobs:
     - name: Show Swift Version
       run: swift --version
     - name: Install Java
-      run: apt update && apt install openjdk-11-jdk
+      run: sudo apt update && sudo apt install openjdk-11-jdk
