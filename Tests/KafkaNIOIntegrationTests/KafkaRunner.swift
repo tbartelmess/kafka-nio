@@ -141,6 +141,7 @@ private class Log4JParser: ChannelInboundHandler {
             return
         }
         let log4jMessage = Log4JMessage(timestamp: date, level: level, message: message)
+        print("Message: \(log4jMessage)")
         context.fireChannelRead(wrapInboundOut(log4jMessage))
     }
 
@@ -273,7 +274,7 @@ struct KafkaLogWatcher: LogWatcher {
 
 
 class ServerController {
-    let kafkaVersion = ProcessInfo.processInfo.environment["KAFKA_VERSION"] ?? "2.5.0"
+    let kafkaVersion = ProcessInfo.processInfo.environment["KAFKA_VERSION"] ?? "0.9.0.1"
     let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
                                                    .deletingLastPathComponent()
                                                    .deletingLastPathComponent()
