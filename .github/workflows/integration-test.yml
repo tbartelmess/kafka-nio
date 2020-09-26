@@ -25,4 +25,5 @@ jobs:
       run: sudo apt update && sudo apt install openjdk-11-jdk
     - name: Print Kafka Version
       run: echo $KAFKA_VERSION
-
+    - name: Install Kafka
+      run: ./build_integration.sh
