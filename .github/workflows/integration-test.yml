@@ -12,6 +12,8 @@ jobs:
       matrix:
         kafka_version: [0.9.0.1, 0.10.2.2, 0.11.0.3, 1.1.1, 2.4.0, 2.5.0]
     runs-on: ubuntu-latest
+    env:
+      KAFKA_VERSION: "${{ matrix.kafka_version }}"
     steps:
     - uses: fwal/setup-swift@v1.3.0
     - uses: actions/checkout@v2
@@ -23,5 +25,4 @@ jobs:
       run: sudo apt update && sudo apt install openjdk-11-jdk
     - name: Print Kafka Version
       run: echo $KAFKA_VERSION
-      env:
-        KAFKA_VERSION: "${{ matrix.node }}"
+
