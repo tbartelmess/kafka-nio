@@ -31,7 +31,7 @@ class Connect: XCTestCase {
         var tlsConfiguration = TLSConfiguration.forClient()
         tlsConfiguration.certificateVerification = CertificateVerification.none
         let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
-        let consumer = try Consumer.connect(configuration: .init(bootstrapServers: [SocketAddress.makeAddressResolvingHost("127.0.0.1", port: 9092)],
+        let _ = try Consumer.connect(configuration: .init(bootstrapServers: [SocketAddress.makeAddressResolvingHost("127.0.0.1", port: 9092)],
                                                                  subscribedTopics: [],
                                                                  groupID: "test",
                                                                  sessionTimeout: 10000,
