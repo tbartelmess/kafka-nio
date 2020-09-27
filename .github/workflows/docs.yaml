@@ -7,23 +7,11 @@ on:
     branches: [  main  ]
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  deploy_docs:
+    runs-on: macos-latest
     steps:
-    - uses: tbartelmess/setup-swift@v1.5.0
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v1
+    - name: Publish Jazzy Docs
+      uses: steven0351/publish-jazzy-docs@v1
       with:
-        submodules: true
-    - name: Update apt
-      run: sudo apt update
-    - name: Install Ruby
-      run: sudo apt install ruby ruby-dev
-    - name: Install jazzy
-      run: sudo gem install jazzy
-    - name: Generate docs
-      run: jazzy
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
+        personal_access_token: ${{ secrets.ACCESS_TOKEN }}
