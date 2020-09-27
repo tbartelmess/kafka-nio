@@ -286,24 +286,19 @@ class APITypeGenerator(AbstractGenerator):
                 generator = APIFieldGenerator(field, self.flexible_versions)
                 output += indent(generator.generate_write(), 2) + "\n"
             output += indent(self.generate_write_tagged_fields(), 1) +"\n"
-            output += indent("\n}",1)
-        output += "\n}\n\n"
+            output += indent("}",1) + "\n\n"
 
         # Init
         init_args = [APIFieldGenerator(field, self.flexible_versions).init_argument() for field in self.fields]
-        output = "init(apiVersion: APIVersion, " + ", ".join(init_args) + ") {\n"
-        output += indent("self.apiVersion = apiVersion",1) + "\n"
-        if self.flexible_versions is not None:
-            output += indent("self.taggedFields = []", 1) + "\n"
+        output += indent("init(" + ", ".join(init_args) + ") {", 1) + "\n"
         for field in self.fields:
             if 'taggedVersions' in field:
                 continue
             field_generator = APIFieldGenerator(field, self.flexible_versions)
-            output += indent(field_generator.init_assignment(), 1) + "\n"
-        output += "}"
-        return output
+            output += indent(field_generator.init_assignment(), 2) + "\n"
+        output += indent("}", 1) + "\n"
+        output += "\n}\n"
 
-        output += "}"
         return output
 
 
