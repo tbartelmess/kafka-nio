@@ -52,6 +52,16 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "KafkaNIOIntegrationTests"
+               BuildableName = "KafkaNIOIntegrationTests"
+               BlueprintName = "KafkaNIOIntegrationTests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -76,14 +86,33 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--bootstrap-server kafka-02.bartelmess.io:9092 "
+            argument = "--bootstrap-server kafka-02.bartelmess.io:9092"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--topic test-topic-2"
+            argument = "--tls tls"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--topic test-topic-6"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--bootstrap-server kafka.service.consul:9092"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--topic access-logs"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "KAFKA_VERSION"
+            value = "1.0.2"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
