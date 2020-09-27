@@ -24,7 +24,7 @@ protocol BrokerProtocol {
     var port: Int { get }
     var rack: String? { get }
 
-    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?) -> EventLoopFuture<BrokerConnection>
+    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?, logger: Logger) -> EventLoopFuture<BrokerConnection>
 }
 
 struct Broker: BrokerProtocol {
@@ -56,7 +56,7 @@ enum ClientError: Error {
 
 
 extension Broker {
-    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?) -> EventLoopFuture<BrokerConnection> {
+    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?, logger: Logger) -> EventLoopFuture<BrokerConnection> {
         let messageCoder = KafkaMessageCoder()
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
@@ -165,7 +165,7 @@ class Bootstrapper {
         do {
             let broker = try nextServer()
             logger.info("Attempting to bootstrap with Server: \(broker.host):\(broker.port)")
-            broker.connect(on: eventLoop, clientID: clientID, tlsConfiguration: tlsConfiguration)
+            broker.connect(on: eventLoop, clientID: clientID, tlsConfiguration: tlsConfiguration, logger: logger)
                 .flatMapError { _ in
                     return self.bootstrapRecursive()
                 }
@@ -183,13 +183,14 @@ class Bootstrapper {
 /// There is one `BrokerConnection` to each Node in the broker cluster.
 /// Each `BrokerConnection` runs on it's own `EventLoop`
 final class ClusterClient {
-
     /// Event Loop Group to generate new `EventLoop`s from
     private let eventLoopGroup: EventLoopGroup
 
     /// EventLopp of the ClusterClient. The cluster client itself doesn't use perfrom IO, but it uses it's own event loop for scheduling
     /// metadata refreshes and to submit tasks that run on multiple event loops.
     private let eventLoop: EventLoop
+
+    private let logger: Logger
 
     /// The current cluster metadata
     var clusterMetadata: ClusterMetadataProtocol

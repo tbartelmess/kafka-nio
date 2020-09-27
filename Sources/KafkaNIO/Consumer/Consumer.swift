@@ -62,7 +62,7 @@ public class Consumer {
     var clusterClient: ClusterClient
     var autoCommitTask: RepeatedTask?
 
-    private var logger: Logger
+    var logger: Logger
 
     var state: State = .notJoined {
         didSet {
@@ -89,7 +89,8 @@ public class Consumer {
                                        eventLoopGroup: eventLoopGroup,
                                        clientID: configuration.clientID,
                                        tlsConfiguration: configuration.tlsConfiguration,
-                                       topics: configuration.subscribedTopics).map { clusterClient in
+                                       topics: configuration.subscribedTopics,
+                                       logger: logger).map { clusterClient in
             Consumer(configuration: configuration,
                      clusterClient: clusterClient,
                      eventLoop: eventLoopGroup.next(),

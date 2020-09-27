@@ -14,6 +14,7 @@
 import XCTest
 import NIO
 import NIOSSL
+import Logging
 @testable import KafkaNIO
 
 
@@ -92,7 +93,7 @@ struct TestableBroker: BrokerProtocol {
 
     var rack: String?
 
-    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?) -> EventLoopFuture<BrokerConnection> {
+    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?, logger: Logger) -> EventLoopFuture<BrokerConnection> {
         eventLoop.makeFailedFuture(TestableBrokerError.notImplemented)
     }
 
@@ -115,7 +116,7 @@ extension ClusterClient {
     static func testable(eventLoopGroup: EventLoopGroup,
                          clientID: String,
                          initalMetadata: TestableMetadata) -> ClusterClient {
-        ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, topics: [], tlsConfiguration: nil)
+        ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, topics: [], tlsConfiguration: nil, logger: Logger(label: "test-logger"))
     }
 }
 

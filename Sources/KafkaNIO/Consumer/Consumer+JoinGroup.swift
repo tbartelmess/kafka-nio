@@ -24,7 +24,7 @@ extension Consumer {
                                           groupInstanceID: nil)
             .flatMapResult { response -> Result<GroupInfo, KafkaError> in
                 guard response.errorCode == .noError else {
-                    logger.error("Failed to join group: \(response.errorCode)")
+                    self.logger.error("Failed to join group: \(response.errorCode)")
                     return .failure(.unexpectedKafkaErrorCode(response.errorCode))
                 }
 
