@@ -57,7 +57,7 @@ struct KafkaConfig {
     let saslConfig: SASLConfig?
     let sslConfig: SSLConfig
 
-    let logsDir: URL
+    let logsDir: String
     /// Configures `num.partitions`
     let partitions: Int
 
@@ -434,7 +434,7 @@ class KafkaController: ServerController {
     }
 
     func generateKafkaConfig() throws {
-        let config = KafkaConfig(brokerID: 1, transport: .plaintext, host: "localhost", port: 9092, saslConfig: nil, sslConfig: sslConfig, logsDir: logsDir, partitions: 1, replicas: 1, zookeepers: "localhost:2181/")
+        let config = KafkaConfig(brokerID: 1, transport: .plaintext, host: "localhost", port: 9092, saslConfig: nil, sslConfig: sslConfig, logsDir: logsDir.path, partitions: 1, replicas: 1, zookeepers: "localhost:2181/")
         let context = [ "kafkaConfig": config]
         let environment = Environment(loader: FileSystemLoader(paths: [Path(resourcesURL.path)]))
         let renderedConfig = try environment.renderTemplate(name: "kafka.properties", context: context)
