@@ -28,7 +28,7 @@ class RangeAssignor: Assignor {
 
     static let name = "range"
 
-    static func assign(clusterMetadata: ClusterMetadata, subscriptions: [ConsumerID : Subscription]) -> [ConsumerID : Assignment] {
+    static func assign(clusterMetadata: ClusterMetadataProtocol, subscriptions: [ConsumerID : Subscription]) -> [ConsumerID : Assignment] {
         assign(partitionsPerTopic: clusterMetadata.partitionsPerTopic,
                subscriptions: subscriptions)
         .mapValues {

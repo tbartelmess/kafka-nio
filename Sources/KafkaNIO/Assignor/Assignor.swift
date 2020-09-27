@@ -97,7 +97,7 @@ struct Assignment: RawEncodable, RawDecodable, Equatable {
     }
 }
 
-extension ClusterMetadata {
+extension ClusterMetadataProtocol {
     var partitionsPerTopic: [Topic: Int] {
         return topics.reduce(into: Dictionary<Topic,Int>()) { (result, topic) in
             return result[topic.name] = topic.partitions.count
@@ -107,7 +107,7 @@ extension ClusterMetadata {
 
 protocol Assignor {
     static var name: String { get }
-    static func assign(clusterMetadata: ClusterMetadata,
+    static func assign(clusterMetadata: ClusterMetadataProtocol,
                 subscriptions: [ConsumerID: Subscription])  -> [ConsumerID: Assignment]
 }
 

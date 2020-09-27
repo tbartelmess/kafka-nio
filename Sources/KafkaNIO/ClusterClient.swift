@@ -85,14 +85,28 @@ extension Broker {
     }
 }
 
-struct ClusterMetadata: CustomStringConvertible {
+
+protocol ClusterMetadataProtocol: CustomStringConvertible {
+    var clusterID: String? {get}
+    var controllerID: Int32 {get}
+    var brokers: [NodeID: Broker] {get}
+    var topics: [MetadataResponse.MetadataResponseTopic] {get}
+
+    func nodeID(forTopic topic: String, partition: Int) -> NodeID?
+}
+
+extension ClusterMetadataProtocol {
+    var description: String {
+        return "CusterMetadata: <ClusterID:\(clusterID ?? "Unknown") ControllerID:\(controllerID)>"
+    }
+}
+
+struct ClusterMetadata: ClusterMetadataProtocol, CustomStringConvertible {
     let clusterID: String?
     let controllerID: Int32
     let brokers: [NodeID: Broker]
     let topics: [MetadataResponse.MetadataResponseTopic]
-    var description: String {
-        return "CusterMetadata: <ClusterID:\(clusterID ?? "Unknown") ControllerID:\(controllerID)>"
-    }
+
 
     init(metadata: MetadataResponse) {
         self.clusterID = metadata.clusterID
@@ -164,7 +178,7 @@ final class ClusterClient {
 
     let eventLoopGroup: EventLoopGroup
     let eventLoop: EventLoop
-    var clusterMetadata: ClusterMetadata
+    var clusterMetadata: ClusterMetadataProtocol
     var tlsConfiguration: TLSConfiguration?
     let clientID: String
     var connectionFutures: [NodeID: EventLoopFuture<BrokerConnection>] = [:]
@@ -186,7 +200,7 @@ final class ClusterClient {
                 connection.close().map { clusterClient }
             }
     }
-    private init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadata, tlsConfiguration: TLSConfiguration?) {
+    private init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, tlsConfiguration: TLSConfiguration?) {
         self.clientID = clientID
         self.eventLoopGroup = eventLoopGroup
         self.clusterMetadata = clusterMetadata
