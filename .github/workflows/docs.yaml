@@ -8,12 +8,14 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: fwal/setup-swift@v1.3.0
     - uses: actions/checkout@v2
       with:
         submodules: true
+    - name: Install Ruby
+      run: sudo apt install ruby ruby-devel
     - name: Install jazzy
       run: sudo gem install jazzy
     - name: Generate docs
