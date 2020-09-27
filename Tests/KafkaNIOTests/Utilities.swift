@@ -19,15 +19,19 @@ import NIO
 enum TestUtilitiesError: Error {
     case fixtureNotFound
 }
-
+let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appendingPathComponent("Fixtures")
 extension ByteBuffer {
-    static func from(fixture: String, ofType: String? = nil) throws -> ByteBuffer {
-        guard let fixturePath = Bundle.module.path(forResource: fixture, ofType: ofType) else {
+    static func from(fixture: String, ofType fileExtension: String? = nil) throws -> ByteBuffer {
+        var path = fixtures.appendingPathComponent(fixture)
+        if let fileExtension = fileExtension {
+            path.appendPathExtension(fileExtension)
+        }
+        if !FileManager.default.fileExists(atPath: path.path) {
             XCTFail("Fixture named: \(fixture) not found")
             throw TestUtilitiesError.fixtureNotFound
         }
 
-        let data = try Data(contentsOf: URL(fileURLWithPath: fixturePath))
+        let data = try Data(contentsOf: path)
         return ByteBufferAllocator().buffer(bytes: data)
     }
 }

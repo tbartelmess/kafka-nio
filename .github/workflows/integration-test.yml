@@ -1,0 +1,33 @@
+name: "Integration Tests"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [  main  ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        kafka_version: [0.11.0.3, 1.1.1, 2.4.0, 2.5.0]
+    runs-on: ubuntu-latest
+    env:
+      KAFKA_VERSION: "${{ matrix.kafka_version }}"
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install Java
+      run: sudo apt update && sudo apt install openjdk-11-jdk
+    - name: Print Kafka Version
+      run: echo $KAFKA_VERSION
+    - name: Install Kafka
+      run: ./build_integration.sh
+    - uses: fwal/setup-swift@v1.3.0
+    - name: Show Swift Version
+      run: swift --version
+    - name: Build
+      run: swift build
+    - name: Test
+      run: swift test --filter KafkaNIOIntegrationTests

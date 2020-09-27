@@ -127,7 +127,7 @@ final public class BrokerConnection {
     // MARK: Request APIs
 
     func requestQueryAPIVersions(clientID: String) -> EventLoopFuture<ApiVersionsResponse> {
-        let version = APIVersion(3)
+        let version = APIVersion(1)
         let request = ApiVersionsRequest(apiVersion: version,
                                          clientID: clientID,
                                          correlationID: nextCorrectionID(),

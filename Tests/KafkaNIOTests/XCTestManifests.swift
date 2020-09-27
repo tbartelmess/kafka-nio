@@ -18,6 +18,7 @@ extension BootstrapTests {
     static let __allTests__BootstrapTests = [
         ("testBootstrap2FailureOneOk", testBootstrap2FailureOneOk),
         ("testBootstrapFailure", testBootstrapFailure),
+        ("testBootstrapTLS", testBootstrapTLS),
     ]
 }
 
