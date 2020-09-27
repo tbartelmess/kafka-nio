@@ -17,15 +17,88 @@ import NIO
 
 
 struct CreateTopicsRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, name: String, numPartitions: Int32, replicationFactor: Int16, assignments: [CreatableReplicaAssignment], configs: [CreateableTopicConfig]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.numPartitions = numPartitions
-        self.replicationFactor = replicationFactor
-        self.assignments = assignments
-        self.configs = configs
+    struct CreatableTopic: KafkaRequestStruct {
+        struct CreatableReplicaAssignment: KafkaRequestStruct {
+        
+            
+            /// The partition index.
+            let partitionIndex: Int32    
+            /// The brokers to place the partition on.
+            let brokerIDs: [Int32]
+            let taggedFields: [TaggedField] = []
+            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = (apiVersion >= 5) ? .varint : .bigEndian
+                buffer.write(partitionIndex)
+                buffer.write(brokerIDs, lengthEncoding: lengthEncoding)
+                if apiVersion >= 5 {
+                    buffer.write(taggedFields)
+                }
+            }
+        
+            init(partitionIndex: Int32, brokerIDs: [Int32]) {
+                self.partitionIndex = partitionIndex
+                self.brokerIDs = brokerIDs
+            }
+        
+        }
+        struct CreateableTopicConfig: KafkaRequestStruct {
+        
+            
+            /// The configuration name.
+            let name: String    
+            /// The configuration value.
+            let value: String?
+            let taggedFields: [TaggedField] = []
+            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = (apiVersion >= 5) ? .varint : .bigEndian
+                buffer.write(name, lengthEncoding: lengthEncoding)
+                buffer.write(value, lengthEncoding: lengthEncoding)
+                if apiVersion >= 5 {
+                    buffer.write(taggedFields)
+                }
+            }
+        
+            init(name: String, value: String?) {
+                self.name = name
+                self.value = value
+            }
+        
+        }
+    
+        
+        /// The topic name.
+        let name: String    
+        /// The number of partitions to create in the topic, or -1 if we are either specifying a manual partition assignment or using the default partitions.
+        let numPartitions: Int32    
+        /// The number of replicas to create for each partition in the topic, or -1 if we are either specifying a manual partition assignment or using the default replication factor.
+        let replicationFactor: Int16    
+        /// The manual partition assignment, or the empty array if we are using automatic assignment.
+        let assignments: [CreatableReplicaAssignment]    
+        /// The custom topic configurations to set.
+        let configs: [CreateableTopicConfig]
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 5) ? .varint : .bigEndian
+            buffer.write(name, lengthEncoding: lengthEncoding)
+            buffer.write(numPartitions)
+            buffer.write(replicationFactor)
+            try buffer.write(assignments, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            try buffer.write(configs, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            if apiVersion >= 5 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(name: String, numPartitions: Int32, replicationFactor: Int16, assignments: [CreatableReplicaAssignment], configs: [CreateableTopicConfig]) {
+            self.name = name
+            self.numPartitions = numPartitions
+            self.replicationFactor = replicationFactor
+            self.assignments = assignments
+            self.configs = configs
+        }
+    
     }
+    
     let apiKey: APIKey = .createTopics
     let apiVersion: APIVersion
     let clientID: String?

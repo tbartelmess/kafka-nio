@@ -17,11 +17,27 @@ import NIO
 
 
 struct AddPartitionsToTxnRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, name: String, partitions: [Int32]) {
-        self.apiVersion = apiVersion
-        self.name = name
-        self.partitions = partitions
+    struct AddPartitionsToTxnTopic: KafkaRequestStruct {
+    
+        
+        /// The name of the topic.
+        let name: String    
+        /// The partition indexes to add to the transaction
+        let partitions: [Int32]
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            buffer.write(name, lengthEncoding: lengthEncoding)
+            buffer.write(partitions, lengthEncoding: lengthEncoding)
+    
+        }
+    
+        init(name: String, partitions: [Int32]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .addPartitionsToTxn
     let apiVersion: APIVersion
     let clientID: String?

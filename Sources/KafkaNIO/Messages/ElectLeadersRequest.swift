@@ -17,12 +17,30 @@ import NIO
 
 
 struct ElectLeadersRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, topic: String, partitionID: [Int32]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.topic = topic
-        self.partitionID = partitionID
+    struct TopicPartitions: KafkaRequestStruct {
+    
+        
+        /// The name of a topic.
+        let topic: String    
+        /// The partitions of this topic whose leader should be elected.
+        let partitionID: [Int32]
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            buffer.write(topic, lengthEncoding: lengthEncoding)
+            buffer.write(partitionID, lengthEncoding: lengthEncoding)
+            if apiVersion >= 2 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(topic: String, partitionID: [Int32]) {
+            self.topic = topic
+            self.partitionID = partitionID
+        }
+    
     }
+    
     let apiKey: APIKey = .electLeaders
     let apiVersion: APIVersion
     let clientID: String?

@@ -17,11 +17,60 @@ import NIO
 
 
 struct WriteTxnMarkersResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, producerID: Int64, topics: [WritableTxnMarkerTopicResult]) {
-        self.apiVersion = apiVersion
-        self.producerID = producerID
-        self.topics = topics
+    struct WritableTxnMarkerResult: KafkaResponseStruct {
+        struct WritableTxnMarkerTopicResult: KafkaResponseStruct {
+            struct WritableTxnMarkerPartitionResult: KafkaResponseStruct {
+            
+                
+                /// The partition index.
+                let partitionIndex: Int32    
+                /// The error code, or 0 if there was no error.
+                let errorCode: ErrorCode
+                init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                    partitionIndex = try buffer.read()
+                    errorCode = try buffer.read()
+                }
+                init(partitionIndex: Int32, errorCode: ErrorCode) {
+                    self.partitionIndex = partitionIndex
+                    self.errorCode = errorCode
+                }
+            
+            }
+        
+            
+            /// The topic name.
+            let name: String    
+            /// The results by partition.
+            let partitions: [WritableTxnMarkerPartitionResult]
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = .bigEndian
+                name = try buffer.read(lengthEncoding: lengthEncoding)
+                partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            }
+            init(name: String, partitions: [WritableTxnMarkerPartitionResult]) {
+                self.name = name
+                self.partitions = partitions
+            }
+        
+        }
+    
+        
+        /// The current producer ID in use by the transactional ID.
+        let producerID: Int64    
+        /// The results by topic.
+        let topics: [WritableTxnMarkerTopicResult]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            producerID = try buffer.read()
+            topics = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+        }
+        init(producerID: Int64, topics: [WritableTxnMarkerTopicResult]) {
+            self.producerID = producerID
+            self.topics = topics
+        }
+    
     }
+    
     let apiKey: APIKey = .writeTxnMarkers
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

@@ -17,12 +17,30 @@ import NIO
 
 
 struct OffsetFetchRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, name: String, partitionIndexes: [Int32]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.partitionIndexes = partitionIndexes
+    struct OffsetFetchRequestTopic: KafkaRequestStruct {
+    
+        
+        /// The topic name.
+        let name: String    
+        /// The partition indexes we would like to fetch offsets for.
+        let partitionIndexes: [Int32]
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 6) ? .varint : .bigEndian
+            buffer.write(name, lengthEncoding: lengthEncoding)
+            buffer.write(partitionIndexes, lengthEncoding: lengthEncoding)
+            if apiVersion >= 6 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(name: String, partitionIndexes: [Int32]) {
+            self.name = name
+            self.partitionIndexes = partitionIndexes
+        }
+    
     }
+    
     let apiKey: APIKey = .offsetFetch
     let apiVersion: APIVersion
     let clientID: String?

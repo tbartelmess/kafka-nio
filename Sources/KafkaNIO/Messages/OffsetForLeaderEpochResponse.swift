@@ -17,11 +17,54 @@ import NIO
 
 
 struct OffsetForLeaderEpochResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, name: String, partitions: [OffsetForLeaderPartitionResult]) {
-        self.apiVersion = apiVersion
-        self.name = name
-        self.partitions = partitions
+    struct OffsetForLeaderTopicResult: KafkaResponseStruct {
+        struct OffsetForLeaderPartitionResult: KafkaResponseStruct {
+        
+            
+            /// The error code 0, or if there was no error.
+            let errorCode: ErrorCode    
+            /// The partition index.
+            let partitionIndex: Int32    
+            /// The leader epoch of the partition.
+            let leaderEpoch: Int32?    
+            /// The end offset of the epoch.
+            let endOffset: Int64
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                errorCode = try buffer.read()
+                partitionIndex = try buffer.read()
+                if apiVersion >= 1 {
+                    leaderEpoch = try buffer.read()
+                } else { 
+                    leaderEpoch = nil
+                }
+                endOffset = try buffer.read()
+            }
+            init(errorCode: ErrorCode, partitionIndex: Int32, leaderEpoch: Int32?, endOffset: Int64) {
+                self.errorCode = errorCode
+                self.partitionIndex = partitionIndex
+                self.leaderEpoch = leaderEpoch
+                self.endOffset = endOffset
+            }
+        
+        }
+    
+        
+        /// The topic name.
+        let name: String    
+        /// Each partition in the topic we fetched offsets for.
+        let partitions: [OffsetForLeaderPartitionResult]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            name = try buffer.read(lengthEncoding: lengthEncoding)
+            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+        }
+        init(name: String, partitions: [OffsetForLeaderPartitionResult]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .offsetForLeaderEpoch
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

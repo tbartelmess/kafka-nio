@@ -17,20 +17,69 @@ import NIO
 
 
 struct LeaderAndIsrRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, topicName: String?, partitionStates: [[UInt8]]?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.topicName = topicName
-        self.partitionStates = partitionStates
+    struct LeaderAndIsrTopicState: KafkaRequestStruct {
+    
+        
+        /// The topic name.
+        let topicName: String?    
+        /// The state of each partition
+        let partitionStates: [[UInt8]]?
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 4) ? .varint : .bigEndian
+            if apiVersion >= 2 {
+                guard let topicName = self.topicName else {
+                    throw KafkaError.missingValue
+                }
+                buffer.write(topicName, lengthEncoding: lengthEncoding)
+            }
+            if apiVersion >= 2 {
+                guard let partitionStates = self.partitionStates else {
+                    throw KafkaError.missingValue
+                }
+                buffer.write(partitionStates, lengthEncoding: lengthEncoding)
+            }
+            if apiVersion >= 4 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(topicName: String?, partitionStates: [[UInt8]]?) {
+            self.topicName = topicName
+            self.partitionStates = partitionStates
+        }
+    
     }
     
-    init(apiVersion: APIVersion, brokerID: Int32, hostName: String, port: Int32) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.brokerID = brokerID
-        self.hostName = hostName
-        self.port = port
+    
+    struct LeaderAndIsrLiveLeader: KafkaRequestStruct {
+    
+        
+        /// The leader's broker ID.
+        let brokerID: Int32    
+        /// The leader's hostname.
+        let hostName: String    
+        /// The leader's port.
+        let port: Int32
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 4) ? .varint : .bigEndian
+            buffer.write(brokerID)
+            buffer.write(hostName, lengthEncoding: lengthEncoding)
+            buffer.write(port)
+            if apiVersion >= 4 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(brokerID: Int32, hostName: String, port: Int32) {
+            self.brokerID = brokerID
+            self.hostName = hostName
+            self.port = port
+        }
+    
     }
+    
     let apiKey: APIKey = .leaderAndIsr
     let apiVersion: APIVersion
     let clientID: String?

@@ -17,11 +17,42 @@ import NIO
 
 
 struct AddPartitionsToTxnResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, name: String, results: [AddPartitionsToTxnPartitionResult]) {
-        self.apiVersion = apiVersion
-        self.name = name
-        self.results = results
+    struct AddPartitionsToTxnTopicResult: KafkaResponseStruct {
+        struct AddPartitionsToTxnPartitionResult: KafkaResponseStruct {
+        
+            
+            /// The partition indexes.
+            let partitionIndex: Int32    
+            /// The response error code.
+            let errorCode: ErrorCode
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                partitionIndex = try buffer.read()
+                errorCode = try buffer.read()
+            }
+            init(partitionIndex: Int32, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+            }
+        
+        }
+    
+        
+        /// The topic name.
+        let name: String    
+        /// The results for each partition
+        let results: [AddPartitionsToTxnPartitionResult]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            name = try buffer.read(lengthEncoding: lengthEncoding)
+            results = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+        }
+        init(name: String, results: [AddPartitionsToTxnPartitionResult]) {
+            self.name = name
+            self.results = results
+        }
+    
     }
+    
     let apiKey: APIKey = .addPartitionsToTxn
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

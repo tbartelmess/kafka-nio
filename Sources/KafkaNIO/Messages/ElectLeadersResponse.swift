@@ -17,12 +17,53 @@ import NIO
 
 
 struct ElectLeadersResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, topic: String, partitionResult: [PartitionResult]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.topic = topic
-        self.partitionResult = partitionResult
+    struct ReplicaElectionResult: KafkaResponseStruct {
+        struct PartitionResult: KafkaResponseStruct {
+        
+            
+            /// The partition id
+            let partitionID: Int32    
+            /// The result error, or zero if there was no error.
+            let errorCode: ErrorCode    
+            /// The result message, or null if there was no error.
+            let errorMessage: String?
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+                partitionID = try buffer.read()
+                errorCode = try buffer.read()
+                errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
+                if apiVersion >= 2 {
+                    let _ : [TaggedField] = try buffer.read()
+                }
+            }
+            init(partitionID: Int32, errorCode: ErrorCode, errorMessage: String?) {
+                self.partitionID = partitionID
+                self.errorCode = errorCode
+                self.errorMessage = errorMessage
+            }
+        
+        }
+    
+        
+        /// The topic name
+        let topic: String    
+        /// The results for each partition
+        let partitionResult: [PartitionResult]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            topic = try buffer.read(lengthEncoding: lengthEncoding)
+            partitionResult = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            if apiVersion >= 2 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(topic: String, partitionResult: [PartitionResult]) {
+            self.topic = topic
+            self.partitionResult = partitionResult
+        }
+    
     }
+    
     let apiKey: APIKey = .electLeaders
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

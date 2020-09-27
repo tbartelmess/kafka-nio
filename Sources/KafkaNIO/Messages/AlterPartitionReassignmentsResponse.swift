@@ -17,12 +17,53 @@ import NIO
 
 
 struct AlterPartitionReassignmentsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, name: String, partitions: [ReassignablePartitionResponse]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.partitions = partitions
+    struct ReassignableTopicResponse: KafkaResponseStruct {
+        struct ReassignablePartitionResponse: KafkaResponseStruct {
+        
+            
+            /// The partition index.
+            let partitionIndex: Int32    
+            /// The error code for this partition, or 0 if there was no error.
+            let errorCode: ErrorCode    
+            /// The error message for this partition, or null if there was no error.
+            let errorMessage: String?
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
+                partitionIndex = try buffer.read()
+                errorCode = try buffer.read()
+                errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
+                if apiVersion >= 0 {
+                    let _ : [TaggedField] = try buffer.read()
+                }
+            }
+            init(partitionIndex: Int32, errorCode: ErrorCode, errorMessage: String?) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+                self.errorMessage = errorMessage
+            }
+        
+        }
+    
+        
+        /// The topic name
+        let name: String    
+        /// The responses to partitions to reassign
+        let partitions: [ReassignablePartitionResponse]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
+            name = try buffer.read(lengthEncoding: lengthEncoding)
+            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            if apiVersion >= 0 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(name: String, partitions: [ReassignablePartitionResponse]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .alterPartitionReassignments
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

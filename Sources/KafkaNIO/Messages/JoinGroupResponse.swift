@@ -17,13 +17,36 @@ import NIO
 
 
 struct JoinGroupResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, memberID: String, groupInstanceID: String?, metadata: [UInt8]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.memberID = memberID
-        self.groupInstanceID = groupInstanceID
-        self.metadata = metadata
+    struct JoinGroupResponseMember: KafkaResponseStruct {
+    
+        
+        /// The group member ID.
+        let memberID: String    
+        /// The unique identifier of the consumer instance provided by end user.
+        let groupInstanceID: String?    
+        /// The group member metadata.
+        let metadata: [UInt8]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 6) ? .varint : .bigEndian
+            memberID = try buffer.read(lengthEncoding: lengthEncoding)
+            if apiVersion >= 5 {
+                groupInstanceID = try buffer.read(lengthEncoding: lengthEncoding)
+            } else { 
+                groupInstanceID = nil
+            }
+            metadata = try buffer.read(lengthEncoding: lengthEncoding)
+            if apiVersion >= 6 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(memberID: String, groupInstanceID: String?, metadata: [UInt8]) {
+            self.memberID = memberID
+            self.groupInstanceID = groupInstanceID
+            self.metadata = metadata
+        }
+    
     }
+    
     let apiKey: APIKey = .joinGroup
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

@@ -17,12 +17,30 @@ import NIO
 
 
 struct SyncGroupRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, memberID: String, assignment: [UInt8]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.memberID = memberID
-        self.assignment = assignment
+    struct SyncGroupRequestAssignment: KafkaRequestStruct {
+    
+        
+        /// The ID of the member to assign.
+        let memberID: String    
+        /// The member assignment.
+        let assignment: [UInt8]
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 4) ? .varint : .bigEndian
+            buffer.write(memberID, lengthEncoding: lengthEncoding)
+            buffer.write(assignment, lengthEncoding: lengthEncoding)
+            if apiVersion >= 4 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(memberID: String, assignment: [UInt8]) {
+            self.memberID = memberID
+            self.assignment = assignment
+        }
+    
     }
+    
     let apiKey: APIKey = .syncGroup
     let apiVersion: APIVersion
     let clientID: String?

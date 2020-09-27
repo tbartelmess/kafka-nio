@@ -17,13 +17,32 @@ import NIO
 
 
 struct StopReplicaResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, topicName: String, partitionIndex: Int32, errorCode: ErrorCode) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.topicName = topicName
-        self.partitionIndex = partitionIndex
-        self.errorCode = errorCode
+    struct StopReplicaPartitionError: KafkaResponseStruct {
+    
+        
+        /// The topic name.
+        let topicName: String    
+        /// The partition index.
+        let partitionIndex: Int32    
+        /// The partition error code, or 0 if there was no partition error.
+        let errorCode: ErrorCode
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            topicName = try buffer.read(lengthEncoding: lengthEncoding)
+            partitionIndex = try buffer.read()
+            errorCode = try buffer.read()
+            if apiVersion >= 2 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(topicName: String, partitionIndex: Int32, errorCode: ErrorCode) {
+            self.topicName = topicName
+            self.partitionIndex = partitionIndex
+            self.errorCode = errorCode
+        }
+    
     }
+    
     let apiKey: APIKey = .stopReplica
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

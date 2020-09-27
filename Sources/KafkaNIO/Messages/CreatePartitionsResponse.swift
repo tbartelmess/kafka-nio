@@ -17,13 +17,32 @@ import NIO
 
 
 struct CreatePartitionsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, name: String, errorCode: ErrorCode, errorMessage: String?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.errorCode = errorCode
-        self.errorMessage = errorMessage
+    struct CreatePartitionsTopicResult: KafkaResponseStruct {
+    
+        
+        /// The topic name.
+        let name: String    
+        /// The result error, or zero if there was no error.
+        let errorCode: ErrorCode    
+        /// The result message, or null if there was no error.
+        let errorMessage: String?
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            name = try buffer.read(lengthEncoding: lengthEncoding)
+            errorCode = try buffer.read()
+            errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
+            if apiVersion >= 2 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(name: String, errorCode: ErrorCode, errorMessage: String?) {
+            self.name = name
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+        }
+    
     }
+    
     let apiKey: APIKey = .createPartitions
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

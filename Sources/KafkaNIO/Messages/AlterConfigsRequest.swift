@@ -17,12 +17,51 @@ import NIO
 
 
 struct AlterConfigsRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, resourceType: Int8, resourceName: String, configs: [AlterableConfig]) {
-        self.apiVersion = apiVersion
-        self.resourceType = resourceType
-        self.resourceName = resourceName
-        self.configs = configs
+    struct AlterConfigsResource: KafkaRequestStruct {
+        struct AlterableConfig: KafkaRequestStruct {
+        
+            
+            /// The configuration key name.
+            let name: String    
+            /// The value to set for the configuration key.
+            let value: String?
+            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = .bigEndian
+                buffer.write(name, lengthEncoding: lengthEncoding)
+                buffer.write(value, lengthEncoding: lengthEncoding)
+        
+            }
+        
+            init(name: String, value: String?) {
+                self.name = name
+                self.value = value
+            }
+        
+        }
+    
+        
+        /// The resource type.
+        let resourceType: Int8    
+        /// The resource name.
+        let resourceName: String    
+        /// The configurations.
+        let configs: [AlterableConfig]
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            buffer.write(resourceType)
+            buffer.write(resourceName, lengthEncoding: lengthEncoding)
+            try buffer.write(configs, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    
+        }
+    
+        init(resourceType: Int8, resourceName: String, configs: [AlterableConfig]) {
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+            self.configs = configs
+        }
+    
     }
+    
     let apiKey: APIKey = .alterConfigs
     let apiVersion: APIVersion
     let clientID: String?

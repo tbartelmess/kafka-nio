@@ -17,14 +17,36 @@ import NIO
 
 
 struct IncrementalAlterConfigsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, errorCode: ErrorCode, errorMessage: String?, resourceType: Int8, resourceName: String) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.errorCode = errorCode
-        self.errorMessage = errorMessage
-        self.resourceType = resourceType
-        self.resourceName = resourceName
+    struct AlterConfigsResourceResponse: KafkaResponseStruct {
+    
+        
+        /// The resource error code.
+        let errorCode: ErrorCode    
+        /// The resource error message, or null if there was no error.
+        let errorMessage: String?    
+        /// The resource type.
+        let resourceType: Int8    
+        /// The resource name.
+        let resourceName: String
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 1) ? .varint : .bigEndian
+            errorCode = try buffer.read()
+            errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
+            resourceType = try buffer.read()
+            resourceName = try buffer.read(lengthEncoding: lengthEncoding)
+            if apiVersion >= 1 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(errorCode: ErrorCode, errorMessage: String?, resourceType: Int8, resourceName: String) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+        }
+    
     }
+    
     let apiKey: APIKey = .incrementalAlterConfigs
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

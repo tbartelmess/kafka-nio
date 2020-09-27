@@ -17,13 +17,44 @@ import NIO
 
 
 struct LeaveGroupResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, memberID: String?, groupInstanceID: String?, errorCode: ErrorCode?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.memberID = memberID
-        self.groupInstanceID = groupInstanceID
-        self.errorCode = errorCode
+    struct MemberResponse: KafkaResponseStruct {
+    
+        
+        /// The member ID to remove from the group.
+        let memberID: String?    
+        /// The group instance ID to remove from the group.
+        let groupInstanceID: String?    
+        /// The error code, or 0 if there was no error.
+        let errorCode: ErrorCode?
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 4) ? .varint : .bigEndian
+            if apiVersion >= 3 {
+                memberID = try buffer.read(lengthEncoding: lengthEncoding)
+            } else { 
+                memberID = nil
+            }
+            if apiVersion >= 3 {
+                groupInstanceID = try buffer.read(lengthEncoding: lengthEncoding)
+            } else { 
+                groupInstanceID = nil
+            }
+            if apiVersion >= 3 {
+                errorCode = try buffer.read()
+            } else { 
+                errorCode = nil
+            }
+            if apiVersion >= 4 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(memberID: String?, groupInstanceID: String?, errorCode: ErrorCode?) {
+            self.memberID = memberID
+            self.groupInstanceID = groupInstanceID
+            self.errorCode = errorCode
+        }
+    
     }
+    
     let apiKey: APIKey = .leaveGroup
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

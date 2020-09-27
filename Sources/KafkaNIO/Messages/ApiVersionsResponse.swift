@@ -17,29 +17,109 @@ import NIO
 
 
 struct ApiVersionsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, apiKey: APIKey, minVersion: Int16, maxVersion: Int16) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.apiKey = apiKey
-        self.minVersion = minVersion
-        self.maxVersion = maxVersion
+    struct ApiVersionsResponseKey: KafkaResponseStruct {
+    
+        
+        /// The API index.
+        let apiKey: APIKey    
+        /// The minimum supported version, inclusive.
+        let minVersion: Int16    
+        /// The maximum supported version, inclusive.
+        let maxVersion: Int16
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            apiKey = try buffer.read()
+            minVersion = try buffer.read()
+            maxVersion = try buffer.read()
+            if apiVersion >= 3 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(apiKey: APIKey, minVersion: Int16, maxVersion: Int16) {
+            self.apiKey = apiKey
+            self.minVersion = minVersion
+            self.maxVersion = maxVersion
+        }
+    
     }
     
-    init(apiVersion: APIVersion, name: String?, minVersion: Int16?, maxVersion: Int16?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.minVersion = minVersion
-        self.maxVersion = maxVersion
+    
+    struct SupportedFeatureKey: KafkaResponseStruct {
+    
+        
+        /// The name of the feature.
+        let name: String?    
+        /// The minimum supported version for the feature.
+        let minVersion: Int16?    
+        /// The maximum supported version for the feature.
+        let maxVersion: Int16?
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 3) ? .varint : .bigEndian
+            if apiVersion >= 3 {
+                name = try buffer.read(lengthEncoding: lengthEncoding)
+            } else { 
+                name = nil
+            }
+            if apiVersion >= 3 {
+                minVersion = try buffer.read()
+            } else { 
+                minVersion = nil
+            }
+            if apiVersion >= 3 {
+                maxVersion = try buffer.read()
+            } else { 
+                maxVersion = nil
+            }
+            if apiVersion >= 3 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(name: String?, minVersion: Int16?, maxVersion: Int16?) {
+            self.name = name
+            self.minVersion = minVersion
+            self.maxVersion = maxVersion
+        }
+    
     }
     
-    init(apiVersion: APIVersion, name: String?, maxVersionLevel: Int16?, minVersionLevel: Int16?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.maxVersionLevel = maxVersionLevel
-        self.minVersionLevel = minVersionLevel
+    
+    struct FinalizedFeatureKey: KafkaResponseStruct {
+    
+        
+        /// The name of the feature.
+        let name: String?    
+        /// The cluster-wide finalized max version level for the feature.
+        let maxVersionLevel: Int16?    
+        /// The cluster-wide finalized min version level for the feature.
+        let minVersionLevel: Int16?
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 3) ? .varint : .bigEndian
+            if apiVersion >= 3 {
+                name = try buffer.read(lengthEncoding: lengthEncoding)
+            } else { 
+                name = nil
+            }
+            if apiVersion >= 3 {
+                maxVersionLevel = try buffer.read()
+            } else { 
+                maxVersionLevel = nil
+            }
+            if apiVersion >= 3 {
+                minVersionLevel = try buffer.read()
+            } else { 
+                minVersionLevel = nil
+            }
+            if apiVersion >= 3 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(name: String?, maxVersionLevel: Int16?, minVersionLevel: Int16?) {
+            self.name = name
+            self.maxVersionLevel = maxVersionLevel
+            self.minVersionLevel = minVersionLevel
+        }
+    
     }
+    
     let apiKey: APIKey = .apiVersions
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

@@ -17,12 +17,28 @@ import NIO
 
 
 struct CreateAclsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, errorCode: ErrorCode, errorMessage: String?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.errorCode = errorCode
-        self.errorMessage = errorMessage
+    struct AclCreationResult: KafkaResponseStruct {
+    
+        
+        /// The result error, or zero if there was no error.
+        let errorCode: ErrorCode    
+        /// The result message, or null if there was no error.
+        let errorMessage: String?
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            errorCode = try buffer.read()
+            errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
+            if apiVersion >= 2 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(errorCode: ErrorCode, errorMessage: String?) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+        }
+    
     }
+    
     let apiKey: APIKey = .createAcls
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

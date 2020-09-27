@@ -17,12 +17,31 @@ import NIO
 
 
 struct DescribeClientQuotasRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, entityType: String, matchType: Int8, match: String?) {
-        self.apiVersion = apiVersion
-        self.entityType = entityType
-        self.matchType = matchType
-        self.match = match
+    struct ComponentData: KafkaRequestStruct {
+    
+        
+        /// The entity type that the filter component applies to.
+        let entityType: String    
+        /// How to match the entity {0 = exact name, 1 = default name, 2 = any specified name}.
+        let matchType: Int8    
+        /// The string to match against, or null if unused for the match type.
+        let match: String?
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            buffer.write(entityType, lengthEncoding: lengthEncoding)
+            buffer.write(matchType)
+            buffer.write(match, lengthEncoding: lengthEncoding)
+    
+        }
+    
+        init(entityType: String, matchType: Int8, match: String?) {
+            self.entityType = entityType
+            self.matchType = matchType
+            self.match = match
+        }
+    
     }
+    
     let apiKey: APIKey = .describeClientQuotas
     let apiVersion: APIVersion
     let clientID: String?

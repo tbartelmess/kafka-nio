@@ -17,12 +17,30 @@ import NIO
 
 
 struct JoinGroupRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, name: String, metadata: [UInt8]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.metadata = metadata
+    struct JoinGroupRequestProtocol: KafkaRequestStruct {
+    
+        
+        /// The protocol name.
+        let name: String    
+        /// The protocol metadata.
+        let metadata: [UInt8]
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 6) ? .varint : .bigEndian
+            buffer.write(name, lengthEncoding: lengthEncoding)
+            buffer.write(metadata, lengthEncoding: lengthEncoding)
+            if apiVersion >= 6 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(name: String, metadata: [UInt8]) {
+            self.name = name
+            self.metadata = metadata
+        }
+    
     }
+    
     let apiKey: APIKey = .joinGroup
     let apiVersion: APIVersion
     let clientID: String?

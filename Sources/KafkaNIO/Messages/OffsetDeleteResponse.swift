@@ -17,11 +17,42 @@ import NIO
 
 
 struct OffsetDeleteResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, name: String, partitions: [OffsetDeleteResponsePartition]) {
-        self.apiVersion = apiVersion
-        self.name = name
-        self.partitions = partitions
+    struct OffsetDeleteResponseTopic: KafkaResponseStruct {
+        struct OffsetDeleteResponsePartition: KafkaResponseStruct {
+        
+            
+            /// The partition index.
+            let partitionIndex: Int32    
+            /// The error code, or 0 if there was no error.
+            let errorCode: ErrorCode
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                partitionIndex = try buffer.read()
+                errorCode = try buffer.read()
+            }
+            init(partitionIndex: Int32, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+            }
+        
+        }
+    
+        
+        /// The topic name.
+        let name: String    
+        /// The responses for each partition in the topic.
+        let partitions: [OffsetDeleteResponsePartition]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            name = try buffer.read(lengthEncoding: lengthEncoding)
+            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+        }
+        init(name: String, partitions: [OffsetDeleteResponsePartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .offsetDelete
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

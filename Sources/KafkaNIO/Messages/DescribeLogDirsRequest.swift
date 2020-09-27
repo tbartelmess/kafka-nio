@@ -17,12 +17,30 @@ import NIO
 
 
 struct DescribeLogDirsRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, topic: String, partitionIndex: [Int32]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.topic = topic
-        self.partitionIndex = partitionIndex
+    struct DescribableLogDirTopic: KafkaRequestStruct {
+    
+        
+        /// The topic name
+        let topic: String    
+        /// The partition indxes.
+        let partitionIndex: [Int32]
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            buffer.write(topic, lengthEncoding: lengthEncoding)
+            buffer.write(partitionIndex, lengthEncoding: lengthEncoding)
+            if apiVersion >= 2 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(topic: String, partitionIndex: [Int32]) {
+            self.topic = topic
+            self.partitionIndex = partitionIndex
+        }
+    
     }
+    
     let apiKey: APIKey = .describeLogDirs
     let apiVersion: APIVersion
     let clientID: String?

@@ -17,12 +17,30 @@ import NIO
 
 
 struct DescribeDelegationTokenRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, principalType: String, principalName: String) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.principalType = principalType
-        self.principalName = principalName
+    struct DescribeDelegationTokenOwner: KafkaRequestStruct {
+    
+        
+        /// The owner principal type.
+        let principalType: String    
+        /// The owner principal name.
+        let principalName: String
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            buffer.write(principalType, lengthEncoding: lengthEncoding)
+            buffer.write(principalName, lengthEncoding: lengthEncoding)
+            if apiVersion >= 2 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(principalType: String, principalName: String) {
+            self.principalType = principalType
+            self.principalName = principalName
+        }
+    
     }
+    
     let apiKey: APIKey = .describeDelegationToken
     let apiVersion: APIVersion
     let clientID: String?

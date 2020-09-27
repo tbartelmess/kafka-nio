@@ -17,12 +17,28 @@ import NIO
 
 
 struct DeleteGroupsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, groupID: String, errorCode: ErrorCode) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.groupID = groupID
-        self.errorCode = errorCode
+    struct DeletableGroupResult: KafkaResponseStruct {
+    
+        
+        /// The group id
+        let groupID: String    
+        /// The deletion error, or 0 if the deletion succeeded.
+        let errorCode: ErrorCode
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            groupID = try buffer.read(lengthEncoding: lengthEncoding)
+            errorCode = try buffer.read()
+            if apiVersion >= 2 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(groupID: String, errorCode: ErrorCode) {
+            self.groupID = groupID
+            self.errorCode = errorCode
+        }
+    
     }
+    
     let apiKey: APIKey = .deleteGroups
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

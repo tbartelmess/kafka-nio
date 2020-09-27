@@ -17,12 +17,53 @@ import NIO
 
 
 struct AlterPartitionReassignmentsRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, name: String, partitions: [ReassignablePartition]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.partitions = partitions
+    struct ReassignableTopic: KafkaRequestStruct {
+        struct ReassignablePartition: KafkaRequestStruct {
+        
+            
+            /// The partition index.
+            let partitionIndex: Int32    
+            /// The replicas to place the partitions on, or null to cancel a pending reassignment for this partition.
+            let replicas: [Int32]?
+            let taggedFields: [TaggedField] = []
+            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
+                buffer.write(partitionIndex)
+                buffer.write(replicas, lengthEncoding: lengthEncoding)
+                if apiVersion >= 0 {
+                    buffer.write(taggedFields)
+                }
+            }
+        
+            init(partitionIndex: Int32, replicas: [Int32]?) {
+                self.partitionIndex = partitionIndex
+                self.replicas = replicas
+            }
+        
+        }
+    
+        
+        /// The topic name.
+        let name: String    
+        /// The partitions to reassign.
+        let partitions: [ReassignablePartition]
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
+            buffer.write(name, lengthEncoding: lengthEncoding)
+            try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            if apiVersion >= 0 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(name: String, partitions: [ReassignablePartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .alterPartitionReassignments
     let apiVersion: APIVersion
     let clientID: String?

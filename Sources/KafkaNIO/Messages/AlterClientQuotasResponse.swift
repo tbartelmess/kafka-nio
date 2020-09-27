@@ -17,12 +17,47 @@ import NIO
 
 
 struct AlterClientQuotasResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, errorCode: ErrorCode, errorMessage: String?, entity: [EntityData]) {
-        self.apiVersion = apiVersion
-        self.errorCode = errorCode
-        self.errorMessage = errorMessage
-        self.entity = entity
+    struct EntryData: KafkaResponseStruct {
+        struct EntityData: KafkaResponseStruct {
+        
+            
+            /// The entity type.
+            let entityType: String    
+            /// The name of the entity, or null if the default.
+            let entityName: String?
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = .bigEndian
+                entityType = try buffer.read(lengthEncoding: lengthEncoding)
+                entityName = try buffer.read(lengthEncoding: lengthEncoding)
+            }
+            init(entityType: String, entityName: String?) {
+                self.entityType = entityType
+                self.entityName = entityName
+            }
+        
+        }
+    
+        
+        /// The error code, or `0` if the quota alteration succeeded.
+        let errorCode: ErrorCode    
+        /// The error message, or `null` if the quota alteration succeeded.
+        let errorMessage: String?    
+        /// The quota entity to alter.
+        let entity: [EntityData]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            errorCode = try buffer.read()
+            errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
+            entity = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+        }
+        init(errorCode: ErrorCode, errorMessage: String?, entity: [EntityData]) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.entity = entity
+        }
+    
     }
+    
     let apiKey: APIKey = .alterClientQuotas
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

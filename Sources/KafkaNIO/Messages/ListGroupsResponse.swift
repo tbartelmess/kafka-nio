@@ -17,13 +17,36 @@ import NIO
 
 
 struct ListGroupsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, groupID: String, protocolType: String, groupState: String?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.groupID = groupID
-        self.protocolType = protocolType
-        self.groupState = groupState
+    struct ListedGroup: KafkaResponseStruct {
+    
+        
+        /// The group ID.
+        let groupID: String    
+        /// The group protocol type.
+        let protocolType: String    
+        /// The group state name.
+        let groupState: String?
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 3) ? .varint : .bigEndian
+            groupID = try buffer.read(lengthEncoding: lengthEncoding)
+            protocolType = try buffer.read(lengthEncoding: lengthEncoding)
+            if apiVersion >= 4 {
+                groupState = try buffer.read(lengthEncoding: lengthEncoding)
+            } else { 
+                groupState = nil
+            }
+            if apiVersion >= 3 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(groupID: String, protocolType: String, groupState: String?) {
+            self.groupID = groupID
+            self.protocolType = protocolType
+            self.groupState = groupState
+        }
+    
     }
+    
     let apiKey: APIKey = .listGroups
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

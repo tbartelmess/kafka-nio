@@ -17,11 +17,42 @@ import NIO
 
 
 struct AlterReplicaLogDirsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, topicName: String, partitions: [AlterReplicaLogDirPartitionResult]) {
-        self.apiVersion = apiVersion
-        self.topicName = topicName
-        self.partitions = partitions
+    struct AlterReplicaLogDirTopicResult: KafkaResponseStruct {
+        struct AlterReplicaLogDirPartitionResult: KafkaResponseStruct {
+        
+            
+            /// The partition index.
+            let partitionIndex: Int32    
+            /// The error code, or 0 if there was no error.
+            let errorCode: ErrorCode
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                partitionIndex = try buffer.read()
+                errorCode = try buffer.read()
+            }
+            init(partitionIndex: Int32, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+            }
+        
+        }
+    
+        
+        /// The name of the topic.
+        let topicName: String    
+        /// The results for each partition.
+        let partitions: [AlterReplicaLogDirPartitionResult]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            topicName = try buffer.read(lengthEncoding: lengthEncoding)
+            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+        }
+        init(topicName: String, partitions: [AlterReplicaLogDirPartitionResult]) {
+            self.topicName = topicName
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .alterReplicaLogDirs
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

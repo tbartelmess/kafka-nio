@@ -17,12 +17,31 @@ import NIO
 
 
 struct DescribeConfigsRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, resourceType: Int8, resourceName: String, configurationKeys: [String]?) {
-        self.apiVersion = apiVersion
-        self.resourceType = resourceType
-        self.resourceName = resourceName
-        self.configurationKeys = configurationKeys
+    struct DescribeConfigsResource: KafkaRequestStruct {
+    
+        
+        /// The resource type.
+        let resourceType: Int8    
+        /// The resource name.
+        let resourceName: String    
+        /// The configuration keys to list, or null to list all configuration keys.
+        let configurationKeys: [String]?
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            buffer.write(resourceType)
+            buffer.write(resourceName, lengthEncoding: lengthEncoding)
+            buffer.write(configurationKeys, lengthEncoding: lengthEncoding)
+    
+        }
+    
+        init(resourceType: Int8, resourceName: String, configurationKeys: [String]?) {
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+            self.configurationKeys = configurationKeys
+        }
+    
     }
+    
     let apiKey: APIKey = .describeConfigs
     let apiVersion: APIVersion
     let clientID: String?

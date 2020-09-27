@@ -17,12 +17,37 @@ import NIO
 
 
 struct LeaveGroupRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, memberID: String?, groupInstanceID: String?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.memberID = memberID
-        self.groupInstanceID = groupInstanceID
+    struct MemberIdentity: KafkaRequestStruct {
+    
+        
+        /// The member ID to remove from the group.
+        let memberID: String?    
+        /// The group instance ID to remove from the group.
+        let groupInstanceID: String?
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 4) ? .varint : .bigEndian
+            if apiVersion >= 3 {
+                guard let memberID = self.memberID else {
+                    throw KafkaError.missingValue
+                }
+                buffer.write(memberID, lengthEncoding: lengthEncoding)
+            }
+            if apiVersion >= 3 {
+                buffer.write(groupInstanceID, lengthEncoding: lengthEncoding)
+            }
+            if apiVersion >= 4 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(memberID: String?, groupInstanceID: String?) {
+            self.memberID = memberID
+            self.groupInstanceID = groupInstanceID
+        }
+    
     }
+    
     let apiKey: APIKey = .leaveGroup
     let apiVersion: APIVersion
     let clientID: String?

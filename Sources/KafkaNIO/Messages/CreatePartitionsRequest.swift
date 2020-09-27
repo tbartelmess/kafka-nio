@@ -17,13 +17,53 @@ import NIO
 
 
 struct CreatePartitionsRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, name: String, count: Int32, assignments: [CreatePartitionsAssignment]?) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.count = count
-        self.assignments = assignments
+    struct CreatePartitionsTopic: KafkaRequestStruct {
+        struct CreatePartitionsAssignment: KafkaRequestStruct {
+        
+            
+            /// The assigned broker IDs.
+            let brokerIDs: [Int32]
+            let taggedFields: [TaggedField] = []
+            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+                buffer.write(brokerIDs, lengthEncoding: lengthEncoding)
+                if apiVersion >= 2 {
+                    buffer.write(taggedFields)
+                }
+            }
+        
+            init(brokerIDs: [Int32]) {
+                self.brokerIDs = brokerIDs
+            }
+        
+        }
+    
+        
+        /// The topic name.
+        let name: String    
+        /// The new partition count.
+        let count: Int32    
+        /// The new partition assignments.
+        let assignments: [CreatePartitionsAssignment]?
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            buffer.write(name, lengthEncoding: lengthEncoding)
+            buffer.write(count)
+            try buffer.write(assignments, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            if apiVersion >= 2 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(name: String, count: Int32, assignments: [CreatePartitionsAssignment]?) {
+            self.name = name
+            self.count = count
+            self.assignments = assignments
+        }
+    
     }
+    
     let apiKey: APIKey = .createPartitions
     let apiVersion: APIVersion
     let clientID: String?

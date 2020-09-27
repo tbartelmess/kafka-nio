@@ -17,11 +17,26 @@ import NIO
 
 
 struct MetadataRequest: KafkaRequest { 
-    init(apiVersion: APIVersion, name: String) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
+    struct MetadataRequestTopic: KafkaRequestStruct {
+    
+        
+        /// The topic name.
+        let name: String
+        let taggedFields: [TaggedField] = []
+        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 9) ? .varint : .bigEndian
+            buffer.write(name, lengthEncoding: lengthEncoding)
+            if apiVersion >= 9 {
+                buffer.write(taggedFields)
+            }
+        }
+    
+        init(name: String) {
+            self.name = name
+        }
+    
     }
+    
     let apiKey: APIKey = .metadata
     let apiVersion: APIVersion
     let clientID: String?

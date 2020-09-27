@@ -17,11 +17,61 @@ import NIO
 
 
 struct DescribeClientQuotasResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, entity: [EntityData], values: [ValueData]) {
-        self.apiVersion = apiVersion
-        self.entity = entity
-        self.values = values
+    struct EntryData: KafkaResponseStruct {
+        struct EntityData: KafkaResponseStruct {
+        
+            
+            /// The entity type.
+            let entityType: String    
+            /// The entity name, or null if the default.
+            let entityName: String?
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = .bigEndian
+                entityType = try buffer.read(lengthEncoding: lengthEncoding)
+                entityName = try buffer.read(lengthEncoding: lengthEncoding)
+            }
+            init(entityType: String, entityName: String?) {
+                self.entityType = entityType
+                self.entityName = entityName
+            }
+        
+        }
+        struct ValueData: KafkaResponseStruct {
+        
+            
+            /// The quota configuration key.
+            let key: String    
+            /// The quota configuration value.
+            let value: Float64
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = .bigEndian
+                key = try buffer.read(lengthEncoding: lengthEncoding)
+                value = try buffer.read()
+            }
+            init(key: String, value: Float64) {
+                self.key = key
+                self.value = value
+            }
+        
+        }
+    
+        
+        /// The quota entity description.
+        let entity: [EntityData]    
+        /// The quota values for the entity.
+        let values: [ValueData]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = .bigEndian
+            entity = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            values = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+        }
+        init(entity: [EntityData], values: [ValueData]) {
+            self.entity = entity
+            self.values = values
+        }
+    
     }
+    
     let apiKey: APIKey = .describeClientQuotas
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

@@ -17,13 +17,85 @@ import NIO
 
 
 struct DeleteAclsResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, errorCode: ErrorCode, errorMessage: String?, matchingAcls: [DeleteAclsMatchingAcl]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.errorCode = errorCode
-        self.errorMessage = errorMessage
-        self.matchingAcls = matchingAcls
+    struct DeleteAclsFilterResult: KafkaResponseStruct {
+        struct DeleteAclsMatchingAcl: KafkaResponseStruct {
+        
+            
+            /// The deletion error code, or 0 if the deletion succeeded.
+            let errorCode: ErrorCode    
+            /// The deletion error message, or null if the deletion succeeded.
+            let errorMessage: String?    
+            /// The ACL resource type.
+            let resourceType: Int8    
+            /// The ACL resource name.
+            let resourceName: String    
+            /// The ACL resource pattern type.
+            let patternType: Int8?    
+            /// The ACL principal.
+            let principal: String    
+            /// The ACL host.
+            let host: String    
+            /// The ACL operation.
+            let operation: Int8    
+            /// The ACL permission type.
+            let permissionType: Int8
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+                errorCode = try buffer.read()
+                errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
+                resourceType = try buffer.read()
+                resourceName = try buffer.read(lengthEncoding: lengthEncoding)
+                if apiVersion >= 1 {
+                    patternType = try buffer.read()
+                } else { 
+                    patternType = nil
+                }
+                principal = try buffer.read(lengthEncoding: lengthEncoding)
+                host = try buffer.read(lengthEncoding: lengthEncoding)
+                operation = try buffer.read()
+                permissionType = try buffer.read()
+                if apiVersion >= 2 {
+                    let _ : [TaggedField] = try buffer.read()
+                }
+            }
+            init(errorCode: ErrorCode, errorMessage: String?, resourceType: Int8, resourceName: String, patternType: Int8?, principal: String, host: String, operation: Int8, permissionType: Int8) {
+                self.errorCode = errorCode
+                self.errorMessage = errorMessage
+                self.resourceType = resourceType
+                self.resourceName = resourceName
+                self.patternType = patternType
+                self.principal = principal
+                self.host = host
+                self.operation = operation
+                self.permissionType = permissionType
+            }
+        
+        }
+    
+        
+        /// The error code, or 0 if the filter succeeded.
+        let errorCode: ErrorCode    
+        /// The error message, or null if the filter succeeded.
+        let errorMessage: String?    
+        /// The ACLs which matched this filter.
+        let matchingAcls: [DeleteAclsMatchingAcl]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
+            errorCode = try buffer.read()
+            errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
+            matchingAcls = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            if apiVersion >= 2 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(errorCode: ErrorCode, errorMessage: String?, matchingAcls: [DeleteAclsMatchingAcl]) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.matchingAcls = matchingAcls
+        }
+    
     }
+    
     let apiKey: APIKey = .deleteAcls
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader

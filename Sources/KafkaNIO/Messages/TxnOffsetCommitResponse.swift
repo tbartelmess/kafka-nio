@@ -17,12 +17,48 @@ import NIO
 
 
 struct TxnOffsetCommitResponse: KafkaResponse { 
-    init(apiVersion: APIVersion, name: String, partitions: [TxnOffsetCommitResponsePartition]) {
-        self.apiVersion = apiVersion
-        self.taggedFields = []
-        self.name = name
-        self.partitions = partitions
+    struct TxnOffsetCommitResponseTopic: KafkaResponseStruct {
+        struct TxnOffsetCommitResponsePartition: KafkaResponseStruct {
+        
+            
+            /// The partition index.
+            let partitionIndex: Int32    
+            /// The error code, or 0 if there was no error.
+            let errorCode: ErrorCode
+            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+                partitionIndex = try buffer.read()
+                errorCode = try buffer.read()
+                if apiVersion >= 3 {
+                    let _ : [TaggedField] = try buffer.read()
+                }
+            }
+            init(partitionIndex: Int32, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+            }
+        
+        }
+    
+        
+        /// The topic name.
+        let name: String    
+        /// The responses for each partition in the topic.
+        let partitions: [TxnOffsetCommitResponsePartition]
+        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
+            let lengthEncoding: IntegerEncoding = (apiVersion >= 3) ? .varint : .bigEndian
+            name = try buffer.read(lengthEncoding: lengthEncoding)
+            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            if apiVersion >= 3 {
+                let _ : [TaggedField] = try buffer.read()
+            }
+        }
+        init(name: String, partitions: [TxnOffsetCommitResponsePartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .txnOffsetCommit
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
