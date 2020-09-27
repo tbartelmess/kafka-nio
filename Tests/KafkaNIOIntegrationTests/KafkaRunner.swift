@@ -89,7 +89,7 @@ private struct NewlineFramer: ByteToMessageDecoder {
         if let firstNewline = buffer.readableBytesView.firstIndex(of: UInt8(ascii: "\n")) {
             let length = firstNewline - buffer.readerIndex + 1
             let line = String(buffer.readString(length: length)!.dropLast())
-            if ProcessInfo.processInfo.environment["PRINT_KAFKA_LOGS"] {
+            if ProcessInfo.processInfo.environment["PRINT_KAFKA_LOGS"] != nil {
                 print(line)
             }
             context.fireChannelRead(self.wrapInboundOut(line))
