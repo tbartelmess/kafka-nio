@@ -209,6 +209,9 @@ final class ClusterClient {
     /// elements within it's own event loop
     private var connectionFutures: [NodeID: EventLoopFuture<BrokerConnection>] = [:]
 
+    /// Promise that gets fulfilled when the next metadata fetch is updated
+    private var nextMetadataRefresh: EventLoopPromise<Void>
+
     /// List of topics the `ClusterClient` keeps metadata for.
     var topics: [String]
 
@@ -228,27 +231,31 @@ final class ClusterClient {
                           eventLoopGroup: EventLoopGroup,
                           clientID: String,
                           tlsConfiguration: TLSConfiguration?,
-                          topics: [Topic] = []) -> EventLoopFuture<ClusterClient> {
-        Bootstrapper(servers: servers, clientID: clientID, eventLoop: eventLoopGroup.next(), tlsConfiguration: tlsConfiguration)
+                          topics: [Topic] = [],
+                          logger: Logger = .init(label: "io.bartelmess.KafkaNIO")) -> EventLoopFuture<ClusterClient> {
+        Bootstrapper(servers: servers, clientID: clientID, eventLoop: eventLoopGroup.next(), tlsConfiguration: tlsConfiguration, logger: logger)
             .bootstrap()
             .flatMap { (bootstrapConnection) in
                 bootstrapConnection.requestFetchMetadata(topics: topics).map { ($0, bootstrapConnection) }
             }.map { (response, connection) -> (ClusterClient, BrokerConnection) in
                 let initalMetadata = ClusterMetadata(metadata: response)
 
-                return (ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, topics: topics, tlsConfiguration: tlsConfiguration), connection)
+                return (ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, topics: topics, tlsConfiguration: tlsConfiguration, logger: logger), connection)
             }.flatMap { clusterClient, connection in
                 connection.close().map { clusterClient }
             }
     }
 
-    init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, topics:[Topic], tlsConfiguration: TLSConfiguration?) {
+    init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, topics:[Topic], tlsConfiguration: TLSConfiguration?, logger: Logger) {
         self.clientID = clientID
         self.eventLoopGroup = eventLoopGroup
         self.clusterMetadata = clusterMetadata
         self.tlsConfiguration = tlsConfiguration
         self.eventLoop = eventLoopGroup.next()
         self.topics = topics
+        self.logger = logger
+        nextMetadataRefresh = eventLoop.makePromise()
+        configurePeriodicRefresh()
     }
 
     func connectionForAnyNode() -> EventLoopFuture<BrokerConnection> {
@@ -269,7 +276,8 @@ final class ClusterClient {
             }
             return brokerInfo.connect(on: self.eventLoopGroup.next(),
                                       clientID: self.clientID,
-                                      tlsConfiguration: self.tlsConfiguration)
+                                      tlsConfiguration: self.tlsConfiguration,
+                                      logger: self.logger)
         }
     }
     /// Returns a `BrokerConnection` for a NodeID.
@@ -284,7 +292,8 @@ final class ClusterClient {
                 return connectionFuture
             }
             let future = brokerInfo.connect(on: self.eventLoopGroup.next(), clientID: self.clientID,
-                                            tlsConfiguration: self.tlsConfiguration)
+                                            tlsConfiguration: self.tlsConfiguration,
+                                            logger: self.logger)
             self.connectionFutures[nodeID] = future
             return future
         }
@@ -304,9 +313,46 @@ final class ClusterClient {
     }
 
 
-    func refreshMetadata(connection: BrokerConnection, topics: [Topic]) -> EventLoopFuture<Void> {
-        connection.requestFetchMetadata(topics: topics).map { response in
-            self.clusterMetadata = ClusterMetadata(metadata: response)
+    var metadataRefreshTask: RepeatedTask?
+
+    func configurePeriodicRefresh() {
+        let interval = TimeAmount.seconds(5)
+        metadataRefreshTask = eventLoop.scheduleRepeatedAsyncTask(initialDelay: interval, delay: interval) { repeatedTask in
+            self.connectionForAnyNode().flatMap { connection in
+                self.refreshMetadata(connection: connection)
+            }
         }
     }
+
+
+    func refreshMetadata(connection: BrokerConnection) -> EventLoopFuture<Void> {
+        connection.requestFetchMetadata(topics: self.topics).map { response in
+            self.clusterMetadata = ClusterMetadata(metadata: response)
+            self.nextMetadataRefresh.succeed(())
+            self.nextMetadataRefresh = self.eventLoop.makePromise()
+        }
+
+    }
+
+    func nodeIDAfterNextMetadataRefresh(forTopic topic: String, partition: Int, attempts: Int = 5) -> EventLoopFuture<NodeID> {
+        if attempts == 0 {
+            return eventLoop.makeFailedFuture(KafkaError.nodeForTopicNotFound)
+        }
+
+        return nextMetadataRefresh.futureResult.flatMap {
+            guard let nodeID = self.clusterMetadata.nodeID(forTopic: topic, partition: partition) else {
+                return self.nodeIDAfterNextMetadataRefresh(forTopic: topic, partition: partition, attempts: attempts-1)
+            }
+            return self.eventLoop.makeSucceededFuture(nodeID)
+        }
+    }
+
+    func nodeID(forTopic topic: String, partition: Int) -> EventLoopFuture<NodeID> {
+        guard let nodeID = self.clusterMetadata.nodeID(forTopic: topic, partition: partition) else {
+            return nodeIDAfterNextMetadataRefresh(forTopic: topic, partition: partition)
+        }
+        return eventLoop.makeSucceededFuture(nodeID)
+    }
+
+
 }
