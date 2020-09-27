@@ -88,7 +88,9 @@ private struct NewlineFramer: ByteToMessageDecoder {
     func decode(context: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
         if let firstNewline = buffer.readableBytesView.firstIndex(of: UInt8(ascii: "\n")) {
             let length = firstNewline - buffer.readerIndex + 1
-            context.fireChannelRead(self.wrapInboundOut(String(buffer.readString(length: length)!.dropLast())))
+            let line = String(buffer.readString(length: length)!.dropLast())
+            print("Line: \(line)")
+            context.fireChannelRead(self.wrapInboundOut(line))
             return .continue
         } else {
             return .needMoreData
@@ -141,7 +143,6 @@ private class Log4JParser: ChannelInboundHandler {
             return
         }
         let log4jMessage = Log4JMessage(timestamp: date, level: level, message: message)
-        print("Message: \(log4jMessage)")
         context.fireChannelRead(wrapInboundOut(log4jMessage))
     }
 
@@ -260,9 +261,9 @@ struct KafkaLogWatcher: LogWatcher {
         }
         if message.level == .error || message.level == .fatal {
             // Failed startup
-//            let _ = eventLoop.submit {
-//                startupPromise.fail(KafkaError.error(message))
-//            }
+            let _ = eventLoop.submit {
+                startupPromise.fail(KafkaError.error(message))
+            }
         }
     }
 
@@ -437,7 +438,6 @@ class KafkaController: ServerController {
         let environment = Environment(loader: FileSystemLoader(paths: [Path(resourcesURL.path)]))
         let renderedConfig = try environment.renderTemplate(name: "kafka.properties", context: context)
         try renderedConfig.write(to: kafkaConfigFile, atomically: true, encoding: .utf8)
-        print(kafkaConfigFile)
     }
 
 
