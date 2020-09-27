@@ -341,7 +341,7 @@ class ZookeeperController: ServerController {
     var zookeeperProcess: Process?
 
     func startZookeeper() throws {
-        try? FileManager.default.removeItem(atPath: zookeeperDirectory)
+        try? FileManager.default.removeItem(atPath: zookeeperDirectory.path)
         let process = Process()
         try generateZookeeperConfig()
         process.executableURL = kafkaScript(named: "kafka-run-class.sh")
@@ -444,7 +444,7 @@ class KafkaController: ServerController {
 
     var kafkaProcess: Process?
     func startKafka() throws {
-        try? FileManager.default.removeItem(atPath: kafkaDirectory)
+        try? FileManager.default.removeItem(atPath: kafkaDirectory.path)
         try setupKeystore()
         try generateKafkaConfig()
         let process = Process()
