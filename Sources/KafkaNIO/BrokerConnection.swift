@@ -113,7 +113,7 @@ final public class BrokerConnection {
         }
 
         return responsePromise.futureResult.map { response -> R in
-            self.logger.info("Recieved response for correlationID \(response.responseHeader.correlationID)")
+            self.logger.trace("Recieved response for correlationID \(response.responseHeader.correlationID)")
             guard let typedResponse = response as? R else {
                 fatalError("Expected response to be a \(R.self) but received a \(type(of: response))")
             }
