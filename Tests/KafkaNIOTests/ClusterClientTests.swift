@@ -13,10 +13,11 @@
 
 import XCTest
 import NIO
+import NIOSSL
 @testable import KafkaNIO
 
 
-class ClusterClientTests: XCTestCase {
+class ClusterClientOnlineTests: XCTestCase {
     let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
     var clusterClient: ClusterClient!
     override func setUpWithError() throws {
@@ -75,6 +76,58 @@ class ClusterClientTests: XCTestCase {
         queue.resume()
         wait(for: expectations, timeout: 10, enforceOrder: false)
         XCTAssertEqual(Set(client1Addresses.map {$0.description} ).count, 1)
+    }
+}
 
+
+struct TestableBroker: BrokerProtocol {
+
+    enum TestableBrokerError: Error {
+        case notImplemented
+        case foo
+    }
+    var host: String
+
+    var port: Int
+
+    var rack: String?
+
+    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?) -> EventLoopFuture<BrokerConnection> {
+        eventLoop.makeFailedFuture(TestableBrokerError.notImplemented)
+    }
+
+
+}
+
+struct TestableMetadata: ClusterMetadataProtocol {
+    var clusterID: String?
+
+    var controllerID: Int32
+
+    var brokers: [NodeID : BrokerProtocol]
+
+    var topics: [MetadataResponse.MetadataResponseTopic]
+
+
+}
+
+extension ClusterClient {
+    static func testable(eventLoopGroup: EventLoopGroup,
+                         clientID: String,
+                         initalMetadata: TestableMetadata) -> ClusterClient {
+        ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, tlsConfiguration: nil)
+    }
+}
+
+class ClusterClientTests: XCTestCase {
+    func testConnectionForUnknownNode() throws {
+        let eventLoopGroup = MultiThreadedEventLoopGroup.init(numberOfThreads: System.coreCount)
+        let testBroker = TestableBroker(host: "test-broker1", port: 0, rack: nil)
+        let metadata = TestableMetadata(clusterID: "test-cluster", controllerID: 1, brokers: [1: testBroker], topics: [])
+        let client = ClusterClient.testable(eventLoopGroup: eventLoopGroup, clientID: "test-cluster", initalMetadata: metadata)
+
+        XCTAssertThrowsError(try client.connection(forNode: 1).wait(), "Expected to fail because the test client doesn't implement connection creation") { (error) in
+            XCTAssertEqual(error as! TestableBroker.TestableBrokerError, TestableBroker.TestableBrokerError.notImplemented)
+        }
     }
 }
