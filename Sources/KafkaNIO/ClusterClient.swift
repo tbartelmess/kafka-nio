@@ -160,7 +160,7 @@ class Bootstrapper {
 ///
 /// There is one `BrokerConnection` to each Node in the broker cluster.
 /// Each `BrokerConnection` runs on it's own `EventLoop`
-class ClusterClient {
+final class ClusterClient {
 
     let eventLoopGroup: EventLoopGroup
     let eventLoop: EventLoop
