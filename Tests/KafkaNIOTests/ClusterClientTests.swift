@@ -115,7 +115,7 @@ extension ClusterClient {
     static func testable(eventLoopGroup: EventLoopGroup,
                          clientID: String,
                          initalMetadata: TestableMetadata) -> ClusterClient {
-        ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, tlsConfiguration: nil)
+        ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, topics: [], tlsConfiguration: nil)
     }
 }
 

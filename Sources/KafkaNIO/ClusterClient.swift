@@ -184,18 +184,50 @@ class Bootstrapper {
 /// Each `BrokerConnection` runs on it's own `EventLoop`
 final class ClusterClient {
 
-    let eventLoopGroup: EventLoopGroup
-    let eventLoop: EventLoop
-    var clusterMetadata: ClusterMetadataProtocol
-    var tlsConfiguration: TLSConfiguration?
-    let clientID: String
-    var connectionFutures: [NodeID: EventLoopFuture<BrokerConnection>] = [:]
+    /// Event Loop Group to generate new `EventLoop`s from
+    private let eventLoopGroup: EventLoopGroup
 
+    /// EventLopp of the ClusterClient. The cluster client itself doesn't use perfrom IO, but it uses it's own event loop for scheduling
+    /// metadata refreshes and to submit tasks that run on multiple event loops.
+    private let eventLoop: EventLoop
+
+    /// The current cluster metadata
+    var clusterMetadata: ClusterMetadataProtocol
+
+    /// TLS configuration to use when establishing new connections to new brokers
+    var tlsConfiguration: TLSConfiguration?
+
+    /// Client ID of the the broker. This for logging purposes on the broker.
+    let clientID: String
+
+    /// A list of current connections.
+    ///
+    /// When a new connection to a broker is needed that does not exist yet, a future to setup the broker connection is added,
+    /// in most cases the futures in this dictionary will already be fulfilled, when a connection exists.
+    /// __Thread Safety:__ This variable is private to the `ClusterClient`, the cluster client only adds/removes
+    /// elements within it's own event loop
+    private var connectionFutures: [NodeID: EventLoopFuture<BrokerConnection>] = [:]
+
+    /// List of topics the `ClusterClient` keeps metadata for.
+    var topics: [String]
+
+    /// Create a new cluster from a set of servers.
+    /// At least one the servers needs to be reachable. During the bootstrap the we try to connection to each server in a sequential order
+    /// the first server where the connection suceeds is used to discover the rest of the cluster.
+    /// - Parameters:
+    ///   - servers: lists of brokers that can be used to bootstrap
+    ///   - eventLoopGroup: `EventLoopGroup` that is used for creating new `EventLoop` instances.
+    ///                     Both the `ClusterClient`s own `EventLoop` as well as all `BrokerConnection`s
+    ///                     that are created will use event loops from this `EventLoopGroup`
+    ///   - clientID: ClientID to report to Kafka
+    ///   - tlsConfiguration: TLSConfiguration for connections to the Kafka cluster created by this ClusterClient
+    ///   - topics: A list of topics the ClusterClient should maintain metadata about
+    /// - Returns: `EventLoopFuture` that gets fulfilled after the bootstrap finsihed and the initial metadata is fetched from the cluster.
     static func bootstrap(servers: [Broker],
                           eventLoopGroup: EventLoopGroup,
                           clientID: String,
                           tlsConfiguration: TLSConfiguration?,
-                          topics:[String] = []) -> EventLoopFuture<ClusterClient> {
+                          topics: [Topic] = []) -> EventLoopFuture<ClusterClient> {
         Bootstrapper(servers: servers, clientID: clientID, eventLoop: eventLoopGroup.next(), tlsConfiguration: tlsConfiguration)
             .bootstrap()
             .flatMap { (bootstrapConnection) in
@@ -203,18 +235,19 @@ final class ClusterClient {
             }.map { (response, connection) -> (ClusterClient, BrokerConnection) in
                 let initalMetadata = ClusterMetadata(metadata: response)
 
-                return (ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, tlsConfiguration: tlsConfiguration), connection)
+                return (ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, topics: topics, tlsConfiguration: tlsConfiguration), connection)
             }.flatMap { clusterClient, connection in
                 connection.close().map { clusterClient }
             }
     }
 
-    init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, tlsConfiguration: TLSConfiguration?) {
+    init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, topics:[Topic], tlsConfiguration: TLSConfiguration?) {
         self.clientID = clientID
         self.eventLoopGroup = eventLoopGroup
         self.clusterMetadata = clusterMetadata
         self.tlsConfiguration = tlsConfiguration
         self.eventLoop = eventLoopGroup.next()
+        self.topics = topics
     }
 
     func connectionForAnyNode() -> EventLoopFuture<BrokerConnection> {
