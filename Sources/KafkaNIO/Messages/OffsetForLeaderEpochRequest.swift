@@ -17,42 +17,10 @@ import NIO
 
 
 struct OffsetForLeaderEpochRequest: KafkaRequest { 
-    struct OffsetForLeaderTopic: KafkaRequestStruct {
-        struct OffsetForLeaderPartition: KafkaRequestStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32    
-            /// An epoch used to fence consumers/replicas with old metadata.  If the epoch provided by the client is larger than the current epoch known to the broker, then the UNKNOWN_LEADER_EPOCH error code will be returned. If the provided epoch is smaller, then the FENCED_LEADER_EPOCH error code will be returned.
-            let currentLeaderEpoch: Int32?    
-            /// The epoch to look up an offset for.
-            let leaderEpoch: Int32
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                buffer.write(partitionIndex)
-                if apiVersion >= 2 {
-                    guard let currentLeaderEpoch = self.currentLeaderEpoch else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(currentLeaderEpoch)
-                }
-                buffer.write(leaderEpoch)
-        
-            
-            }
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// Each partition to get offsets for.
-        let partitions: [OffsetForLeaderPartition]
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            buffer.write(name, lengthEncoding: lengthEncoding)
-            try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-    
-        
-        }
+    init(apiVersion: APIVersion, name: String, partitions: [OffsetForLeaderPartition]) {
+        self.apiVersion = apiVersion
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .offsetForLeaderEpoch
     let apiVersion: APIVersion

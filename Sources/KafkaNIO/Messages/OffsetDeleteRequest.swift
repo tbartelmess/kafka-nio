@@ -17,31 +17,10 @@ import NIO
 
 
 struct OffsetDeleteRequest: KafkaRequest { 
-    struct OffsetDeleteRequestTopic: KafkaRequestStruct {
-        struct OffsetDeleteRequestPartition: KafkaRequestStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                buffer.write(partitionIndex)
-        
-            
-            }
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// Each partition to delete offsets for.
-        let partitions: [OffsetDeleteRequestPartition]
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            buffer.write(name, lengthEncoding: lengthEncoding)
-            try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-    
-        
-        }
+    init(apiVersion: APIVersion, name: String, partitions: [OffsetDeleteRequestPartition]) {
+        self.apiVersion = apiVersion
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .offsetDelete
     let apiVersion: APIVersion

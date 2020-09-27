@@ -36,4 +36,12 @@ struct SaslHandshakeResponse: KafkaResponse {
         errorCode = try buffer.read()
         mechanisms = try buffer.read(lengthEncoding: lengthEncoding)
     }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, mechanisms: [String]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.errorCode = errorCode
+        self.mechanisms = mechanisms
+    }
 }

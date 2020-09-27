@@ -17,79 +17,16 @@ import NIO
 
 
 struct FetchRequest: KafkaRequest { 
-    struct FetchTopic: KafkaRequestStruct {
-        struct FetchPartition: KafkaRequestStruct {
-        
-            
-            /// The partition index.
-            let partition: Int32    
-            /// The current leader epoch of the partition.
-            let currentLeaderEpoch: Int32?    
-            /// The message offset.
-            let fetchOffset: Int64    
-            /// The earliest available offset of the follower replica.  The field is only used when the request is sent by the follower.
-            let logStartOffset: Int64?    
-            /// The maximum bytes to fetch from this partition.  See KIP-74 for cases where this limit may not be honored.
-            let partitionMaxBytes: Int32
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                buffer.write(partition)
-                if apiVersion >= 9 {
-                    guard let currentLeaderEpoch = self.currentLeaderEpoch else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(currentLeaderEpoch)
-                }
-                buffer.write(fetchOffset)
-                if apiVersion >= 5 {
-                    guard let logStartOffset = self.logStartOffset else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(logStartOffset)
-                }
-                buffer.write(partitionMaxBytes)
-        
-            
-            }
-        }
-    
-        
-        /// The name of the topic to fetch.
-        let topic: String    
-        /// The partitions to fetch.
-        let partitions: [FetchPartition]
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            buffer.write(topic, lengthEncoding: lengthEncoding)
-            try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-    
-        
-        }
+    init(apiVersion: APIVersion, topic: String, partitions: [FetchPartition]) {
+        self.apiVersion = apiVersion
+        self.topic = topic
+        self.partitions = partitions
     }
     
-    struct ForgottenTopic: KafkaRequestStruct {
-    
-        
-        /// The partition name.
-        let topic: String?    
-        /// The partitions indexes to forget.
-        let partitions: [Int32]?
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            if apiVersion >= 7 {
-                guard let topic = self.topic else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(topic, lengthEncoding: lengthEncoding)
-            }
-            if apiVersion >= 7 {
-                guard let partitions = self.partitions else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(partitions, lengthEncoding: lengthEncoding)
-            }
-    
-        
-        }
+    init(apiVersion: APIVersion, topic: String?, partitions: [Int32]?) {
+        self.apiVersion = apiVersion
+        self.topic = topic
+        self.partitions = partitions
     }
     let apiKey: APIKey = .fetch
     let apiVersion: APIVersion

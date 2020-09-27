@@ -17,52 +17,11 @@ import NIO
 
 
 struct TxnOffsetCommitRequest: KafkaRequest { 
-    struct TxnOffsetCommitRequestTopic: KafkaRequestStruct {
-        struct TxnOffsetCommitRequestPartition: KafkaRequestStruct {
-        
-            
-            /// The index of the partition within the topic.
-            let partitionIndex: Int32    
-            /// The message offset to be committed.
-            let committedOffset: Int64    
-            /// The leader epoch of the last consumed record.
-            let committedLeaderEpoch: Int32?    
-            /// Any associated metadata the client wants to keep.
-            let committedMetadata: String?
-            let taggedFields: [TaggedField] = []
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 3) ? .varint : .bigEndian
-                buffer.write(partitionIndex)
-                buffer.write(committedOffset)
-                if apiVersion >= 2 {
-                    guard let committedLeaderEpoch = self.committedLeaderEpoch else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(committedLeaderEpoch)
-                }
-                buffer.write(committedMetadata, lengthEncoding: lengthEncoding)
-                if apiVersion >= 3 {
-                    buffer.write(taggedFields)
-                }
-            
-            }
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// The partitions inside the topic that we want to committ offsets for.
-        let partitions: [TxnOffsetCommitRequestPartition]
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 3) ? .varint : .bigEndian
-            buffer.write(name, lengthEncoding: lengthEncoding)
-            try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 3 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, name: String, partitions: [TxnOffsetCommitRequestPartition]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .txnOffsetCommit
     let apiVersion: APIVersion

@@ -45,4 +45,14 @@ struct ExpireDelegationTokenResponse: KafkaResponse {
             taggedFields = []
         }
     }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, expiryTimestampMs: Int64, throttleTimeMs: Int32) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.expiryTimestampMs = expiryTimestampMs
+        self.throttleTimeMs = throttleTimeMs
+    }
 }

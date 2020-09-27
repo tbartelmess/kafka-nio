@@ -17,43 +17,16 @@ import NIO
 
 
 struct CreateAclsRequest: KafkaRequest { 
-    struct AclCreation: KafkaRequestStruct {
-    
-        
-        /// The type of the resource.
-        let resourceType: Int8    
-        /// The resource name for the ACL.
-        let resourceName: String    
-        /// The pattern type for the ACL.
-        let resourcePatternType: Int8?    
-        /// The principal for the ACL.
-        let principal: String    
-        /// The host for the ACL.
-        let host: String    
-        /// The operation type for the ACL (read, write, etc.).
-        let operation: Int8    
-        /// The permission type for the ACL (allow, deny, etc.).
-        let permissionType: Int8
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            buffer.write(resourceType)
-            buffer.write(resourceName, lengthEncoding: lengthEncoding)
-            if apiVersion >= 1 {
-                guard let resourcePatternType = self.resourcePatternType else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(resourcePatternType)
-            }
-            buffer.write(principal, lengthEncoding: lengthEncoding)
-            buffer.write(host, lengthEncoding: lengthEncoding)
-            buffer.write(operation)
-            buffer.write(permissionType)
-            if apiVersion >= 2 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, resourceType: Int8, resourceName: String, resourcePatternType: Int8?, principal: String, host: String, operation: Int8, permissionType: Int8) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.resourceType = resourceType
+        self.resourceName = resourceName
+        self.resourcePatternType = resourcePatternType
+        self.principal = principal
+        self.host = host
+        self.operation = operation
+        self.permissionType = permissionType
     }
     let apiKey: APIKey = .createAcls
     let apiVersion: APIVersion

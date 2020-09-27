@@ -17,47 +17,12 @@ import NIO
 
 
 struct IncrementalAlterConfigsRequest: KafkaRequest { 
-    struct AlterConfigsResource: KafkaRequestStruct {
-        struct AlterableConfig: KafkaRequestStruct {
-        
-            
-            /// The configuration key name.
-            let name: String    
-            /// The type (Set, Delete, Append, Subtract) of operation.
-            let configOperation: Int8    
-            /// The value to set for the configuration key.
-            let value: String?
-            let taggedFields: [TaggedField] = []
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 1) ? .varint : .bigEndian
-                buffer.write(name, lengthEncoding: lengthEncoding)
-                buffer.write(configOperation)
-                buffer.write(value, lengthEncoding: lengthEncoding)
-                if apiVersion >= 1 {
-                    buffer.write(taggedFields)
-                }
-            
-            }
-        }
-    
-        
-        /// The resource type.
-        let resourceType: Int8    
-        /// The resource name.
-        let resourceName: String    
-        /// The configurations.
-        let configs: [AlterableConfig]
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 1) ? .varint : .bigEndian
-            buffer.write(resourceType)
-            buffer.write(resourceName, lengthEncoding: lengthEncoding)
-            try buffer.write(configs, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 1 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, resourceType: Int8, resourceName: String, configs: [AlterableConfig]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.resourceType = resourceType
+        self.resourceName = resourceName
+        self.configs = configs
     }
     let apiKey: APIKey = .incrementalAlterConfigs
     let apiVersion: APIVersion

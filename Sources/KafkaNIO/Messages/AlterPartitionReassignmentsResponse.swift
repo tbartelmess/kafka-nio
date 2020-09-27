@@ -17,42 +17,11 @@ import NIO
 
 
 struct AlterPartitionReassignmentsResponse: KafkaResponse { 
-    struct ReassignableTopicResponse: KafkaResponseStruct {
-        struct ReassignablePartitionResponse: KafkaResponseStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32    
-            /// The error code for this partition, or 0 if there was no error.
-            let errorCode: ErrorCode    
-            /// The error message for this partition, or null if there was no error.
-            let errorMessage: String?
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
-                partitionIndex = try buffer.read()
-                errorCode = try buffer.read()
-                errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
-                if apiVersion >= 0 {
-                    let _ : [TaggedField] = try buffer.read()
-                }
-            }
-        
-        }
-    
-        
-        /// The topic name
-        let name: String    
-        /// The responses to partitions to reassign
-        let partitions: [ReassignablePartitionResponse]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
-            name = try buffer.read(lengthEncoding: lengthEncoding)
-            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 0 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, name: String, partitions: [ReassignablePartitionResponse]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .alterPartitionReassignments
     let apiVersion: APIVersion
@@ -85,5 +54,16 @@ struct AlterPartitionReassignmentsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode, errorMessage: String?, responses: [ReassignableTopicResponse]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.responses = responses
     }
 }

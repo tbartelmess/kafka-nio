@@ -17,50 +17,10 @@ import NIO
 
 
 struct ListOffsetRequest: KafkaRequest { 
-    struct ListOffsetTopic: KafkaRequestStruct {
-        struct ListOffsetPartition: KafkaRequestStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32    
-            /// The current leader epoch.
-            let currentLeaderEpoch: Int32?    
-            /// The current timestamp.
-            let timestamp: Int64    
-            /// The maximum number of offsets to report.
-            let maxNumOffsets: Int32?
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                buffer.write(partitionIndex)
-                if apiVersion >= 4 {
-                    guard let currentLeaderEpoch = self.currentLeaderEpoch else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(currentLeaderEpoch)
-                }
-                buffer.write(timestamp)
-                if apiVersion <= 0 {
-                    guard let maxNumOffsets = self.maxNumOffsets else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(maxNumOffsets)
-                }
-        
-            
-            }
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// Each partition in the request.
-        let partitions: [ListOffsetPartition]
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            buffer.write(name, lengthEncoding: lengthEncoding)
-            try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-    
-        
-        }
+    init(apiVersion: APIVersion, name: String, partitions: [ListOffsetPartition]) {
+        self.apiVersion = apiVersion
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .listOffset
     let apiVersion: APIVersion

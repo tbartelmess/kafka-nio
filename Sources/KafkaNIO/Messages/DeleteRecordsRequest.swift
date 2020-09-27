@@ -17,40 +17,11 @@ import NIO
 
 
 struct DeleteRecordsRequest: KafkaRequest { 
-    struct DeleteRecordsTopic: KafkaRequestStruct {
-        struct DeleteRecordsPartition: KafkaRequestStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32    
-            /// The deletion offset.
-            let offset: Int64
-            let taggedFields: [TaggedField] = []
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                buffer.write(partitionIndex)
-                buffer.write(offset)
-                if apiVersion >= 2 {
-                    buffer.write(taggedFields)
-                }
-            
-            }
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// Each partition that we want to delete records from.
-        let partitions: [DeleteRecordsPartition]
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            buffer.write(name, lengthEncoding: lengthEncoding)
-            try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 2 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, name: String, partitions: [DeleteRecordsPartition]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .deleteRecords
     let apiVersion: APIVersion

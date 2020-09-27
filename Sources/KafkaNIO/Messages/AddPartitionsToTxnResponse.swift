@@ -17,32 +17,10 @@ import NIO
 
 
 struct AddPartitionsToTxnResponse: KafkaResponse { 
-    struct AddPartitionsToTxnTopicResult: KafkaResponseStruct {
-        struct AddPartitionsToTxnPartitionResult: KafkaResponseStruct {
-        
-            
-            /// The partition indexes.
-            let partitionIndex: Int32    
-            /// The response error code.
-            let errorCode: ErrorCode
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                partitionIndex = try buffer.read()
-                errorCode = try buffer.read()
-            }
-        
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// The results for each partition
-        let results: [AddPartitionsToTxnPartitionResult]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            name = try buffer.read(lengthEncoding: lengthEncoding)
-            results = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-        }
-    
+    init(apiVersion: APIVersion, name: String, results: [AddPartitionsToTxnPartitionResult]) {
+        self.apiVersion = apiVersion
+        self.name = name
+        self.results = results
     }
     let apiKey: APIKey = .addPartitionsToTxn
     let apiVersion: APIVersion
@@ -61,5 +39,13 @@ struct AddPartitionsToTxnResponse: KafkaResponse {
         self.responseHeader = responseHeader
         throttleTimeMs = try buffer.read()
         results = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [AddPartitionsToTxnTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

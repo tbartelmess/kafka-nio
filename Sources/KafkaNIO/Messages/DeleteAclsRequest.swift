@@ -17,43 +17,16 @@ import NIO
 
 
 struct DeleteAclsRequest: KafkaRequest { 
-    struct DeleteAclsFilter: KafkaRequestStruct {
-    
-        
-        /// The resource type.
-        let resourceTypeFilter: Int8    
-        /// The resource name.
-        let resourceNameFilter: String?    
-        /// The pattern type.
-        let patternTypeFilter: Int8?    
-        /// The principal filter, or null to accept all principals.
-        let principalFilter: String?    
-        /// The host filter, or null to accept all hosts.
-        let hostFilter: String?    
-        /// The ACL operation.
-        let operation: Int8    
-        /// The permission type.
-        let permissionType: Int8
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            buffer.write(resourceTypeFilter)
-            buffer.write(resourceNameFilter, lengthEncoding: lengthEncoding)
-            if apiVersion >= 1 {
-                guard let patternTypeFilter = self.patternTypeFilter else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(patternTypeFilter)
-            }
-            buffer.write(principalFilter, lengthEncoding: lengthEncoding)
-            buffer.write(hostFilter, lengthEncoding: lengthEncoding)
-            buffer.write(operation)
-            buffer.write(permissionType)
-            if apiVersion >= 2 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, resourceTypeFilter: Int8, resourceNameFilter: String?, patternTypeFilter: Int8?, principalFilter: String?, hostFilter: String?, operation: Int8, permissionType: Int8) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.resourceTypeFilter = resourceTypeFilter
+        self.resourceNameFilter = resourceNameFilter
+        self.patternTypeFilter = patternTypeFilter
+        self.principalFilter = principalFilter
+        self.hostFilter = hostFilter
+        self.operation = operation
+        self.permissionType = permissionType
     }
     let apiKey: APIKey = .deleteAcls
     let apiVersion: APIVersion

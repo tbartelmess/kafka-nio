@@ -17,35 +17,10 @@ import NIO
 
 
 struct ProduceRequest: KafkaRequest { 
-    struct TopicProduceData: KafkaRequestStruct {
-        struct PartitionProduceData: KafkaRequestStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32    
-            /// The record data to be produced.
-            let records: [UInt8]?
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = .bigEndian
-                buffer.write(partitionIndex)
-                buffer.write(records, lengthEncoding: lengthEncoding)
-        
-            
-            }
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// Each partition to produce to.
-        let partitions: [PartitionProduceData]
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            buffer.write(name, lengthEncoding: lengthEncoding)
-            try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-    
-        
-        }
+    init(apiVersion: APIVersion, name: String, partitions: [PartitionProduceData]) {
+        self.apiVersion = apiVersion
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .produce
     let apiVersion: APIVersion

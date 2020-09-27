@@ -17,52 +17,11 @@ import NIO
 
 
 struct OffsetFetchResponse: KafkaResponse { 
-    struct OffsetFetchResponseTopic: KafkaResponseStruct {
-        struct OffsetFetchResponsePartition: KafkaResponseStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32    
-            /// The committed message offset.
-            let committedOffset: Int64    
-            /// The leader epoch.
-            let committedLeaderEpoch: Int32?    
-            /// The partition metadata.
-            let metadata: String?    
-            /// The error code, or 0 if there was no error.
-            let errorCode: ErrorCode
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 6) ? .varint : .bigEndian
-                partitionIndex = try buffer.read()
-                committedOffset = try buffer.read()
-                if apiVersion >= 5 {
-                    committedLeaderEpoch = try buffer.read()
-                } else { 
-                    committedLeaderEpoch = nil
-                }
-                metadata = try buffer.read(lengthEncoding: lengthEncoding)
-                errorCode = try buffer.read()
-                if apiVersion >= 6 {
-                    let _ : [TaggedField] = try buffer.read()
-                }
-            }
-        
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// The responses per partition
-        let partitions: [OffsetFetchResponsePartition]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 6) ? .varint : .bigEndian
-            name = try buffer.read(lengthEncoding: lengthEncoding)
-            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 6 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, name: String, partitions: [OffsetFetchResponsePartition]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .offsetFetch
     let apiVersion: APIVersion
@@ -99,5 +58,15 @@ struct OffsetFetchResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, topics: [OffsetFetchResponseTopic], errorCode: ErrorCode?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
+        self.errorCode = errorCode
     }
 }

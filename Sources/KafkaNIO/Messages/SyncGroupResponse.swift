@@ -66,4 +66,16 @@ struct SyncGroupResponse: KafkaResponse {
             taggedFields = []
         }
     }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, errorCode: ErrorCode, protocolType: String?, protocolName: String?, assignment: [UInt8]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.protocolType = protocolType
+        self.protocolName = protocolName
+        self.assignment = assignment
+    }
 }

@@ -17,55 +17,13 @@ import NIO
 
 
 struct DescribeAclsResponse: KafkaResponse { 
-    struct DescribeAclsResource: KafkaResponseStruct {
-        struct AclDescription: KafkaResponseStruct {
-        
-            
-            /// The ACL principal.
-            let principal: String    
-            /// The ACL host.
-            let host: String    
-            /// The ACL operation.
-            let operation: Int8    
-            /// The ACL permission type.
-            let permissionType: Int8
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-                principal = try buffer.read(lengthEncoding: lengthEncoding)
-                host = try buffer.read(lengthEncoding: lengthEncoding)
-                operation = try buffer.read()
-                permissionType = try buffer.read()
-                if apiVersion >= 2 {
-                    let _ : [TaggedField] = try buffer.read()
-                }
-            }
-        
-        }
-    
-        
-        /// The resource type.
-        let resourceType: Int8    
-        /// The resource name.
-        let resourceName: String    
-        /// The resource pattern type.
-        let patternType: Int8?    
-        /// The ACLs.
-        let acls: [AclDescription]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            resourceType = try buffer.read()
-            resourceName = try buffer.read(lengthEncoding: lengthEncoding)
-            if apiVersion >= 1 {
-                patternType = try buffer.read()
-            } else { 
-                patternType = nil
-            }
-            acls = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 2 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, resourceType: Int8, resourceName: String, patternType: Int8?, acls: [AclDescription]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.resourceType = resourceType
+        self.resourceName = resourceName
+        self.patternType = patternType
+        self.acls = acls
     }
     let apiKey: APIKey = .describeAcls
     let apiVersion: APIVersion
@@ -98,5 +56,16 @@ struct DescribeAclsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode, errorMessage: String?, resources: [DescribeAclsResource]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.resources = resources
     }
 }

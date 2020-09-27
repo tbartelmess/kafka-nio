@@ -17,103 +17,15 @@ import NIO
 
 
 struct CreateTopicsResponse: KafkaResponse { 
-    struct CreatableTopicResult: KafkaResponseStruct {
-        struct CreatableTopicConfigs: KafkaResponseStruct {
-        
-            
-            /// The configuration name.
-            let name: String?    
-            /// The configuration value.
-            let value: String?    
-            /// True if the configuration is read-only.
-            let readOnly: Bool?    
-            /// The configuration source.
-            let configSource: Int8?    
-            /// True if this configuration is sensitive.
-            let isSensitive: Bool?
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 5) ? .varint : .bigEndian
-                if apiVersion >= 5 {
-                    name = try buffer.read(lengthEncoding: lengthEncoding)
-                } else { 
-                    name = nil
-                }
-                if apiVersion >= 5 {
-                    value = try buffer.read(lengthEncoding: lengthEncoding)
-                } else { 
-                    value = nil
-                }
-                if apiVersion >= 5 {
-                    readOnly = try buffer.read()
-                } else { 
-                    readOnly = nil
-                }
-                if apiVersion >= 5 {
-                    configSource = try buffer.read()
-                } else { 
-                    configSource = nil
-                }
-                if apiVersion >= 5 {
-                    isSensitive = try buffer.read()
-                } else { 
-                    isSensitive = nil
-                }
-                if apiVersion >= 5 {
-                    let _ : [TaggedField] = try buffer.read()
-                }
-            }
-        
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// The error code, or 0 if there was no error.
-        let errorCode: ErrorCode    
-        /// The error message, or null if there was no error.
-        let errorMessage: String?    
-        /// Optional topic config error returned if configs are not returned in the response.
-        let topicConfigErrorCode: Int16?    
-        /// Number of partitions of the topic.
-        let numPartitions: Int32?    
-        /// Replication factor of the topic.
-        let replicationFactor: Int16?    
-        /// Configuration of the topic.
-        let configs: [CreatableTopicConfigs]?
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 5) ? .varint : .bigEndian
-            name = try buffer.read(lengthEncoding: lengthEncoding)
-            errorCode = try buffer.read()
-            if apiVersion >= 1 {
-                errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
-            } else { 
-                errorMessage = nil
-            }
-            if apiVersion >= 5 {
-                topicConfigErrorCode = try buffer.read()
-            } else { 
-                topicConfigErrorCode = nil
-            }
-            if apiVersion >= 5 {
-                numPartitions = try buffer.read()
-            } else { 
-                numPartitions = nil
-            }
-            if apiVersion >= 5 {
-                replicationFactor = try buffer.read()
-            } else { 
-                replicationFactor = nil
-            }
-            if apiVersion >= 5 {
-                configs = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            } else { 
-                configs = nil
-            }
-            if apiVersion >= 5 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, name: String, errorCode: ErrorCode, errorMessage: String?, topicConfigErrorCode: Int16?, numPartitions: Int32?, replicationFactor: Int16?, configs: [CreatableTopicConfigs]?) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.numPartitions = numPartitions
+        self.replicationFactor = replicationFactor
+        self.configs = configs
     }
     let apiKey: APIKey = .createTopics
     let apiVersion: APIVersion
@@ -142,5 +54,14 @@ struct CreateTopicsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, topics: [CreatableTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
     }
 }

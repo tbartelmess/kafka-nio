@@ -17,47 +17,10 @@ import NIO
 
 
 struct DescribeClientQuotasResponse: KafkaResponse { 
-    struct EntryData: KafkaResponseStruct {
-        struct EntityData: KafkaResponseStruct {
-        
-            
-            /// The entity type.
-            let entityType: String    
-            /// The entity name, or null if the default.
-            let entityName: String?
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = .bigEndian
-                entityType = try buffer.read(lengthEncoding: lengthEncoding)
-                entityName = try buffer.read(lengthEncoding: lengthEncoding)
-            }
-        
-        }
-        struct ValueData: KafkaResponseStruct {
-        
-            
-            /// The quota configuration key.
-            let key: String    
-            /// The quota configuration value.
-            let value: Float64
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = .bigEndian
-                key = try buffer.read(lengthEncoding: lengthEncoding)
-                value = try buffer.read()
-            }
-        
-        }
-    
-        
-        /// The quota entity description.
-        let entity: [EntityData]    
-        /// The quota values for the entity.
-        let values: [ValueData]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            entity = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            values = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-        }
-    
+    init(apiVersion: APIVersion, entity: [EntityData], values: [ValueData]) {
+        self.apiVersion = apiVersion
+        self.entity = entity
+        self.values = values
     }
     let apiKey: APIKey = .describeClientQuotas
     let apiVersion: APIVersion
@@ -84,5 +47,15 @@ struct DescribeClientQuotasResponse: KafkaResponse {
         errorCode = try buffer.read()
         errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
         entries = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode, errorMessage: String?, entries: [EntryData]?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.entries = entries
     }
 }

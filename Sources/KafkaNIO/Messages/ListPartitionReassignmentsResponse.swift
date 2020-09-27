@@ -17,45 +17,11 @@ import NIO
 
 
 struct ListPartitionReassignmentsResponse: KafkaResponse { 
-    struct OngoingTopicReassignment: KafkaResponseStruct {
-        struct OngoingPartitionReassignment: KafkaResponseStruct {
-        
-            
-            /// The index of the partition.
-            let partitionIndex: Int32    
-            /// The current replica set.
-            let replicas: [Int32]    
-            /// The set of replicas we are currently adding.
-            let addingReplicas: [Int32]    
-            /// The set of replicas we are currently removing.
-            let removingReplicas: [Int32]
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
-                partitionIndex = try buffer.read()
-                replicas = try buffer.read(lengthEncoding: lengthEncoding)
-                addingReplicas = try buffer.read(lengthEncoding: lengthEncoding)
-                removingReplicas = try buffer.read(lengthEncoding: lengthEncoding)
-                if apiVersion >= 0 {
-                    let _ : [TaggedField] = try buffer.read()
-                }
-            }
-        
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// The ongoing reassignments for each partition.
-        let partitions: [OngoingPartitionReassignment]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
-            name = try buffer.read(lengthEncoding: lengthEncoding)
-            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 0 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, name: String, partitions: [OngoingPartitionReassignment]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .listPartitionReassignments
     let apiVersion: APIVersion
@@ -88,5 +54,16 @@ struct ListPartitionReassignmentsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode, errorMessage: String?, topics: [OngoingTopicReassignment]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.topics = topics
     }
 }

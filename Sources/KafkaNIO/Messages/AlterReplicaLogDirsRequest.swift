@@ -17,35 +17,10 @@ import NIO
 
 
 struct AlterReplicaLogDirsRequest: KafkaRequest { 
-    struct AlterReplicaLogDir: KafkaRequestStruct {
-        struct AlterReplicaLogDirTopic: KafkaRequestStruct {
-        
-            
-            /// The topic name.
-            let name: String    
-            /// The partition indexes.
-            let partitions: [Int32]
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = .bigEndian
-                buffer.write(name, lengthEncoding: lengthEncoding)
-                buffer.write(partitions, lengthEncoding: lengthEncoding)
-        
-            
-            }
-        }
-    
-        
-        /// The absolute directory path.
-        let path: String    
-        /// The topics to add to the directory.
-        let topics: [AlterReplicaLogDirTopic]
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            buffer.write(path, lengthEncoding: lengthEncoding)
-            try buffer.write(topics, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-    
-        
-        }
+    init(apiVersion: APIVersion, path: String, topics: [AlterReplicaLogDirTopic]) {
+        self.apiVersion = apiVersion
+        self.path = path
+        self.topics = topics
     }
     let apiKey: APIKey = .alterReplicaLogDirs
     let apiVersion: APIVersion

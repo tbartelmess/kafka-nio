@@ -17,57 +17,17 @@ import NIO
 
 
 struct DescribeDelegationTokenResponse: KafkaResponse { 
-    struct DescribedDelegationToken: KafkaResponseStruct {
-        struct DescribedDelegationTokenRenewer: KafkaResponseStruct {
-        
-            
-            /// The renewer principal type
-            let principalType: String    
-            /// The renewer principal name
-            let principalName: String
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-                principalType = try buffer.read(lengthEncoding: lengthEncoding)
-                principalName = try buffer.read(lengthEncoding: lengthEncoding)
-                if apiVersion >= 2 {
-                    let _ : [TaggedField] = try buffer.read()
-                }
-            }
-        
-        }
-    
-        
-        /// The token principal type.
-        let principalType: String    
-        /// The token principal name.
-        let principalName: String    
-        /// The token issue timestamp in milliseconds.
-        let issueTimestamp: Int64    
-        /// The token expiry timestamp in milliseconds.
-        let expiryTimestamp: Int64    
-        /// The token maximum timestamp length in milliseconds.
-        let maxTimestamp: Int64    
-        /// The token ID.
-        let tokenID: String    
-        /// The token HMAC.
-        let hmac: [UInt8]    
-        /// Those who are able to renew this token before it expires.
-        let renewers: [DescribedDelegationTokenRenewer]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            principalType = try buffer.read(lengthEncoding: lengthEncoding)
-            principalName = try buffer.read(lengthEncoding: lengthEncoding)
-            issueTimestamp = try buffer.read()
-            expiryTimestamp = try buffer.read()
-            maxTimestamp = try buffer.read()
-            tokenID = try buffer.read(lengthEncoding: lengthEncoding)
-            hmac = try buffer.read(lengthEncoding: lengthEncoding)
-            renewers = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 2 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, principalType: String, principalName: String, issueTimestamp: Int64, expiryTimestamp: Int64, maxTimestamp: Int64, tokenID: String, hmac: [UInt8], renewers: [DescribedDelegationTokenRenewer]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.principalType = principalType
+        self.principalName = principalName
+        self.issueTimestamp = issueTimestamp
+        self.expiryTimestamp = expiryTimestamp
+        self.maxTimestamp = maxTimestamp
+        self.tokenID = tokenID
+        self.hmac = hmac
+        self.renewers = renewers
     }
     let apiKey: APIKey = .describeDelegationToken
     let apiVersion: APIVersion
@@ -96,5 +56,15 @@ struct DescribeDelegationTokenResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, tokens: [DescribedDelegationToken], throttleTimeMs: Int32) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.tokens = tokens
+        self.throttleTimeMs = throttleTimeMs
     }
 }

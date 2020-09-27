@@ -17,32 +17,10 @@ import NIO
 
 
 struct AlterReplicaLogDirsResponse: KafkaResponse { 
-    struct AlterReplicaLogDirTopicResult: KafkaResponseStruct {
-        struct AlterReplicaLogDirPartitionResult: KafkaResponseStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32    
-            /// The error code, or 0 if there was no error.
-            let errorCode: ErrorCode
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                partitionIndex = try buffer.read()
-                errorCode = try buffer.read()
-            }
-        
-        }
-    
-        
-        /// The name of the topic.
-        let topicName: String    
-        /// The results for each partition.
-        let partitions: [AlterReplicaLogDirPartitionResult]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = .bigEndian
-            topicName = try buffer.read(lengthEncoding: lengthEncoding)
-            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-        }
-    
+    init(apiVersion: APIVersion, topicName: String, partitions: [AlterReplicaLogDirPartitionResult]) {
+        self.apiVersion = apiVersion
+        self.topicName = topicName
+        self.partitions = partitions
     }
     let apiKey: APIKey = .alterReplicaLogDirs
     let apiVersion: APIVersion
@@ -61,5 +39,13 @@ struct AlterReplicaLogDirsResponse: KafkaResponse {
         self.responseHeader = responseHeader
         throttleTimeMs = try buffer.read()
         results = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [AlterReplicaLogDirTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

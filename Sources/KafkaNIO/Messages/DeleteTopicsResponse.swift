@@ -17,29 +17,12 @@ import NIO
 
 
 struct DeleteTopicsResponse: KafkaResponse { 
-    struct DeletableTopicResult: KafkaResponseStruct {
-    
-        
-        /// The topic name
-        let name: String    
-        /// The deletion error, or 0 if the deletion succeeded.
-        let errorCode: ErrorCode    
-        /// The error message, or null if there was no error.
-        let errorMessage: String?
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 4) ? .varint : .bigEndian
-            name = try buffer.read(lengthEncoding: lengthEncoding)
-            errorCode = try buffer.read()
-            if apiVersion >= 5 {
-                errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
-            } else { 
-                errorMessage = nil
-            }
-            if apiVersion >= 4 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, name: String, errorCode: ErrorCode, errorMessage: String?) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
     }
     let apiKey: APIKey = .deleteTopics
     let apiVersion: APIVersion
@@ -68,5 +51,14 @@ struct DeleteTopicsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, responses: [DeletableTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.responses = responses
     }
 }

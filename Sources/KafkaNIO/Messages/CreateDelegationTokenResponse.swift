@@ -70,4 +70,20 @@ struct CreateDelegationTokenResponse: KafkaResponse {
             taggedFields = []
         }
     }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, principalType: String, principalName: String, issueTimestampMs: Int64, expiryTimestampMs: Int64, maxTimestampMs: Int64, tokenID: String, hmac: [UInt8], throttleTimeMs: Int32) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.principalType = principalType
+        self.principalName = principalName
+        self.issueTimestampMs = issueTimestampMs
+        self.expiryTimestampMs = expiryTimestampMs
+        self.maxTimestampMs = maxTimestampMs
+        self.tokenID = tokenID
+        self.hmac = hmac
+        self.throttleTimeMs = throttleTimeMs
+    }
 }

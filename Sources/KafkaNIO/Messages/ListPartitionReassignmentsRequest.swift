@@ -17,23 +17,11 @@ import NIO
 
 
 struct ListPartitionReassignmentsRequest: KafkaRequest { 
-    struct ListPartitionReassignmentsTopics: KafkaRequestStruct {
-    
-        
-        /// The topic name
-        let name: String    
-        /// The partitions to list partition reassignments for.
-        let partitionIndexes: [Int32]
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 0) ? .varint : .bigEndian
-            buffer.write(name, lengthEncoding: lengthEncoding)
-            buffer.write(partitionIndexes, lengthEncoding: lengthEncoding)
-            if apiVersion >= 0 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, name: String, partitionIndexes: [Int32]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.partitionIndexes = partitionIndexes
     }
     let apiKey: APIKey = .listPartitionReassignments
     let apiVersion: APIVersion

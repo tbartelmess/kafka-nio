@@ -17,126 +17,25 @@ import NIO
 
 
 struct StopReplicaRequest: KafkaRequest { 
-    struct StopReplicaPartitionV0: KafkaRequestStruct {
-    
-        
-        /// The topic name.
-        let topicName: String?    
-        /// The partition index.
-        let partitionIndex: Int32?
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            if apiVersion <= 0 {
-                guard let topicName = self.topicName else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(topicName, lengthEncoding: lengthEncoding)
-            }
-            if apiVersion <= 0 {
-                guard let partitionIndex = self.partitionIndex else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(partitionIndex)
-            }
-            if apiVersion >= 2 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, topicName: String?, partitionIndex: Int32?) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.topicName = topicName
+        self.partitionIndex = partitionIndex
     }
     
-    struct StopReplicaTopicV1: KafkaRequestStruct {
-    
-        
-        /// The topic name.
-        let name: String?    
-        /// The partition indexes.
-        let partitionIndexes: [Int32]?
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            if apiVersion >= 1 && apiVersion <= 2 {
-                guard let name = self.name else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(name, lengthEncoding: lengthEncoding)
-            }
-            if apiVersion >= 1 && apiVersion <= 2 {
-                guard let partitionIndexes = self.partitionIndexes else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(partitionIndexes, lengthEncoding: lengthEncoding)
-            }
-            if apiVersion >= 2 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, name: String?, partitionIndexes: [Int32]?) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.partitionIndexes = partitionIndexes
     }
     
-    struct StopReplicaTopicState: KafkaRequestStruct {
-        struct StopReplicaPartitionState: KafkaRequestStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32?    
-            /// The leader epoch.
-            let leaderEpoch: Int32?    
-            /// Whether this partition should be deleted.
-            let deletePartition: Bool?
-            let taggedFields: [TaggedField] = []
-            func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                if apiVersion >= 3 {
-                    guard let partitionIndex = self.partitionIndex else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(partitionIndex)
-                }
-                if apiVersion >= 3 {
-                    guard let leaderEpoch = self.leaderEpoch else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(leaderEpoch)
-                }
-                if apiVersion >= 3 {
-                    guard let deletePartition = self.deletePartition else {
-                        throw KafkaError.missingValue
-                    }
-                    buffer.write(deletePartition)
-                }
-                if apiVersion >= 2 {
-                    buffer.write(taggedFields)
-                }
-            
-            }
-        }
-    
-        
-        /// The topic name.
-        let topicName: String?    
-        /// The state of each partition
-        let partitionStates: [StopReplicaPartitionState]?
-        let taggedFields: [TaggedField] = []
-        func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            if apiVersion >= 3 {
-                guard let topicName = self.topicName else {
-                    throw KafkaError.missingValue
-                }
-                buffer.write(topicName, lengthEncoding: lengthEncoding)
-            }
-            if apiVersion >= 3 {
-                guard let partitionStates = self.partitionStates else {
-                    throw KafkaError.missingValue
-                }
-                try buffer.write(partitionStates, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            }
-            if apiVersion >= 2 {
-                buffer.write(taggedFields)
-            }
-        
-        }
+    init(apiVersion: APIVersion, topicName: String?, partitionStates: [StopReplicaPartitionState]?) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.topicName = topicName
+        self.partitionStates = partitionStates
     }
     let apiKey: APIKey = .stopReplica
     let apiVersion: APIVersion

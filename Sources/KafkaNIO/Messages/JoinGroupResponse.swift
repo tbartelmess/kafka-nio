@@ -17,29 +17,12 @@ import NIO
 
 
 struct JoinGroupResponse: KafkaResponse { 
-    struct JoinGroupResponseMember: KafkaResponseStruct {
-    
-        
-        /// The group member ID.
-        let memberID: String    
-        /// The unique identifier of the consumer instance provided by end user.
-        let groupInstanceID: String?    
-        /// The group member metadata.
-        let metadata: [UInt8]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 6) ? .varint : .bigEndian
-            memberID = try buffer.read(lengthEncoding: lengthEncoding)
-            if apiVersion >= 5 {
-                groupInstanceID = try buffer.read(lengthEncoding: lengthEncoding)
-            } else { 
-                groupInstanceID = nil
-            }
-            metadata = try buffer.read(lengthEncoding: lengthEncoding)
-            if apiVersion >= 6 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, memberID: String, groupInstanceID: String?, metadata: [UInt8]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.memberID = memberID
+        self.groupInstanceID = groupInstanceID
+        self.metadata = metadata
     }
     let apiKey: APIKey = .joinGroup
     let apiVersion: APIVersion
@@ -96,5 +79,20 @@ struct JoinGroupResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, errorCode: ErrorCode, generationID: Int32, protocolType: String?, protocolName: String?, leader: String, memberID: String, members: [JoinGroupResponseMember]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.generationID = generationID
+        self.protocolType = protocolType
+        self.protocolName = protocolName
+        self.leader = leader
+        self.memberID = memberID
+        self.members = members
     }
 }

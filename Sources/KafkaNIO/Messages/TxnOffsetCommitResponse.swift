@@ -17,38 +17,11 @@ import NIO
 
 
 struct TxnOffsetCommitResponse: KafkaResponse { 
-    struct TxnOffsetCommitResponseTopic: KafkaResponseStruct {
-        struct TxnOffsetCommitResponsePartition: KafkaResponseStruct {
-        
-            
-            /// The partition index.
-            let partitionIndex: Int32    
-            /// The error code, or 0 if there was no error.
-            let errorCode: ErrorCode
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                partitionIndex = try buffer.read()
-                errorCode = try buffer.read()
-                if apiVersion >= 3 {
-                    let _ : [TaggedField] = try buffer.read()
-                }
-            }
-        
-        }
-    
-        
-        /// The topic name.
-        let name: String    
-        /// The responses for each partition in the topic.
-        let partitions: [TxnOffsetCommitResponsePartition]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 3) ? .varint : .bigEndian
-            name = try buffer.read(lengthEncoding: lengthEncoding)
-            partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 3 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, name: String, partitions: [TxnOffsetCommitResponsePartition]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.name = name
+        self.partitions = partitions
     }
     let apiKey: APIKey = .txnOffsetCommit
     let apiVersion: APIVersion
@@ -73,5 +46,14 @@ struct TxnOffsetCommitResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, topics: [TxnOffsetCommitResponseTopic]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
     }
 }

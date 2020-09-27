@@ -17,64 +17,12 @@ import NIO
 
 
 struct DescribeLogDirsResponse: KafkaResponse { 
-    struct DescribeLogDirsResult: KafkaResponseStruct {
-        struct DescribeLogDirsTopic: KafkaResponseStruct {
-            struct DescribeLogDirsPartition: KafkaResponseStruct {
-            
-                
-                /// The partition index.
-                let partitionIndex: Int32    
-                /// The size of the log segments in this partition in bytes.
-                let partitionSize: Int64    
-                /// The lag of the log's LEO w.r.t. partition's HW (if it is the current log for the partition) or current replica's LEO (if it is the future log for the partition)
-                let offsetLag: Int64    
-                /// True if this log is created by AlterReplicaLogDirsRequest and will replace the current log of the replica in the future.
-                let isFutureKey: Bool
-                init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                    partitionIndex = try buffer.read()
-                    partitionSize = try buffer.read()
-                    offsetLag = try buffer.read()
-                    isFutureKey = try buffer.read()
-                    if apiVersion >= 2 {
-                        let _ : [TaggedField] = try buffer.read()
-                    }
-                }
-            
-            }
-        
-            
-            /// The topic name.
-            let name: String    
-            /// None
-            let partitions: [DescribeLogDirsPartition]
-            init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-                let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-                name = try buffer.read(lengthEncoding: lengthEncoding)
-                partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-                if apiVersion >= 2 {
-                    let _ : [TaggedField] = try buffer.read()
-                }
-            }
-        
-        }
-    
-        
-        /// The error code, or 0 if there was no error.
-        let errorCode: ErrorCode    
-        /// The absolute log directory path.
-        let logDir: String    
-        /// Each topic.
-        let topics: [DescribeLogDirsTopic]
-        init(from buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
-            let lengthEncoding: IntegerEncoding = (apiVersion >= 2) ? .varint : .bigEndian
-            errorCode = try buffer.read()
-            logDir = try buffer.read(lengthEncoding: lengthEncoding)
-            topics = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
-            if apiVersion >= 2 {
-                let _ : [TaggedField] = try buffer.read()
-            }
-        }
-    
+    init(apiVersion: APIVersion, errorCode: ErrorCode, logDir: String, topics: [DescribeLogDirsTopic]) {
+        self.apiVersion = apiVersion
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.logDir = logDir
+        self.topics = topics
     }
     let apiKey: APIKey = .describeLogDirs
     let apiVersion: APIVersion
@@ -99,5 +47,14 @@ struct DescribeLogDirsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [DescribeLogDirsResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }
