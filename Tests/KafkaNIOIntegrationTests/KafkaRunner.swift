@@ -362,6 +362,7 @@ class ZookeeperController: ServerController {
     }
 
     func stopZookeeper() {
+        print("Stopping Zookeeper")
         zookeeperProcess?.interrupt()
         zookeeperProcess?.waitUntilExit()
     }
@@ -464,6 +465,7 @@ class KafkaController: ServerController {
         try kafkaStartupWatcher.waitForStartup()
     }
     func stopKafka() {
+        print("Stopping Kafka")
         kafkaProcess?.interrupt()
         kafkaProcess?.waitUntilExit()
     }
