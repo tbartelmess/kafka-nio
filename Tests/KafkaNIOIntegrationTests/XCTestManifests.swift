@@ -7,7 +7,6 @@ extension Connect {
     // to regenerate.
     static let __allTests__Connect = [
         ("testConnect", testConnect),
-        ("testJoinGroup", testJoinGroup),
     ]
 }
 
