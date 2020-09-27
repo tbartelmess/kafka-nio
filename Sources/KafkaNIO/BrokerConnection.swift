@@ -44,10 +44,14 @@ protocol BrokerConnectionProtocol {
     func latestSupportedVersion(for key: APIKey) -> APIVersion?
 
     var clientID: String { get }
+    var eventLoop: EventLoop { get }
 }
 
 
 extension BrokerConnectionProtocol {
+
+
+
     // MARK: Request APIs
 
     func requestQueryAPIVersions(clientID: String) -> EventLoopFuture<ApiVersionsResponse> {
@@ -65,7 +69,7 @@ extension BrokerConnectionProtocol {
                        includeClusterAuthorizedOperations: Bool = true,
                        includeTopicAuthorizedOperations: Bool = true) -> EventLoopFuture<MetadataResponse> {
         guard let version = self.latestSupportedVersion(for: .metadata) else {
-            fatalError()
+            return eventLoop.makeFailedFuture(KafkaError.unsupportedAPIKey)
         }
         let request = MetadataRequest(apiVersion: version,
                                       clientID: clientID,
@@ -260,6 +264,10 @@ final public class BrokerConnection: BrokerConnectionProtocol {
         supportedAPIVersion.first { (_key, _, _) -> Bool in
             key == _key
         }?.2
+    }
+
+    var eventLoop: EventLoop {
+        return channel.eventLoop
     }
 
     private var parkedResponsePromises: [CorrelationID: EventLoopPromise<KafkaResponse>] = [:]
