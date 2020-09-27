@@ -287,9 +287,23 @@ class APITypeGenerator(AbstractGenerator):
                 output += indent(generator.generate_write(), 2) + "\n"
             output += indent(self.generate_write_tagged_fields(), 1) +"\n"
             output += indent("\n}",1)
+        output += "\n}\n\n"
 
+        # Init
+        init_args = [APIFieldGenerator(field, self.flexible_versions).init_argument() for field in self.fields]
+        output = "init(apiVersion: APIVersion, " + ", ".join(init_args) + ") {\n"
+        output += indent("self.apiVersion = apiVersion",1) + "\n"
+        if self.flexible_versions is not None:
+            output += indent("self.taggedFields = []", 1) + "\n"
+        for field in self.fields:
+            if 'taggedVersions' in field:
+                continue
+            field_generator = APIFieldGenerator(field, self.flexible_versions)
+            output += indent(field_generator.init_assignment(), 1) + "\n"
+        output += "}"
+        return output
 
-        output += "\n}"
+        output += "}"
         return output
 
 
@@ -317,7 +331,7 @@ class APIFieldGenerator(AbstractGenerator):
         else:
             final_type = base_type
         return final_type + ('?' if self.is_optional else '')
-    
+
     @property
     def docstring(self):
         return "/// {self.about}"
@@ -331,7 +345,7 @@ class APIFieldGenerator(AbstractGenerator):
     @property
     def is_optional(self):
         return self.first_available_version != 0 or self.last_available_version is not None or self.nullable_versions is not None
-    
+
     def generate_field(self):
         output = f"""
         /// {self.definition.get('about')}
@@ -339,6 +353,11 @@ class APIFieldGenerator(AbstractGenerator):
         """
         return textwrap.dedent(output)
 
+    def init_argument(self):
+        return f"{swiftize_field_name(self.name)}: {self.type}"
+
+    def init_assignment(self):
+        return f"self.{swiftize_field_name(self.name)} = {swiftize_field_name(self.name)}"
 
 
 
@@ -373,6 +392,7 @@ class APIMessageGenerator(AbstractGenerator):
     def api_key_name(self):
         name = self.definition['name'].replace('Request', '').replace('Response', '')
         return camel_case(name)
+
 
 
     def generate_write(self):
@@ -424,6 +444,23 @@ class APIMessageGenerator(AbstractGenerator):
                  output.append(types)
         return "\n\n".join(output) + "\n"
 
+
+    def generate_init(self):
+        init_args = [APIFieldGenerator(field, self.flexible_versions).init_argument() for field in self.definition['fields']]
+        output = "init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, " + ", ".join(init_args) + ") {\n"
+        output += indent("self.apiVersion = apiVersion",1) + "\n"
+        output += indent("self.responseHeader = responseHeader",1) + "\n"
+        if self.flexible_versions is not None:
+            output += indent("self.taggedFields = []", 1) + "\n"
+        for field in self.definition['fields']:
+            if 'taggedVersions' in field:
+                continue
+            field_generator = APIFieldGenerator(field, self.flexible_versions)
+            output += indent(field_generator.init_assignment(), 1) + "\n"
+        output += "}"
+        return output
+
+
     def generate_request(self):
         output =  "struct " + self.struct_name + ": KafkaRequest { \n"
         output += indent(self.generate_custom_types("request"), 1) + "\n"
@@ -440,6 +477,7 @@ class APIMessageGenerator(AbstractGenerator):
             field_generator = APIFieldGenerator(field, self.flexible_versions)
             output += indent(field_generator.generate_field(),1) + "\n"
         output += "\n\n" + indent(self.generate_write(), 1) + "\n"
+
         output += "}\n"
         return output
 
@@ -460,10 +498,10 @@ class APIMessageGenerator(AbstractGenerator):
             output += indent("let taggedFields: [TaggedField]", 1) + "\n"
 
         output += "\n\n" + indent(self.generate_read(), 1) + "\n"
-
+        output += "\n\n" + indent(self.generate_init(), 1) + "\n"
         output += "}"
         return output
-        
+
 header = """//===----------------------------------------------------------------------===//
 //
 // This source file is part of the KafkaNIO open source project
