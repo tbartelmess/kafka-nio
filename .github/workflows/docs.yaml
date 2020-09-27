@@ -14,8 +14,10 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
+    - name: Update atp
+      run: apt update
     - name: Install Ruby
-      run: sudo apt install ruby ruby-devel
+      run: sudo apt install ruby ruby-dev
     - name: Install jazzy
       run: sudo gem install jazzy
     - name: Generate docs
