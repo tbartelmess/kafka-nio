@@ -14,7 +14,7 @@
 
 import NIO
 extension Consumer {
-    func joinGroupInitial(groupCoordinator: BrokerConnection) -> EventLoopFuture<String> {
+    func joinGroupInitial(groupCoordinator: BrokerConnectionProtocol) -> EventLoopFuture<String> {
         self.logger.info("Joining group inital (without a member ID)")
         return groupCoordinator.requestJoinGroup(groupID: self.configuration.groupID,
                                           topics: self.configuration.subscribedTopics,

@@ -32,7 +32,7 @@ struct GroupInfo {
     let generationID: Int32
     let assignmentProtocol: AssignmentProtocol
     let groupStatus: GroupStatus
-    let coordinator: BrokerConnection
+    let coordinator: BrokerConnectionProtocol
 }
 
 struct PartitionInfo {

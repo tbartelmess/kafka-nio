@@ -32,98 +32,22 @@ private struct Queue<T> {
         }
     }
 }
-private typealias CorrelationID = Int32
-/// The `BrokerConnection` is a connection to one specific broker in the Kafka cluster.
-/// It owns the NIO `Channel` with the underlying TCP connecting and offers a high level interface
-/// to send messages to the broker.
-final public class BrokerConnection {
 
-    /// NIO channel.
-    let channel: Channel
+typealias CorrelationID = Int32
 
-    /// Logger for the broker connection
-    public let logger: Logger
+protocol BrokerConnectionProtocol {
+    func send<R: KafkaResponse>(_ request: KafkaRequest) -> EventLoopFuture<R>
 
-    /// List of supported API versions by the cluster
-    private var supportedAPIVersion: [(APIKey, APIVersion, APIVersion)] = []
+    func nextCorrectionID() -> CorrelationID
+    func close() -> EventLoopFuture<Void>
 
-    private func latestSupportedVersion(for key: APIKey) -> APIVersion? {
-        supportedAPIVersion.first { (_key, _, _) -> Bool in
-            key == _key
-        }?.2
-    }
+    func latestSupportedVersion(for key: APIKey) -> APIVersion?
 
-    private var parkedResponsePromises: [CorrelationID: EventLoopPromise<KafkaResponse>] = [:]
-
-    init(clientID: String, channel: Channel, logger: Logger) throws {
-        self.clientID = clientID
-        self.channel = channel
-        self.logger = logger
-    }
-
-    func close() -> EventLoopFuture<Void> {
-        logger.info("Closing connection to: \(self.channel.remoteAddress?.description ?? "<Unknown>")")
-        return self.channel.close()
-    }
-
-    func configureChannel() -> EventLoopFuture<Void> {
-        logger.debug("Configuring Channel: \(self)")
-        let messageHandler = KafkaResponseHandler(responseHandler: self.handleResponse)
-        return channel.pipeline.addHandler(messageHandler, name: "connection", position: .last)
-    }
-    func handleResponse(_ message: KafkaResponse) {
-        logger.trace("Received \(message) from \(channel.remoteAddress?.ipAddress ?? "Unknown address")")
-        guard let responsePromise = self.parkedResponsePromises[message.responseHeader.correlationID] else {
-            logger.critical("Received a message without a promise to fulfil.")
-            return
-        }
-        responsePromise.succeed(message)
-    }
-
-    private var lastCorrelationID: CorrelationID = 0
-
-    let clientID: String
+    var clientID: String { get }
+}
 
 
-    var correlationLock = Lock()
-    private func nextCorrectionID() -> CorrelationID {
-        correlationLock.withLock {
-            lastCorrelationID += 1
-            return lastCorrelationID
-        }
-
-    }
-
-    func setup() -> EventLoopFuture<Void> {
-        return configureChannel().flatMap {
-            self.requestQueryAPIVersions(clientID: self.clientID)
-        }.map { response in
-            self.supportedAPIVersion = response.apiKeys.map{ ($0.apiKey, $0.minVersion, $0.maxVersion) }
-            self.logger.debug("Updated supported API Version")
-        }
-    }
-
-    let writeLock = Lock()
-    func send<R: KafkaResponse>(_ request: KafkaRequest) -> EventLoopFuture<R> {
-        logger.trace("Sending \(request.apiKey) to \(channel.remoteAddress?.ipAddress ?? "Unknown Address") with correlationID: \(request.correlationID)")
-        let responsePromise = self.channel.eventLoop.makePromise(of: KafkaResponse.self)
-        writeLock.withLock {
-            parkedResponsePromises[request.correlationID] = responsePromise
-            channel.writeAndFlush(request).cascadeFailure(to: responsePromise)
-        }
-
-        return responsePromise.futureResult.map { response -> R in
-            self.logger.trace("Recieved response for correlationID \(response.responseHeader.correlationID)")
-            guard let typedResponse = response as? R else {
-                fatalError("Expected response to be a \(R.self) but received a \(type(of: response))")
-            }
-
-            return typedResponse
-        }
-    }
-
-
-
+extension BrokerConnectionProtocol {
     // MARK: Request APIs
 
     func requestQueryAPIVersions(clientID: String) -> EventLoopFuture<ApiVersionsResponse> {
@@ -316,5 +240,98 @@ final public class BrokerConnection {
                                         topics: topics)
         return send(request)
     }
+}
+
+/// The `BrokerConnection` is a connection to one specific broker in the Kafka cluster.
+/// It owns the NIO `Channel` with the underlying TCP connecting and offers a high level interface
+/// to send messages to the broker.
+final public class BrokerConnection: BrokerConnectionProtocol {
+
+    /// NIO channel.
+    let channel: Channel
+
+    /// Logger for the broker connection
+    public let logger: Logger
+
+    /// List of supported API versions by the cluster
+    private var supportedAPIVersion: [(APIKey, APIVersion, APIVersion)] = []
+
+    func latestSupportedVersion(for key: APIKey) -> APIVersion? {
+        supportedAPIVersion.first { (_key, _, _) -> Bool in
+            key == _key
+        }?.2
+    }
+
+    private var parkedResponsePromises: [CorrelationID: EventLoopPromise<KafkaResponse>] = [:]
+
+    init(clientID: String, channel: Channel, logger: Logger) throws {
+        self.clientID = clientID
+        self.channel = channel
+        self.logger = logger
+    }
+
+    func close() -> EventLoopFuture<Void> {
+        logger.info("Closing connection to: \(self.channel.remoteAddress?.description ?? "<Unknown>")")
+        return self.channel.close()
+    }
+
+    func configureChannel() -> EventLoopFuture<Void> {
+        logger.debug("Configuring Channel: \(self)")
+        let messageHandler = KafkaResponseHandler(responseHandler: self.handleResponse)
+        return channel.pipeline.addHandler(messageHandler, name: "connection", position: .last)
+    }
+    func handleResponse(_ message: KafkaResponse) {
+        logger.trace("Received \(message) from \(channel.remoteAddress?.ipAddress ?? "Unknown address")")
+        guard let responsePromise = self.parkedResponsePromises[message.responseHeader.correlationID] else {
+            logger.critical("Received a message without a promise to fulfil.")
+            return
+        }
+        responsePromise.succeed(message)
+    }
+
+    private var lastCorrelationID: CorrelationID = 0
+
+    let clientID: String
+
+
+    var correlationLock = Lock()
+    func nextCorrectionID() -> CorrelationID {
+        correlationLock.withLock {
+            lastCorrelationID += 1
+            return lastCorrelationID
+        }
+
+    }
+
+    func setup() -> EventLoopFuture<Void> {
+        return configureChannel().flatMap {
+            self.requestQueryAPIVersions(clientID: self.clientID)
+        }.map { response in
+            self.supportedAPIVersion = response.apiKeys.map{ ($0.apiKey, $0.minVersion, $0.maxVersion) }
+            self.logger.debug("Updated supported API Version")
+        }
+    }
+
+    let writeLock = Lock()
+    func send<R: KafkaResponse>(_ request: KafkaRequest) -> EventLoopFuture<R> {
+        logger.trace("Sending \(request.apiKey) to \(channel.remoteAddress?.ipAddress ?? "Unknown Address") with correlationID: \(request.correlationID)")
+        let responsePromise = self.channel.eventLoop.makePromise(of: KafkaResponse.self)
+        writeLock.withLock {
+            parkedResponsePromises[request.correlationID] = responsePromise
+            channel.writeAndFlush(request).cascadeFailure(to: responsePromise)
+        }
+
+        return responsePromise.futureResult.map { response -> R in
+            self.logger.trace("Recieved response for correlationID \(response.responseHeader.correlationID)")
+            guard let typedResponse = response as? R else {
+                fatalError("Expected response to be a \(R.self) but received a \(type(of: response))")
+            }
+
+            return typedResponse
+        }
+    }
+
+
+
 }
 

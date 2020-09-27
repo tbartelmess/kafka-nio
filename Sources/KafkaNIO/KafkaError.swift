@@ -31,6 +31,8 @@ enum KafkaError: Error {
     case invalidState
     case missingValue
 
+    case nodeForTopicNotFound
+
     case multiple([Error])
 }
 

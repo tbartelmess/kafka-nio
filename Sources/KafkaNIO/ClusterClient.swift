@@ -24,7 +24,7 @@ protocol BrokerProtocol {
     var port: Int { get }
     var rack: String? { get }
 
-    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?, logger: Logger) -> EventLoopFuture<BrokerConnection>
+    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?, logger: Logger) -> EventLoopFuture<BrokerConnectionProtocol>
 }
 
 struct Broker: BrokerProtocol {
@@ -56,7 +56,7 @@ enum ClientError: Error {
 
 
 extension Broker {
-    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?, logger: Logger) -> EventLoopFuture<BrokerConnection> {
+    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?, logger: Logger) -> EventLoopFuture<BrokerConnectionProtocol> {
         let messageCoder = KafkaMessageCoder()
         let bootstrap = ClientBootstrap(group: eventLoop)
             .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
@@ -155,13 +155,13 @@ class Bootstrapper {
         return server
     }
 
-    func bootstrap() -> EventLoopFuture<BrokerConnection> {
+    func bootstrap() -> EventLoopFuture<BrokerConnectionProtocol> {
         logger.info("Starting Bootstrap to \(servers.count) Server")
         return bootstrapRecursive()
     }
 
-    private func bootstrapRecursive() -> EventLoopFuture<BrokerConnection> {
-        let promise = eventLoop.makePromise(of: BrokerConnection.self)
+    private func bootstrapRecursive() -> EventLoopFuture<BrokerConnectionProtocol> {
+        let promise = eventLoop.makePromise(of: BrokerConnectionProtocol.self)
         do {
             let broker = try nextServer()
             logger.info("Attempting to bootstrap with Server: \(broker.host):\(broker.port)")
@@ -180,8 +180,8 @@ class Bootstrapper {
 
 /// Connection pool for a cluster.
 ///
-/// There is one `BrokerConnection` to each Node in the broker cluster.
-/// Each `BrokerConnection` runs on it's own `EventLoop`
+/// There is one `BrokerConnectionProtocol` to each Node in the broker cluster.
+/// Each `BrokerConnectionProtocol` runs on it's own `EventLoop`
 final class ClusterClient {
     /// Event Loop Group to generate new `EventLoop`s from
     private let eventLoopGroup: EventLoopGroup
@@ -207,7 +207,7 @@ final class ClusterClient {
     /// in most cases the futures in this dictionary will already be fulfilled, when a connection exists.
     /// __Thread Safety:__ This variable is private to the `ClusterClient`, the cluster client only adds/removes
     /// elements within it's own event loop
-    private var connectionFutures: [NodeID: EventLoopFuture<BrokerConnection>] = [:]
+    private var connectionFutures: [NodeID: EventLoopFuture<BrokerConnectionProtocol>] = [:]
 
     /// Promise that gets fulfilled when the next metadata fetch is updated
     private var nextMetadataRefresh: EventLoopPromise<Void>
@@ -221,7 +221,7 @@ final class ClusterClient {
     /// - Parameters:
     ///   - servers: lists of brokers that can be used to bootstrap
     ///   - eventLoopGroup: `EventLoopGroup` that is used for creating new `EventLoop` instances.
-    ///                     Both the `ClusterClient`s own `EventLoop` as well as all `BrokerConnection`s
+    ///                     Both the `ClusterClient`s own `EventLoop` as well as all `BrokerConnectionProtocol`s
     ///                     that are created will use event loops from this `EventLoopGroup`
     ///   - clientID: ClientID to report to Kafka
     ///   - tlsConfiguration: TLSConfiguration for connections to the Kafka cluster created by this ClusterClient
@@ -237,7 +237,7 @@ final class ClusterClient {
             .bootstrap()
             .flatMap { (bootstrapConnection) in
                 bootstrapConnection.requestFetchMetadata(topics: topics).map { ($0, bootstrapConnection) }
-            }.map { (response, connection) -> (ClusterClient, BrokerConnection) in
+            }.map { (response, connection) -> (ClusterClient, BrokerConnectionProtocol) in
                 let initalMetadata = ClusterMetadata(metadata: response)
 
                 return (ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, topics: topics, tlsConfiguration: tlsConfiguration, logger: logger), connection)
@@ -258,7 +258,7 @@ final class ClusterClient {
         configurePeriodicRefresh()
     }
 
-    func connectionForAnyNode() -> EventLoopFuture<BrokerConnection> {
+    func connectionForAnyNode() -> EventLoopFuture<BrokerConnectionProtocol> {
         guard let connectionFuture = connectionFutures.randomElement() else {
             guard let nodeID = clusterMetadata.brokers.keys.randomElement() else {
                 return eventLoop.makeFailedFuture(KafkaError.noKnownNode)
@@ -269,7 +269,7 @@ final class ClusterClient {
     }
 
     /// Creates a connection to a node, but doesn't store a reference to the connection for reuse.
-    func createConnection(forNode nodeID: NodeID) -> EventLoopFuture<BrokerConnection> {
+    func createConnection(forNode nodeID: NodeID) -> EventLoopFuture<BrokerConnectionProtocol> {
         eventLoop.flatSubmit {
             guard let brokerInfo = self.clusterMetadata.brokers[nodeID] else {
                 return self.eventLoop.makeFailedFuture(KafkaError.unknownNodeID)
@@ -280,10 +280,10 @@ final class ClusterClient {
                                       logger: self.logger)
         }
     }
-    /// Returns a `BrokerConnection` for a NodeID.
+    /// Returns a `BrokerConnectionProtocol` for a NodeID.
     ///
     /// The node must be part of the cluster, otherwise the future fails with `ProtocolError.unknownNodeID`
-    func connection(forNode nodeID: NodeID) -> EventLoopFuture<BrokerConnection> {
+    func connection(forNode nodeID: NodeID) -> EventLoopFuture<BrokerConnectionProtocol> {
         eventLoop.flatSubmit {
             guard let brokerInfo = self.clusterMetadata.brokers[nodeID] else {
                 return self.eventLoop.makeFailedFuture(KafkaError.unknownNodeID)
@@ -325,7 +325,7 @@ final class ClusterClient {
     }
 
 
-    func refreshMetadata(connection: BrokerConnection) -> EventLoopFuture<Void> {
+    func refreshMetadata(connection: BrokerConnectionProtocol) -> EventLoopFuture<Void> {
         connection.requestFetchMetadata(topics: self.topics).map { response in
             self.clusterMetadata = ClusterMetadata(metadata: response)
             self.nextMetadataRefresh.succeed(())

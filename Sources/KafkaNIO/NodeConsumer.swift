@@ -14,7 +14,7 @@
 import NIO
 
 class NodeConsumer {
-    let brokerConnection: BrokerConnection
+    let BrokerConnectionProtocol: BrokerConnectionProtocol
     var partitions: [Topic : [PartitionIndex]]
     let group: String
     let eventLoop: EventLoop
@@ -27,13 +27,13 @@ class NodeConsumer {
 
     var currentPoll: EventLoopFuture<Void>?
 
-    init(connection: BrokerConnection,
+    init(connection: BrokerConnectionProtocol,
          partitions: [Topic : [PartitionIndex]],
          consumerCoordinator: ConsumerCoordinator,
          configuration: Consumer.Configuration,
          group: String,
          eventLoop: EventLoop) {
-        self.brokerConnection = connection
+        self.BrokerConnectionProtocol = connection
         self.group = group
         self.eventLoop = eventLoop
         self.partitions = partitions
@@ -91,7 +91,7 @@ class NodeConsumer {
             }
             return FetchRequest.FetchTopic(topic: topic, partitions: fetchPartitions)
         }
-        return brokerConnection.requestFetch(maxWaitTime: fetchConfiguration.maxWaitTime,
+        return BrokerConnectionProtocol.requestFetch(maxWaitTime: fetchConfiguration.maxWaitTime,
                                              minBytes: fetchConfiguration.minBytes,
                                              maxBytes: fetchConfiguration.maxBytes,
                                              sessionID: sessionID,
