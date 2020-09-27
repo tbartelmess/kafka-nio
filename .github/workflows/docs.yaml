@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-    - uses: tbartelmess/setup-swift@v1.4.0
+    - uses: tbartelmess/setup-swift@v1.5.0
     - uses: actions/checkout@v2
       with:
         submodules: true
