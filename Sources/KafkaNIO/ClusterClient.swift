@@ -19,7 +19,19 @@ typealias NodeID = Int32
 
 let logger = Logger(label: "io.bartelmess.KafkaNIO.Client")
 
-struct Broker {
+protocol BrokerProtocol {
+    var host: String { get }
+    var port: Int { get }
+    var rack: String? { get }
+
+    func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?) -> EventLoopFuture<BrokerConnection>
+}
+
+struct Broker: BrokerProtocol {
+    let host: String
+    let port: Int
+    let rack: String?
+
     init?(_ socketAddress: SocketAddress, rack: String? = nil) {
         guard let ip = socketAddress.ipAddress,
               let port = socketAddress.port else {
@@ -35,19 +47,15 @@ struct Broker {
         self.port = port
         self.rack = rack
     }
-    let host: String
-    let port: Int
-    let rack: String?
 }
-
 
 enum ClientError: Error {
     case noBootstrapServer
     case serverError(ErrorCode)
 }
 
-extension Broker {
 
+extension Broker {
     func connect(on eventLoop: EventLoop, clientID: String, tlsConfiguration: TLSConfiguration?) -> EventLoopFuture<BrokerConnection> {
         let messageCoder = KafkaMessageCoder()
         let bootstrap = ClientBootstrap(group: eventLoop)
@@ -89,7 +97,7 @@ extension Broker {
 protocol ClusterMetadataProtocol: CustomStringConvertible {
     var clusterID: String? {get}
     var controllerID: Int32 {get}
-    var brokers: [NodeID: Broker] {get}
+    var brokers: [NodeID: BrokerProtocol] {get}
     var topics: [MetadataResponse.MetadataResponseTopic] {get}
 
     func nodeID(forTopic topic: String, partition: Int) -> NodeID?
@@ -99,12 +107,16 @@ extension ClusterMetadataProtocol {
     var description: String {
         return "CusterMetadata: <ClusterID:\(clusterID ?? "Unknown") ControllerID:\(controllerID)>"
     }
+
+    func nodeID(forTopic topic: String, partition: Int) -> NodeID? {
+        topics.first(where: {$0.name == topic})?.partitions.first(where: {$0.partitionIndex == partition})?.leaderID
+    }
 }
 
 struct ClusterMetadata: ClusterMetadataProtocol, CustomStringConvertible {
     let clusterID: String?
     let controllerID: Int32
-    let brokers: [NodeID: Broker]
+    let brokers: [NodeID: BrokerProtocol]
     let topics: [MetadataResponse.MetadataResponseTopic]
 
 
@@ -119,14 +131,10 @@ struct ClusterMetadata: ClusterMetadataProtocol, CustomStringConvertible {
         })
         self.topics = metadata.topics
     }
-
-    func nodeID(forTopic topic: String, partition: Int) -> NodeID? {
-        topics.first(where: {$0.name == topic})?.partitions.first(where: {$0.partitionIndex == partition})?.leaderID
-    }
 }
 
 class Bootstrapper {
-    var servers: [Broker]
+    var servers: [BrokerProtocol]
     let eventLoop: EventLoop
     let tlsConfiguration: TLSConfiguration?
     let logger: Logger
@@ -140,7 +148,7 @@ class Bootstrapper {
         self.logger = logger
     }
 
-    func nextServer() throws -> Broker {
+    func nextServer() throws -> BrokerProtocol {
         guard let server = servers.popLast() else {
             throw ClientError.noBootstrapServer
         }
@@ -200,7 +208,8 @@ final class ClusterClient {
                 connection.close().map { clusterClient }
             }
     }
-    private init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, tlsConfiguration: TLSConfiguration?) {
+
+    init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, tlsConfiguration: TLSConfiguration?) {
         self.clientID = clientID
         self.eventLoopGroup = eventLoopGroup
         self.clusterMetadata = clusterMetadata
