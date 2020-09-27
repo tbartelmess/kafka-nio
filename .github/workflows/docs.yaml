@@ -5,17 +5,12 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  deploy_docs:
+    runs-on: macos-latest
     steps:
-    - uses: fwal/setup-swift@v1.3.0
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v1
+    - name: Publish Jazzy Docs
+      uses: steven0351/publish-jazzy-docs@v1
       with:
-        submodules: true
-    - name: Build Documentation
-      run: sudo Scripts/build-docs.sh
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
+        personal_access_token: ${{ secrets.ACCESS_TOKEN }}
+        args: "--module KafkaNIO --author Thomas Bartelmess"
