@@ -38,7 +38,6 @@ class Connect: XCTestCase {
                                                                  rebalanceTimeout: 10000,
                                                                  tlsConfiguration: nil),
                                             eventLoopGroup: eventLoopGroup).wait()
-        XCTAssertEqual(consumer.clusterClient.clusterMetadata.brokers.count, 1)
     }
 
 }
