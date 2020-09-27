@@ -79,8 +79,6 @@ struct CreateTopicsResponse: KafkaResponse {
         let errorCode: ErrorCode    
         /// The error message, or null if there was no error.
         let errorMessage: String?    
-        /// Optional topic config error returned if configs are not returned in the response.
-        let topicConfigErrorCode: Int16?    
         /// Number of partitions of the topic.
         let numPartitions: Int32?    
         /// Replication factor of the topic.
@@ -95,11 +93,6 @@ struct CreateTopicsResponse: KafkaResponse {
                 errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
             } else { 
                 errorMessage = nil
-            }
-            if apiVersion >= 5 {
-                topicConfigErrorCode = try buffer.read()
-            } else { 
-                topicConfigErrorCode = nil
             }
             if apiVersion >= 5 {
                 numPartitions = try buffer.read()

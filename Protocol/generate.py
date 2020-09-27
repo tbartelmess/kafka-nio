@@ -236,6 +236,8 @@ class APITypeGenerator(AbstractGenerator):
         generate_length_encoding = False
 
         for field in self.fields or []:
+            if field.get('tag') is not None:
+                continue
             generator = APIFieldGenerator(field, self.flexible_versions)
             generate_length_encoding = generate_length_encoding or generator.needs_length_encoding
         return generate_length_encoding
@@ -248,6 +250,8 @@ class APITypeGenerator(AbstractGenerator):
             struct_type_name = "KafkaResponseStruct"
         output = "struct " + self.name + ": " + struct_type_name + " {\n"
         for field in self.fields:
+            if field.get('tag') is not None:
+                continue
             generator = APIFieldGenerator(field, self.flexible_versions)
             types = generator.generate_types(struct_type)
             if types:
@@ -255,6 +259,8 @@ class APITypeGenerator(AbstractGenerator):
         output += "\n"
 
         for field in self.fields:
+            if field.get('tag') is not None:
+                continue
             generator = APIFieldGenerator(field, self.flexible_versions)
             output += indent(generator.generate_field(), 1)
         output += "\n"
@@ -269,6 +275,8 @@ class APITypeGenerator(AbstractGenerator):
             if self.fields_required_length_encoding:
                 output += indent(self.generate_length_encoding_declaration(), 2) + "\n"
             for field in self.fields:
+                if field.get('tag') is not None:
+                    continue
                 generator = APIFieldGenerator(field, self.flexible_versions)
                 output += indent(generator.generate_read(), 2) + "\n"
             if self.flexible_versions is not None:
