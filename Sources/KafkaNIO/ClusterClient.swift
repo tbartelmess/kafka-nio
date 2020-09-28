@@ -176,7 +176,10 @@ class Bootstrapper {
         return promise.futureResult
     }
 }
-
+enum MetadataRefresh {
+    case manual
+    case automatic(TimeAmount)
+}
 
 /// Connection pool for a cluster.
 ///
@@ -213,7 +216,17 @@ final class ClusterClient {
     private var nextMetadataRefresh: EventLoopPromise<Void>
 
     /// List of topics the `ClusterClient` keeps metadata for.
-    var topics: [String]
+    private var topics: Set<String>
+
+    func addTopic(topic: String) {
+        topics.insert(topic)
+        let _ = eventLoop.flatSubmit(doMetadataRefresh)
+    }
+
+    func removeTopic(topic: String) {
+        topics.insert(topic)
+        let _ = eventLoop.flatSubmit(doMetadataRefresh)
+    }
 
     /// Create a new cluster from a set of servers.
     /// At least one the servers needs to be reachable. During the bootstrap the we try to connection to each server in a sequential order
@@ -246,16 +259,24 @@ final class ClusterClient {
             }
     }
 
-    init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, topics:[Topic], tlsConfiguration: TLSConfiguration?, logger: Logger) {
+    init(clientID: String, eventLoopGroup: EventLoopGroup, clusterMetadata: ClusterMetadataProtocol, topics:[Topic], tlsConfiguration: TLSConfiguration?, logger: Logger, metadataRefresh: MetadataRefresh = .automatic(TimeAmount.seconds(10))) {
         self.clientID = clientID
         self.eventLoopGroup = eventLoopGroup
         self.clusterMetadata = clusterMetadata
         self.tlsConfiguration = tlsConfiguration
         self.eventLoop = eventLoopGroup.next()
-        self.topics = topics
+        self.topics = Set(topics)
         self.logger = logger
         nextMetadataRefresh = eventLoop.makePromise()
-        configurePeriodicRefresh()
+        if case .automatic(let interval) = metadataRefresh {
+            configurePeriodicRefresh(interval: interval)
+        }
+
+    }
+
+    deinit {
+        // Suceed the nextMetadata promise, otherwise it'll "leak".
+        nextMetadataRefresh.succeed(())
     }
 
     func connectionForAnyNode() -> EventLoopFuture<BrokerConnectionProtocol> {
@@ -315,21 +336,26 @@ final class ClusterClient {
 
     var metadataRefreshTask: RepeatedTask?
 
-    func configurePeriodicRefresh() {
-        let interval = TimeAmount.seconds(5)
+    func doMetadataRefresh() -> EventLoopFuture<Void> {
+        self.connectionForAnyNode().flatMap { connection in
+            self.refreshMetadata(connection: connection)
+        }
+    }
+
+    func configurePeriodicRefresh(interval: TimeAmount) {
         metadataRefreshTask = eventLoop.scheduleRepeatedAsyncTask(initialDelay: interval, delay: interval) { repeatedTask in
-            self.connectionForAnyNode().flatMap { connection in
-                self.refreshMetadata(connection: connection)
-            }
+            self.doMetadataRefresh()
         }
     }
 
 
     func refreshMetadata(connection: BrokerConnectionProtocol) -> EventLoopFuture<Void> {
-        connection.requestFetchMetadata(topics: self.topics).map { response in
+        connection.requestFetchMetadata(topics: Array(self.topics)).map { response in
             self.clusterMetadata = ClusterMetadata(metadata: response)
-            self.nextMetadataRefresh.succeed(())
-            self.nextMetadataRefresh = self.eventLoop.makePromise()
+            self.eventLoop.execute {
+                self.nextMetadataRefresh.succeed(())
+                self.nextMetadataRefresh = self.eventLoop.makePromise()
+            }
         }
 
     }
