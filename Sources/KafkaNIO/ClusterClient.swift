@@ -351,8 +351,8 @@ final class ClusterClient {
 
     func refreshMetadata(connection: BrokerConnectionProtocol) -> EventLoopFuture<Void> {
         connection.requestFetchMetadata(topics: Array(self.topics)).map { response in
-            self.clusterMetadata = ClusterMetadata(metadata: response)
             self.eventLoop.execute {
+                self.clusterMetadata = ClusterMetadata(metadata: response)
                 self.nextMetadataRefresh.succeed(())
                 self.nextMetadataRefresh = self.eventLoop.makePromise()
             }
@@ -370,6 +370,28 @@ final class ClusterClient {
                 return self.nodeIDAfterNextMetadataRefresh(forTopic: topic, partition: partition, attempts: attempts-1)
             }
             return self.eventLoop.makeSucceededFuture(nodeID)
+        }
+    }
+
+    /// Ensure that the metadata for the given topics is available, when metadata for a topic in the list is not available
+    /// (e.g. due to a `.leaderNotAvailable`) the metadata will be refreshed up to `attempts` times, if the metadata is still not available,
+    /// the future will fail.
+    func ensureHasMetadataFor(topics: [Topic], attempts: Int = 5) -> EventLoopFuture<Void> {
+        if attempts == 0 {
+            return eventLoop.makeFailedFuture(KafkaError.missingMetadata)
+        }
+        let missingTopics = topics.filter { topicName in
+            !(clusterMetadata.topics.contains { $0.name == topicName })
+        }
+        let missingMetadata = clusterMetadata.topics.filter { topic in
+            topic.errorCode != .noError
+        }
+        if missingTopics.isEmpty && missingMetadata.isEmpty {
+            return eventLoop.makeSucceededFuture(())
+        }
+
+        return nextMetadataRefresh.futureResult.flatMap{
+            self.ensureHasMetadataFor(topics: topics, attempts: attempts - 1)
         }
     }
 

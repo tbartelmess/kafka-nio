@@ -199,13 +199,13 @@ class ClusterClientTests: XCTestCase {
         let metadata = TestableMetadata(clusterID: "test-cluster", controllerID: 1, brokers: [1: testBroker], topics: [])
         client = ClusterClient.testable(eventLoopGroup: eventLoopGroup, clientID: "test-cluster", initalMetadata: metadata)
         testBrokerConnection = try client.connection(forNode: 1).wait() as? TestableBrokerConnection
+        testBrokerConnection.supportedVersions[APIKey.apiVersions] = 3
+        testBrokerConnection.supportedVersions[APIKey.metadata] = 9
     }
 
 
     func testRefreshMetadata() throws {
 
-        testBrokerConnection.supportedVersions[APIKey.apiVersions] = 3
-        testBrokerConnection.supportedVersions[APIKey.metadata] = 9
         testBrokerConnection.enqueueResponse(MetadataResponse(apiVersion: 9,
                                                         responseHeader: .init(correlationID: 1, version: .v1),
                                                         throttleTimeMs: 0,
@@ -241,9 +241,43 @@ class ClusterClientTests: XCTestCase {
         XCTAssertEqual(topic.partitions.first?.leaderID, 1)
     }
 
+    func metadataResponse(topics:[MetadataResponse.MetadataResponseTopic] = []) -> MetadataResponse {
+        MetadataResponse(apiVersion: 9,
+                        responseHeader: .init(correlationID: 1, version: .v1),
+                        throttleTimeMs: 0,
+                        brokers: [.init(nodeID: 1, host: "test-broker", port: 0, rack: nil)],
+                        clusterID: "test-cluster",
+                        controllerID: 1,
+                        topics: topics,
+                        clusterAuthorizedOperations: nil)
+    }
+
+    func metadataResponseLeaderNotAvailable() -> MetadataResponse {
+        let topic = MetadataResponse.MetadataResponseTopic(errorCode: .leaderLeaderNotAvailable,
+                                                           name: "my-topic",
+                                                           isInternal: false,
+                                                           partitions: [],
+                                                           topicAuthorizedOperations: 0)
+        return metadataResponse(topics: [topic])
+    }
+
+    func metadataResponseOK() -> MetadataResponse {
+        let topic = MetadataResponse.MetadataResponseTopic(errorCode: .noError,
+                                                           name: "my-topic",
+                                                           isInternal: false,
+                                                           partitions: [.init(errorCode: .noError,
+                                                                              partitionIndex: 1,
+                                                                              leaderID: 1,
+                                                                              leaderEpoch: 0,
+                                                                              replicaNodes: [],
+                                                                              isrNodes: [],
+                                                                              offlineReplicas: []  )],
+                                                           topicAuthorizedOperations: 0)
+        return metadataResponse(topics: [topic])
+    }
+
     func testConnectionForTopic() throws {
-        testBrokerConnection.supportedVersions[APIKey.apiVersions] = 3
-        testBrokerConnection.supportedVersions[APIKey.metadata] = 9
+
         testBrokerConnection.enqueueResponse(MetadataResponse(apiVersion: 9,
                                                         responseHeader: .init(correlationID: 1, version: .v1),
                                                         throttleTimeMs: 0,
@@ -253,6 +287,51 @@ class ClusterClientTests: XCTestCase {
                                                         topics: [.init(errorCode: .leaderLeaderNotAvailable, name: "my-topic", isInternal: false, partitions: [], topicAuthorizedOperations: 0)],
                                                         clusterAuthorizedOperations: nil), forKey: .metadata)
         try client.doMetadataRefresh().wait()
-        
+    }
+
+    func testEnsureHasMetadataFail() throws {
+        for _ in 0..<5 {
+            testBrokerConnection.enqueueResponse(metadataResponse(), forKey: .metadata)
+        }
+
+
+        let futureFulfilledExpectation = expectation(description: "ensureHasMetadataFor(topics:) called")
+        let _ = client.ensureHasMetadataFor(topics: ["non-existent-topic"]).whenFailure { error in
+            futureFulfilledExpectation.fulfill()
+        }
+        for _ in 0..<5 {
+            try client.doMetadataRefresh().wait()
+        }
+        wait(for: [futureFulfilledExpectation], timeout: 1)
+    }
+
+    func testEnsureHasMetadataOK() throws {
+        testBrokerConnection.enqueueResponse(metadataResponseOK(), forKey: .metadata)
+        let futureFulfilledExpectation = expectation(description: "ensureHasMetadataFor(topics:) called")
+        let _ = client.ensureHasMetadataFor(topics: ["my-topic"]).whenSuccess { error in
+            futureFulfilledExpectation.fulfill()
+        }
+
+        try client.doMetadataRefresh().wait()
+
+        wait(for: [futureFulfilledExpectation], timeout: 1)
+    }
+
+    func testEnsureHasMetadataOKFailedThenOK() throws {
+        testBrokerConnection.enqueueResponse(metadataResponseLeaderNotAvailable(), forKey: .metadata)
+        testBrokerConnection.enqueueResponse(metadataResponseOK(), forKey: .metadata)
+
+        let futureFulfilledExpectation = expectation(description: "ensureHasMetadataFor(topics:) called")
+        let future = client.ensureHasMetadataFor(topics: ["my-topic"]).whenComplete { result in
+            if case .failure(let error) = result {
+                XCTFail("ensureHasMetadataFor(topics:) failed with \(error)")
+            }
+            futureFulfilledExpectation.fulfill()
+        }
+        for _ in 0..<2 {
+            try client.doMetadataRefresh().wait()
+        }
+
+        wait(for: [futureFulfilledExpectation], timeout: 1)
     }
 }
