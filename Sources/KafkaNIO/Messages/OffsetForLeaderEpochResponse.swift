@@ -39,6 +39,12 @@ struct OffsetForLeaderEpochResponse: KafkaResponse {
                 }
                 endOffset = try buffer.read()
             }
+            init(errorCode: ErrorCode, partitionIndex: Int32, leaderEpoch: Int32?, endOffset: Int64) {
+                self.errorCode = errorCode
+                self.partitionIndex = partitionIndex
+                self.leaderEpoch = leaderEpoch
+                self.endOffset = endOffset
+            }
         
         }
     
@@ -52,8 +58,13 @@ struct OffsetForLeaderEpochResponse: KafkaResponse {
             name = try buffer.read(lengthEncoding: lengthEncoding)
             partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(name: String, partitions: [OffsetForLeaderPartitionResult]) {
+            self.name = name
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .offsetForLeaderEpoch
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -75,5 +86,13 @@ struct OffsetForLeaderEpochResponse: KafkaResponse {
             throttleTimeMs = nil
         }
         topics = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, topics: [OffsetForLeaderTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
     }
 }

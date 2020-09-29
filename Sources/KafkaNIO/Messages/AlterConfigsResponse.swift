@@ -35,8 +35,15 @@ struct AlterConfigsResponse: KafkaResponse {
             resourceType = try buffer.read()
             resourceName = try buffer.read(lengthEncoding: lengthEncoding)
         }
+        init(errorCode: ErrorCode, errorMessage: String?, resourceType: Int8, resourceName: String) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+        }
     
     }
+    
     let apiKey: APIKey = .alterConfigs
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -54,5 +61,13 @@ struct AlterConfigsResponse: KafkaResponse {
         self.responseHeader = responseHeader
         throttleTimeMs = try buffer.read()
         responses = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, responses: [AlterConfigsResourceResponse]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.responses = responses
     }
 }

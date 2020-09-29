@@ -36,6 +36,11 @@ struct AlterPartitionReassignmentsResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(partitionIndex: Int32, errorCode: ErrorCode, errorMessage: String?) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+                self.errorMessage = errorMessage
+            }
         
         }
     
@@ -52,8 +57,13 @@ struct AlterPartitionReassignmentsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String, partitions: [ReassignablePartitionResponse]) {
+            self.name = name
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .alterPartitionReassignments
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -85,5 +95,16 @@ struct AlterPartitionReassignmentsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode, errorMessage: String?, responses: [ReassignableTopicResponse]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.responses = responses
     }
 }

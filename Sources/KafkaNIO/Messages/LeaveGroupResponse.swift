@@ -47,8 +47,14 @@ struct LeaveGroupResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(memberID: String?, groupInstanceID: String?, errorCode: ErrorCode?) {
+            self.memberID = memberID
+            self.groupInstanceID = groupInstanceID
+            self.errorCode = errorCode
+        }
     
     }
+    
     let apiKey: APIKey = .leaveGroup
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -84,5 +90,15 @@ struct LeaveGroupResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, errorCode: ErrorCode, members: [MemberResponse]?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.members = members
     }
 }

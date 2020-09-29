@@ -30,8 +30,13 @@ struct AlterReplicaLogDirsRequest: KafkaRequest {
                 buffer.write(name, lengthEncoding: lengthEncoding)
                 buffer.write(partitions, lengthEncoding: lengthEncoding)
         
-            
             }
+        
+            init(name: String, partitions: [Int32]) {
+                self.name = name
+                self.partitions = partitions
+            }
+        
         }
     
         
@@ -44,9 +49,15 @@ struct AlterReplicaLogDirsRequest: KafkaRequest {
             buffer.write(path, lengthEncoding: lengthEncoding)
             try buffer.write(topics, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(path: String, topics: [AlterReplicaLogDirTopic]) {
+            self.path = path
+            self.topics = topics
+        }
+    
     }
+    
     let apiKey: APIKey = .alterReplicaLogDirs
     let apiVersion: APIVersion
     let clientID: String?

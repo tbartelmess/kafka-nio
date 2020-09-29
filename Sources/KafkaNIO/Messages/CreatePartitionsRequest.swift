@@ -30,8 +30,12 @@ struct CreatePartitionsRequest: KafkaRequest {
                 if apiVersion >= 2 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(brokerIDs: [Int32]) {
+                self.brokerIDs = brokerIDs
+            }
+        
         }
     
         
@@ -50,9 +54,16 @@ struct CreatePartitionsRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, count: Int32, assignments: [CreatePartitionsAssignment]?) {
+            self.name = name
+            self.count = count
+            self.assignments = assignments
+        }
+    
     }
+    
     let apiKey: APIKey = .createPartitions
     let apiVersion: APIVersion
     let clientID: String?

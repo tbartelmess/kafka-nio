@@ -38,6 +38,10 @@ struct FetchResponse: KafkaResponse {
                         firstOffset = nil
                     }
                 }
+                init(producerID: Int64?, firstOffset: Int64?) {
+                    self.producerID = producerID
+                    self.firstOffset = firstOffset
+                }
             
             }
         
@@ -85,6 +89,16 @@ struct FetchResponse: KafkaResponse {
                 }
                 recordSet = try buffer.read()
             }
+            init(partition: Int32, errorCode: ErrorCode, highWatermark: Int64, lastStableOffset: Int64?, logStartOffset: Int64?, abortedTransactions: [AbortedTransaction]?, preferredReadReplica: Int32?, recordSet: ByteBuffer?) {
+                self.partition = partition
+                self.errorCode = errorCode
+                self.highWatermark = highWatermark
+                self.lastStableOffset = lastStableOffset
+                self.logStartOffset = logStartOffset
+                self.abortedTransactions = abortedTransactions
+                self.preferredReadReplica = preferredReadReplica
+                self.recordSet = recordSet
+            }
         
         }
     
@@ -98,8 +112,13 @@ struct FetchResponse: KafkaResponse {
             topic = try buffer.read(lengthEncoding: lengthEncoding)
             partitionResponses = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(topic: String, partitionResponses: [FetchablePartitionResponse]) {
+            self.topic = topic
+            self.partitionResponses = partitionResponses
+        }
     
     }
+    
     let apiKey: APIKey = .fetch
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -137,5 +156,15 @@ struct FetchResponse: KafkaResponse {
             sessionID = nil
         }
         responses = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, errorCode: ErrorCode?, sessionID: Int32?, responses: [FetchableTopicResponse]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.sessionID = sessionID
+        self.responses = responses
     }
 }

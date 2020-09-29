@@ -29,6 +29,10 @@ struct OffsetDeleteResponse: KafkaResponse {
                 partitionIndex = try buffer.read()
                 errorCode = try buffer.read()
             }
+            init(partitionIndex: Int32, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+            }
         
         }
     
@@ -42,8 +46,13 @@ struct OffsetDeleteResponse: KafkaResponse {
             name = try buffer.read(lengthEncoding: lengthEncoding)
             partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(name: String, partitions: [OffsetDeleteResponsePartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .offsetDelete
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -65,5 +74,14 @@ struct OffsetDeleteResponse: KafkaResponse {
         errorCode = try buffer.read()
         throttleTimeMs = try buffer.read()
         topics = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, throttleTimeMs: Int32, topics: [OffsetDeleteResponseTopic]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.errorCode = errorCode
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
     }
 }

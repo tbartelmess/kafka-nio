@@ -44,8 +44,15 @@ struct TxnOffsetCommitRequest: KafkaRequest {
                 if apiVersion >= 3 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(partitionIndex: Int32, committedOffset: Int64, committedLeaderEpoch: Int32?, committedMetadata: String?) {
+                self.partitionIndex = partitionIndex
+                self.committedOffset = committedOffset
+                self.committedLeaderEpoch = committedLeaderEpoch
+                self.committedMetadata = committedMetadata
+            }
+        
         }
     
         
@@ -61,9 +68,15 @@ struct TxnOffsetCommitRequest: KafkaRequest {
             if apiVersion >= 3 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, partitions: [TxnOffsetCommitRequestPartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .txnOffsetCommit
     let apiVersion: APIVersion
     let clientID: String?

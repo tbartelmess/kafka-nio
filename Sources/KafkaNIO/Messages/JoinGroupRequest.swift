@@ -32,9 +32,15 @@ struct JoinGroupRequest: KafkaRequest {
             if apiVersion >= 6 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, metadata: [UInt8]) {
+            self.name = name
+            self.metadata = metadata
+        }
+    
     }
+    
     let apiKey: APIKey = .joinGroup
     let apiVersion: APIVersion
     let clientID: String?

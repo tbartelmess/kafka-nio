@@ -42,8 +42,15 @@ struct MetadataResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(nodeID: Int32, host: String, port: Int32, rack: String?) {
+            self.nodeID = nodeID
+            self.host = host
+            self.port = port
+            self.rack = rack
+        }
     
     }
+    
     
     struct MetadataResponseTopic: KafkaResponseStruct {
         struct MetadataResponsePartition: KafkaResponseStruct {
@@ -84,6 +91,15 @@ struct MetadataResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(errorCode: ErrorCode, partitionIndex: Int32, leaderID: Int32, leaderEpoch: Int32?, replicaNodes: [Int32], isrNodes: [Int32], offlineReplicas: [Int32]?) {
+                self.errorCode = errorCode
+                self.partitionIndex = partitionIndex
+                self.leaderID = leaderID
+                self.leaderEpoch = leaderEpoch
+                self.replicaNodes = replicaNodes
+                self.isrNodes = isrNodes
+                self.offlineReplicas = offlineReplicas
+            }
         
         }
     
@@ -117,8 +133,16 @@ struct MetadataResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(errorCode: ErrorCode, name: String, isInternal: Bool?, partitions: [MetadataResponsePartition], topicAuthorizedOperations: Int32?) {
+            self.errorCode = errorCode
+            self.name = name
+            self.isInternal = isInternal
+            self.partitions = partitions
+            self.topicAuthorizedOperations = topicAuthorizedOperations
+        }
     
     }
+    
     let apiKey: APIKey = .metadata
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -174,5 +198,18 @@ struct MetadataResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, brokers: [MetadataResponseBroker], clusterID: String?, controllerID: Int32?, topics: [MetadataResponseTopic], clusterAuthorizedOperations: Int32?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.brokers = brokers
+        self.clusterID = clusterID
+        self.controllerID = controllerID
+        self.topics = topics
+        self.clusterAuthorizedOperations = clusterAuthorizedOperations
     }
 }

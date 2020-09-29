@@ -37,8 +37,14 @@ struct OffsetForLeaderEpochRequest: KafkaRequest {
                 }
                 buffer.write(leaderEpoch)
         
-            
             }
+        
+            init(partitionIndex: Int32, currentLeaderEpoch: Int32?, leaderEpoch: Int32) {
+                self.partitionIndex = partitionIndex
+                self.currentLeaderEpoch = currentLeaderEpoch
+                self.leaderEpoch = leaderEpoch
+            }
+        
         }
     
         
@@ -51,9 +57,15 @@ struct OffsetForLeaderEpochRequest: KafkaRequest {
             buffer.write(name, lengthEncoding: lengthEncoding)
             try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(name: String, partitions: [OffsetForLeaderPartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .offsetForLeaderEpoch
     let apiVersion: APIVersion
     let clientID: String?

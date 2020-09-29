@@ -26,8 +26,12 @@ struct OffsetDeleteRequest: KafkaRequest {
             func write(into buffer: inout ByteBuffer, apiVersion: APIVersion) throws {
                 buffer.write(partitionIndex)
         
-            
             }
+        
+            init(partitionIndex: Int32) {
+                self.partitionIndex = partitionIndex
+            }
+        
         }
     
         
@@ -40,9 +44,15 @@ struct OffsetDeleteRequest: KafkaRequest {
             buffer.write(name, lengthEncoding: lengthEncoding)
             try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(name: String, partitions: [OffsetDeleteRequestPartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .offsetDelete
     let apiVersion: APIVersion
     let clientID: String?

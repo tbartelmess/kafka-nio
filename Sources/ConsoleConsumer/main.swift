@@ -15,6 +15,7 @@ import ArgumentParser
 import KafkaNIO
 import NIO
 import NIOSSL
+import Logging
 
 enum ConsoleConsumerError: Error, CustomStringConvertible {
     case invalidServer(server: String)
@@ -61,6 +62,8 @@ struct ConsoleConsumer: ParsableCommand {
     var tls: TLSOption = .noTLS
 
     func run() throws {
+        var logger = Logger(label: "KafkaLogger")
+        logger.logLevel = .trace
         let parsedBootstrapServers = try bootstrapServer.map { name -> SocketAddress in
             let parts = name.split(separator: ":")
             guard parts.count == 2 else {
@@ -90,7 +93,8 @@ struct ConsoleConsumer: ParsableCommand {
                                                                  sessionTimeout: sessionTimeout,
                                                                  rebalanceTimeout: rebalanceTimeout,
                                                                  tlsConfiguration: tlsConfiguration),
-                                            eventLoopGroup: eventLoopGroup).wait()
+                                            eventLoopGroup: eventLoopGroup,
+                                            logger: logger).wait()
         try consumer.setup().wait()
         while !shutdown {
             let result = try consumer.poll().wait()

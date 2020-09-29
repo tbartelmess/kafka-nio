@@ -39,6 +39,12 @@ struct DescribeAclsResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(principal: String, host: String, operation: Int8, permissionType: Int8) {
+                self.principal = principal
+                self.host = host
+                self.operation = operation
+                self.permissionType = permissionType
+            }
         
         }
     
@@ -65,8 +71,15 @@ struct DescribeAclsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(resourceType: Int8, resourceName: String, patternType: Int8?, acls: [AclDescription]) {
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+            self.patternType = patternType
+            self.acls = acls
+        }
     
     }
+    
     let apiKey: APIKey = .describeAcls
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -98,5 +111,16 @@ struct DescribeAclsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode, errorMessage: String?, resources: [DescribeAclsResource]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.resources = resources
     }
 }

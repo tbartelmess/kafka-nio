@@ -30,6 +30,10 @@ struct WriteTxnMarkersResponse: KafkaResponse {
                     partitionIndex = try buffer.read()
                     errorCode = try buffer.read()
                 }
+                init(partitionIndex: Int32, errorCode: ErrorCode) {
+                    self.partitionIndex = partitionIndex
+                    self.errorCode = errorCode
+                }
             
             }
         
@@ -42,6 +46,10 @@ struct WriteTxnMarkersResponse: KafkaResponse {
                 let lengthEncoding: IntegerEncoding = .bigEndian
                 name = try buffer.read(lengthEncoding: lengthEncoding)
                 partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+            }
+            init(name: String, partitions: [WritableTxnMarkerPartitionResult]) {
+                self.name = name
+                self.partitions = partitions
             }
         
         }
@@ -56,8 +64,13 @@ struct WriteTxnMarkersResponse: KafkaResponse {
             producerID = try buffer.read()
             topics = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(producerID: Int64, topics: [WritableTxnMarkerTopicResult]) {
+            self.producerID = producerID
+            self.topics = topics
+        }
     
     }
+    
     let apiKey: APIKey = .writeTxnMarkers
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -71,5 +84,12 @@ struct WriteTxnMarkersResponse: KafkaResponse {
         self.apiVersion = apiVersion
         self.responseHeader = responseHeader
         markers = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, markers: [WritableTxnMarkerResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.markers = markers
     }
 }

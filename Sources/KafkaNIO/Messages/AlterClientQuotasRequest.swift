@@ -30,8 +30,13 @@ struct AlterClientQuotasRequest: KafkaRequest {
                 buffer.write(entityType, lengthEncoding: lengthEncoding)
                 buffer.write(entityName, lengthEncoding: lengthEncoding)
         
-            
             }
+        
+            init(entityType: String, entityName: String?) {
+                self.entityType = entityType
+                self.entityName = entityName
+            }
+        
         }
         struct OpData: KafkaRequestStruct {
         
@@ -48,8 +53,14 @@ struct AlterClientQuotasRequest: KafkaRequest {
                 buffer.write(value)
                 buffer.write(remove)
         
-            
             }
+        
+            init(key: String, value: Float64, remove: Bool) {
+                self.key = key
+                self.value = value
+                self.remove = remove
+            }
+        
         }
     
         
@@ -62,9 +73,15 @@ struct AlterClientQuotasRequest: KafkaRequest {
             try buffer.write(entity, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
             try buffer.write(ops, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(entity: [EntityData], ops: [OpData]) {
+            self.entity = entity
+            self.ops = ops
+        }
+    
     }
+    
     let apiKey: APIKey = .alterClientQuotas
     let apiVersion: APIVersion
     let clientID: String?

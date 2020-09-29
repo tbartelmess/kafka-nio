@@ -32,9 +32,15 @@ struct OffsetFetchRequest: KafkaRequest {
             if apiVersion >= 6 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, partitionIndexes: [Int32]) {
+            self.name = name
+            self.partitionIndexes = partitionIndexes
+        }
+    
     }
+    
     let apiKey: APIKey = .offsetFetch
     let apiVersion: APIVersion
     let clientID: String?

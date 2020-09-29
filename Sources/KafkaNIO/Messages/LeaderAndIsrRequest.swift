@@ -42,9 +42,15 @@ struct LeaderAndIsrRequest: KafkaRequest {
             if apiVersion >= 4 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(topicName: String?, partitionStates: [[UInt8]]?) {
+            self.topicName = topicName
+            self.partitionStates = partitionStates
+        }
+    
     }
+    
     
     struct LeaderAndIsrLiveLeader: KafkaRequestStruct {
     
@@ -64,9 +70,16 @@ struct LeaderAndIsrRequest: KafkaRequest {
             if apiVersion >= 4 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(brokerID: Int32, hostName: String, port: Int32) {
+            self.brokerID = brokerID
+            self.hostName = hostName
+            self.port = port
+        }
+    
     }
+    
     let apiKey: APIKey = .leaderAndIsr
     let apiVersion: APIVersion
     let clientID: String?

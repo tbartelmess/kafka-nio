@@ -54,4 +54,15 @@ struct SaslAuthenticateResponse: KafkaResponse {
             taggedFields = []
         }
     }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, errorMessage: String?, authBytes: [UInt8], sessionLifetimeMs: Int64?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.authBytes = authBytes
+        self.sessionLifetimeMs = sessionLifetimeMs
+    }
 }

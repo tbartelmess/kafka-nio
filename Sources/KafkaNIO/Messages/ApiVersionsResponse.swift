@@ -34,8 +34,14 @@ struct ApiVersionsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(apiKey: APIKey, minVersion: Int16, maxVersion: Int16) {
+            self.apiKey = apiKey
+            self.minVersion = minVersion
+            self.maxVersion = maxVersion
+        }
     
     }
+    
     
     struct SupportedFeatureKey: KafkaResponseStruct {
     
@@ -67,8 +73,14 @@ struct ApiVersionsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String?, minVersion: Int16?, maxVersion: Int16?) {
+            self.name = name
+            self.minVersion = minVersion
+            self.maxVersion = maxVersion
+        }
     
     }
+    
     
     struct FinalizedFeatureKey: KafkaResponseStruct {
     
@@ -100,8 +112,14 @@ struct ApiVersionsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String?, maxVersionLevel: Int16?, minVersionLevel: Int16?) {
+            self.name = name
+            self.maxVersionLevel = maxVersionLevel
+            self.minVersionLevel = minVersionLevel
+        }
     
     }
+    
     let apiKey: APIKey = .apiVersions
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -133,5 +151,15 @@ struct ApiVersionsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, apiKeys: [ApiVersionsResponseKey], throttleTimeMs: Int32?, supportedFeatures: [SupportedFeatureKey]?, finalizedFeaturesEpoch: Int32?, finalizedFeatures: [FinalizedFeatureKey]?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.apiKeys = apiKeys
+        self.throttleTimeMs = throttleTimeMs
     }
 }

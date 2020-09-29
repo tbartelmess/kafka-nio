@@ -39,9 +39,15 @@ struct LeaveGroupRequest: KafkaRequest {
             if apiVersion >= 4 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(memberID: String?, groupInstanceID: String?) {
+            self.memberID = memberID
+            self.groupInstanceID = groupInstanceID
+        }
+    
     }
+    
     let apiKey: APIKey = .leaveGroup
     let apiVersion: APIVersion
     let clientID: String?

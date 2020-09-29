@@ -14,17 +14,17 @@
 import NIO
 
 extension Consumer {
-    func joinGroup(groupCoordinator: BrokerConnection, memberID: String) -> EventLoopFuture<GroupInfo> {
+    func joinGroup(groupCoordinator: BrokerConnectionProtocol, memberID: String) -> EventLoopFuture<GroupInfo> {
         logger.info("Joining group as with memberID: \(memberID)")
         return groupCoordinator.requestJoinGroup(groupID: self.configuration.groupID,
-                                          topics: configuration.subscribedTopics,
-                                          sessionTimeout: Int32(configuration.sessionTimeout),
-                                          rebalanceTimeout: Int32(configuration.rebalanceTimeout),
-                                          memberID: memberID,
-                                          groupInstanceID: nil)
+                                                 topics: configuration.subscribedTopics,
+                                                 sessionTimeout: Int32(configuration.sessionTimeout),
+                                                 rebalanceTimeout: Int32(configuration.rebalanceTimeout),
+                                                 memberID: memberID,
+                                                 groupInstanceID: nil)
             .flatMapResult { response -> Result<GroupInfo, KafkaError> in
                 guard response.errorCode == .noError else {
-                    logger.error("Failed to join group: \(response.errorCode)")
+                    self.logger.error("Failed to join group: \(response.errorCode)")
                     return .failure(.unexpectedKafkaErrorCode(response.errorCode))
                 }
 

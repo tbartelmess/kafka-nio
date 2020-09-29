@@ -48,8 +48,16 @@ struct FetchRequest: KafkaRequest {
                 }
                 buffer.write(partitionMaxBytes)
         
-            
             }
+        
+            init(partition: Int32, currentLeaderEpoch: Int32?, fetchOffset: Int64, logStartOffset: Int64?, partitionMaxBytes: Int32) {
+                self.partition = partition
+                self.currentLeaderEpoch = currentLeaderEpoch
+                self.fetchOffset = fetchOffset
+                self.logStartOffset = logStartOffset
+                self.partitionMaxBytes = partitionMaxBytes
+            }
+        
         }
     
         
@@ -62,9 +70,15 @@ struct FetchRequest: KafkaRequest {
             buffer.write(topic, lengthEncoding: lengthEncoding)
             try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(topic: String, partitions: [FetchPartition]) {
+            self.topic = topic
+            self.partitions = partitions
+        }
+    
     }
+    
     
     struct ForgottenTopic: KafkaRequestStruct {
     
@@ -88,9 +102,15 @@ struct FetchRequest: KafkaRequest {
                 buffer.write(partitions, lengthEncoding: lengthEncoding)
             }
     
-        
         }
+    
+        init(topic: String?, partitions: [Int32]?) {
+            self.topic = topic
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .fetch
     let apiVersion: APIVersion
     let clientID: String?

@@ -49,6 +49,14 @@ struct DescribeGroupsResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(memberID: String, groupInstanceID: String?, clientID: String, clientHost: String, memberMetadata: [UInt8], memberAssignment: [UInt8]) {
+                self.memberID = memberID
+                self.groupInstanceID = groupInstanceID
+                self.clientID = clientID
+                self.clientHost = clientHost
+                self.memberMetadata = memberMetadata
+                self.memberAssignment = memberAssignment
+            }
         
         }
     
@@ -84,8 +92,18 @@ struct DescribeGroupsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(errorCode: ErrorCode, groupID: String, groupState: String, protocolType: String, protocolData: String, members: [DescribedGroupMember], authorizedOperations: Int32?) {
+            self.errorCode = errorCode
+            self.groupID = groupID
+            self.groupState = groupState
+            self.protocolType = protocolType
+            self.protocolData = protocolData
+            self.members = members
+            self.authorizedOperations = authorizedOperations
+        }
     
     }
+    
     let apiKey: APIKey = .describeGroups
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -113,5 +131,14 @@ struct DescribeGroupsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, groups: [DescribedGroup]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.groups = groups
     }
 }

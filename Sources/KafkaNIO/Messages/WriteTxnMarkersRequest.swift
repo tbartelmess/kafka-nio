@@ -30,8 +30,13 @@ struct WriteTxnMarkersRequest: KafkaRequest {
                 buffer.write(name, lengthEncoding: lengthEncoding)
                 buffer.write(partitionIndexes, lengthEncoding: lengthEncoding)
         
-            
             }
+        
+            init(name: String, partitionIndexes: [Int32]) {
+                self.name = name
+                self.partitionIndexes = partitionIndexes
+            }
+        
         }
     
         
@@ -53,9 +58,18 @@ struct WriteTxnMarkersRequest: KafkaRequest {
             try buffer.write(topics, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
             buffer.write(coordinatorEpoch)
     
-        
         }
+    
+        init(producerID: Int64, producerEpoch: Int16, transactionResult: Bool, topics: [WritableTxnMarkerTopic], coordinatorEpoch: Int32) {
+            self.producerID = producerID
+            self.producerEpoch = producerEpoch
+            self.transactionResult = transactionResult
+            self.topics = topics
+            self.coordinatorEpoch = coordinatorEpoch
+        }
+    
     }
+    
     let apiKey: APIKey = .writeTxnMarkers
     let apiVersion: APIVersion
     let clientID: String?

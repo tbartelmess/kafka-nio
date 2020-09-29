@@ -29,6 +29,10 @@ struct AddPartitionsToTxnResponse: KafkaResponse {
                 partitionIndex = try buffer.read()
                 errorCode = try buffer.read()
             }
+            init(partitionIndex: Int32, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+            }
         
         }
     
@@ -42,8 +46,13 @@ struct AddPartitionsToTxnResponse: KafkaResponse {
             name = try buffer.read(lengthEncoding: lengthEncoding)
             results = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(name: String, results: [AddPartitionsToTxnPartitionResult]) {
+            self.name = name
+            self.results = results
+        }
     
     }
+    
     let apiKey: APIKey = .addPartitionsToTxn
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -61,5 +70,13 @@ struct AddPartitionsToTxnResponse: KafkaResponse {
         self.responseHeader = responseHeader
         throttleTimeMs = try buffer.read()
         results = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [AddPartitionsToTxnTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

@@ -39,6 +39,12 @@ struct ListPartitionReassignmentsResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(partitionIndex: Int32, replicas: [Int32], addingReplicas: [Int32], removingReplicas: [Int32]) {
+                self.partitionIndex = partitionIndex
+                self.replicas = replicas
+                self.addingReplicas = addingReplicas
+                self.removingReplicas = removingReplicas
+            }
         
         }
     
@@ -55,8 +61,13 @@ struct ListPartitionReassignmentsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String, partitions: [OngoingPartitionReassignment]) {
+            self.name = name
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .listPartitionReassignments
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -88,5 +99,16 @@ struct ListPartitionReassignmentsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode, errorMessage: String?, topics: [OngoingTopicReassignment]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.topics = topics
     }
 }

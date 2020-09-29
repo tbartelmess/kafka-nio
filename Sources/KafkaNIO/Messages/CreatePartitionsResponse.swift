@@ -35,8 +35,14 @@ struct CreatePartitionsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String, errorCode: ErrorCode, errorMessage: String?) {
+            self.name = name
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+        }
     
     }
+    
     let apiKey: APIKey = .createPartitions
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -60,5 +66,14 @@ struct CreatePartitionsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [CreatePartitionsTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

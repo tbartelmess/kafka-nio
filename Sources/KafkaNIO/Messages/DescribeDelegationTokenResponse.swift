@@ -33,6 +33,10 @@ struct DescribeDelegationTokenResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(principalType: String, principalName: String) {
+                self.principalType = principalType
+                self.principalName = principalName
+            }
         
         }
     
@@ -67,8 +71,19 @@ struct DescribeDelegationTokenResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(principalType: String, principalName: String, issueTimestamp: Int64, expiryTimestamp: Int64, maxTimestamp: Int64, tokenID: String, hmac: [UInt8], renewers: [DescribedDelegationTokenRenewer]) {
+            self.principalType = principalType
+            self.principalName = principalName
+            self.issueTimestamp = issueTimestamp
+            self.expiryTimestamp = expiryTimestamp
+            self.maxTimestamp = maxTimestamp
+            self.tokenID = tokenID
+            self.hmac = hmac
+            self.renewers = renewers
+        }
     
     }
+    
     let apiKey: APIKey = .describeDelegationToken
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -96,5 +111,15 @@ struct DescribeDelegationTokenResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, tokens: [DescribedDelegationToken], throttleTimeMs: Int32) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.tokens = tokens
+        self.throttleTimeMs = throttleTimeMs
     }
 }

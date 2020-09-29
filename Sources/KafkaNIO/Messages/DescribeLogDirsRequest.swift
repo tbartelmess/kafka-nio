@@ -32,9 +32,15 @@ struct DescribeLogDirsRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(topic: String, partitionIndex: [Int32]) {
+            self.topic = topic
+            self.partitionIndex = partitionIndex
+        }
+    
     }
+    
     let apiKey: APIKey = .describeLogDirs
     let apiVersion: APIVersion
     let clientID: String?

@@ -32,8 +32,13 @@ struct DeleteRecordsRequest: KafkaRequest {
                 if apiVersion >= 2 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(partitionIndex: Int32, offset: Int64) {
+                self.partitionIndex = partitionIndex
+                self.offset = offset
+            }
+        
         }
     
         
@@ -49,9 +54,15 @@ struct DeleteRecordsRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, partitions: [DeleteRecordsPartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .deleteRecords
     let apiVersion: APIVersion
     let clientID: String?

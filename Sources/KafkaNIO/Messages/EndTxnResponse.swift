@@ -35,4 +35,12 @@ struct EndTxnResponse: KafkaResponse {
         throttleTimeMs = try buffer.read()
         errorCode = try buffer.read()
     }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+    }
 }

@@ -36,6 +36,11 @@ struct ElectLeadersResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(partitionID: Int32, errorCode: ErrorCode, errorMessage: String?) {
+                self.partitionID = partitionID
+                self.errorCode = errorCode
+                self.errorMessage = errorMessage
+            }
         
         }
     
@@ -52,8 +57,13 @@ struct ElectLeadersResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(topic: String, partitionResult: [PartitionResult]) {
+            self.topic = topic
+            self.partitionResult = partitionResult
+        }
     
     }
+    
     let apiKey: APIKey = .electLeaders
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -85,5 +95,15 @@ struct ElectLeadersResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode?, replicaElectionResults: [ReplicaElectionResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.replicaElectionResults = replicaElectionResults
     }
 }

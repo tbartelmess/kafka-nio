@@ -29,9 +29,15 @@ struct AddPartitionsToTxnRequest: KafkaRequest {
             buffer.write(name, lengthEncoding: lengthEncoding)
             buffer.write(partitions, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(name: String, partitions: [Int32]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .addPartitionsToTxn
     let apiVersion: APIVersion
     let clientID: String?

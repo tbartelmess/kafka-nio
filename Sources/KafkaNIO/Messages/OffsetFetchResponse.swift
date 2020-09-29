@@ -46,6 +46,13 @@ struct OffsetFetchResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(partitionIndex: Int32, committedOffset: Int64, committedLeaderEpoch: Int32?, metadata: String?, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.committedOffset = committedOffset
+                self.committedLeaderEpoch = committedLeaderEpoch
+                self.metadata = metadata
+                self.errorCode = errorCode
+            }
         
         }
     
@@ -62,8 +69,13 @@ struct OffsetFetchResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String, partitions: [OffsetFetchResponsePartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .offsetFetch
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -99,5 +111,15 @@ struct OffsetFetchResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, topics: [OffsetFetchResponseTopic], errorCode: ErrorCode?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
+        self.errorCode = errorCode
     }
 }

@@ -46,6 +46,11 @@ struct DescribeConfigsResponse: KafkaResponse {
                         source = nil
                     }
                 }
+                init(name: String?, value: String?, source: Int8?) {
+                    self.name = name
+                    self.value = value
+                    self.source = source
+                }
             
             }
         
@@ -100,6 +105,17 @@ struct DescribeConfigsResponse: KafkaResponse {
                     documentation = nil
                 }
             }
+            init(name: String, value: String?, readOnly: Bool, isDefault: Bool?, configSource: Int8?, isSensitive: Bool, synonyms: [DescribeConfigsSynonym]?, configType: Int8?, documentation: String?) {
+                self.name = name
+                self.value = value
+                self.readOnly = readOnly
+                self.isDefault = isDefault
+                self.configSource = configSource
+                self.isSensitive = isSensitive
+                self.synonyms = synonyms
+                self.configType = configType
+                self.documentation = documentation
+            }
         
         }
     
@@ -122,8 +138,16 @@ struct DescribeConfigsResponse: KafkaResponse {
             resourceName = try buffer.read(lengthEncoding: lengthEncoding)
             configs = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(errorCode: ErrorCode, errorMessage: String?, resourceType: Int8, resourceName: String, configs: [DescribeConfigsResourceResult]) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+            self.configs = configs
+        }
     
     }
+    
     let apiKey: APIKey = .describeConfigs
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -141,5 +165,13 @@ struct DescribeConfigsResponse: KafkaResponse {
         self.responseHeader = responseHeader
         throttleTimeMs = try buffer.read()
         results = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [DescribeConfigsResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

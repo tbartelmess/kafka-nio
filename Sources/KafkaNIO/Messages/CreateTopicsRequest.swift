@@ -33,8 +33,13 @@ struct CreateTopicsRequest: KafkaRequest {
                 if apiVersion >= 5 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(partitionIndex: Int32, brokerIDs: [Int32]) {
+                self.partitionIndex = partitionIndex
+                self.brokerIDs = brokerIDs
+            }
+        
         }
         struct CreateableTopicConfig: KafkaRequestStruct {
         
@@ -51,8 +56,13 @@ struct CreateTopicsRequest: KafkaRequest {
                 if apiVersion >= 5 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(name: String, value: String?) {
+                self.name = name
+                self.value = value
+            }
+        
         }
     
         
@@ -77,9 +87,18 @@ struct CreateTopicsRequest: KafkaRequest {
             if apiVersion >= 5 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, numPartitions: Int32, replicationFactor: Int16, assignments: [CreatableReplicaAssignment], configs: [CreateableTopicConfig]) {
+            self.name = name
+            self.numPartitions = numPartitions
+            self.replicationFactor = replicationFactor
+            self.assignments = assignments
+            self.configs = configs
+        }
+    
     }
+    
     let apiKey: APIKey = .createTopics
     let apiVersion: APIVersion
     let clientID: String?

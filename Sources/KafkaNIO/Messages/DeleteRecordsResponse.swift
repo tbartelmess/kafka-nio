@@ -35,6 +35,11 @@ struct DeleteRecordsResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(partitionIndex: Int32, lowWatermark: Int64, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.lowWatermark = lowWatermark
+                self.errorCode = errorCode
+            }
         
         }
     
@@ -51,8 +56,13 @@ struct DeleteRecordsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String, partitions: [DeleteRecordsPartitionResult]) {
+            self.name = name
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .deleteRecords
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -76,5 +86,14 @@ struct DeleteRecordsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, topics: [DeleteRecordsTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
     }
 }

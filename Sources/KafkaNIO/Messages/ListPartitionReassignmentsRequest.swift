@@ -32,9 +32,15 @@ struct ListPartitionReassignmentsRequest: KafkaRequest {
             if apiVersion >= 0 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, partitionIndexes: [Int32]) {
+            self.name = name
+            self.partitionIndexes = partitionIndexes
+        }
+    
     }
+    
     let apiKey: APIKey = .listPartitionReassignments
     let apiVersion: APIVersion
     let clientID: String?

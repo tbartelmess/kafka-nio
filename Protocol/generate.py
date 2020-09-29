@@ -236,6 +236,8 @@ class APITypeGenerator(AbstractGenerator):
         generate_length_encoding = False
 
         for field in self.fields or []:
+            if field.get('tag') is not None:
+                continue
             generator = APIFieldGenerator(field, self.flexible_versions)
             generate_length_encoding = generate_length_encoding or generator.needs_length_encoding
         return generate_length_encoding
@@ -248,6 +250,8 @@ class APITypeGenerator(AbstractGenerator):
             struct_type_name = "KafkaResponseStruct"
         output = "struct " + self.name + ": " + struct_type_name + " {\n"
         for field in self.fields:
+            if field.get('tag') is not None:
+                continue
             generator = APIFieldGenerator(field, self.flexible_versions)
             types = generator.generate_types(struct_type)
             if types:
@@ -255,6 +259,8 @@ class APITypeGenerator(AbstractGenerator):
         output += "\n"
 
         for field in self.fields:
+            if field.get('tag') is not None:
+                continue
             generator = APIFieldGenerator(field, self.flexible_versions)
             output += indent(generator.generate_field(), 1)
         output += "\n"
@@ -269,6 +275,8 @@ class APITypeGenerator(AbstractGenerator):
             if self.fields_required_length_encoding:
                 output += indent(self.generate_length_encoding_declaration(), 2) + "\n"
             for field in self.fields:
+                if field.get('tag') is not None:
+                    continue
                 generator = APIFieldGenerator(field, self.flexible_versions)
                 output += indent(generator.generate_read(), 2) + "\n"
             if self.flexible_versions is not None:
@@ -286,10 +294,19 @@ class APITypeGenerator(AbstractGenerator):
                 generator = APIFieldGenerator(field, self.flexible_versions)
                 output += indent(generator.generate_write(), 2) + "\n"
             output += indent(self.generate_write_tagged_fields(), 1) +"\n"
-            output += indent("\n}",1)
+            output += indent("}",1) + "\n\n"
 
+        # Init
+        init_args = [APIFieldGenerator(field, self.flexible_versions).init_argument() for field in self.fields]
+        output += indent("init(" + ", ".join(init_args) + ") {", 1) + "\n"
+        for field in self.fields:
+            if 'taggedVersions' in field:
+                continue
+            field_generator = APIFieldGenerator(field, self.flexible_versions)
+            output += indent(field_generator.init_assignment(), 2) + "\n"
+        output += indent("}", 1) + "\n"
+        output += "\n}\n"
 
-        output += "\n}"
         return output
 
 
@@ -317,7 +334,7 @@ class APIFieldGenerator(AbstractGenerator):
         else:
             final_type = base_type
         return final_type + ('?' if self.is_optional else '')
-    
+
     @property
     def docstring(self):
         return "/// {self.about}"
@@ -331,7 +348,7 @@ class APIFieldGenerator(AbstractGenerator):
     @property
     def is_optional(self):
         return self.first_available_version != 0 or self.last_available_version is not None or self.nullable_versions is not None
-    
+
     def generate_field(self):
         output = f"""
         /// {self.definition.get('about')}
@@ -339,6 +356,11 @@ class APIFieldGenerator(AbstractGenerator):
         """
         return textwrap.dedent(output)
 
+    def init_argument(self):
+        return f"{swiftize_field_name(self.name)}: {self.type}"
+
+    def init_assignment(self):
+        return f"self.{swiftize_field_name(self.name)} = {swiftize_field_name(self.name)}"
 
 
 
@@ -373,6 +395,7 @@ class APIMessageGenerator(AbstractGenerator):
     def api_key_name(self):
         name = self.definition['name'].replace('Request', '').replace('Response', '')
         return camel_case(name)
+
 
 
     def generate_write(self):
@@ -424,6 +447,23 @@ class APIMessageGenerator(AbstractGenerator):
                  output.append(types)
         return "\n\n".join(output) + "\n"
 
+
+    def generate_init(self):
+        init_args = [APIFieldGenerator(field, self.flexible_versions).init_argument() for field in self.definition['fields']]
+        output = "init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, " + ", ".join(init_args) + ") {\n"
+        output += indent("self.apiVersion = apiVersion",1) + "\n"
+        output += indent("self.responseHeader = responseHeader",1) + "\n"
+        if self.flexible_versions is not None:
+            output += indent("self.taggedFields = []", 1) + "\n"
+        for field in self.definition['fields']:
+            if 'taggedVersions' in field:
+                continue
+            field_generator = APIFieldGenerator(field, self.flexible_versions)
+            output += indent(field_generator.init_assignment(), 1) + "\n"
+        output += "}"
+        return output
+
+
     def generate_request(self):
         output =  "struct " + self.struct_name + ": KafkaRequest { \n"
         output += indent(self.generate_custom_types("request"), 1) + "\n"
@@ -440,6 +480,7 @@ class APIMessageGenerator(AbstractGenerator):
             field_generator = APIFieldGenerator(field, self.flexible_versions)
             output += indent(field_generator.generate_field(),1) + "\n"
         output += "\n\n" + indent(self.generate_write(), 1) + "\n"
+
         output += "}\n"
         return output
 
@@ -460,10 +501,10 @@ class APIMessageGenerator(AbstractGenerator):
             output += indent("let taggedFields: [TaggedField]", 1) + "\n"
 
         output += "\n\n" + indent(self.generate_read(), 1) + "\n"
-
+        output += "\n\n" + indent(self.generate_init(), 1) + "\n"
         output += "}"
         return output
-        
+
 header = """//===----------------------------------------------------------------------===//
 //
 // This source file is part of the KafkaNIO open source project

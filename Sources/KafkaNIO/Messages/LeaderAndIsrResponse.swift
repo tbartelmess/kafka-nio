@@ -35,8 +35,14 @@ struct LeaderAndIsrResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(topicName: String, partitionIndex: Int32, errorCode: ErrorCode) {
+            self.topicName = topicName
+            self.partitionIndex = partitionIndex
+            self.errorCode = errorCode
+        }
     
     }
+    
     let apiKey: APIKey = .leaderAndIsr
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -60,5 +66,14 @@ struct LeaderAndIsrResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, partitionErrors: [LeaderAndIsrPartitionError]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.partitionErrors = partitionErrors
     }
 }

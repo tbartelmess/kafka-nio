@@ -42,9 +42,15 @@ struct StopReplicaRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(topicName: String?, partitionIndex: Int32?) {
+            self.topicName = topicName
+            self.partitionIndex = partitionIndex
+        }
+    
     }
+    
     
     struct StopReplicaTopicV1: KafkaRequestStruct {
     
@@ -71,9 +77,15 @@ struct StopReplicaRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String?, partitionIndexes: [Int32]?) {
+            self.name = name
+            self.partitionIndexes = partitionIndexes
+        }
+    
     }
+    
     
     struct StopReplicaTopicState: KafkaRequestStruct {
         struct StopReplicaPartitionState: KafkaRequestStruct {
@@ -108,8 +120,14 @@ struct StopReplicaRequest: KafkaRequest {
                 if apiVersion >= 2 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(partitionIndex: Int32?, leaderEpoch: Int32?, deletePartition: Bool?) {
+                self.partitionIndex = partitionIndex
+                self.leaderEpoch = leaderEpoch
+                self.deletePartition = deletePartition
+            }
+        
         }
     
         
@@ -135,9 +153,15 @@ struct StopReplicaRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(topicName: String?, partitionStates: [StopReplicaPartitionState]?) {
+            self.topicName = topicName
+            self.partitionStates = partitionStates
+        }
+    
     }
+    
     let apiKey: APIKey = .stopReplica
     let apiVersion: APIVersion
     let clientID: String?

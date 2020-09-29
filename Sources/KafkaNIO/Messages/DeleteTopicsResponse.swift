@@ -39,8 +39,14 @@ struct DeleteTopicsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String, errorCode: ErrorCode, errorMessage: String?) {
+            self.name = name
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+        }
     
     }
+    
     let apiKey: APIKey = .deleteTopics
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -68,5 +74,14 @@ struct DeleteTopicsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, responses: [DeletableTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.responses = responses
     }
 }

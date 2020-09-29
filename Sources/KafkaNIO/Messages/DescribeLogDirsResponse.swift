@@ -39,6 +39,12 @@ struct DescribeLogDirsResponse: KafkaResponse {
                         let _ : [TaggedField] = try buffer.read()
                     }
                 }
+                init(partitionIndex: Int32, partitionSize: Int64, offsetLag: Int64, isFutureKey: Bool) {
+                    self.partitionIndex = partitionIndex
+                    self.partitionSize = partitionSize
+                    self.offsetLag = offsetLag
+                    self.isFutureKey = isFutureKey
+                }
             
             }
         
@@ -54,6 +60,10 @@ struct DescribeLogDirsResponse: KafkaResponse {
                 if apiVersion >= 2 {
                     let _ : [TaggedField] = try buffer.read()
                 }
+            }
+            init(name: String, partitions: [DescribeLogDirsPartition]) {
+                self.name = name
+                self.partitions = partitions
             }
         
         }
@@ -74,8 +84,14 @@ struct DescribeLogDirsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(errorCode: ErrorCode, logDir: String, topics: [DescribeLogDirsTopic]) {
+            self.errorCode = errorCode
+            self.logDir = logDir
+            self.topics = topics
+        }
     
     }
+    
     let apiKey: APIKey = .describeLogDirs
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -99,5 +115,14 @@ struct DescribeLogDirsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [DescribeLogDirsResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

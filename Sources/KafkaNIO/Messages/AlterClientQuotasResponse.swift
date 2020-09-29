@@ -30,6 +30,10 @@ struct AlterClientQuotasResponse: KafkaResponse {
                 entityType = try buffer.read(lengthEncoding: lengthEncoding)
                 entityName = try buffer.read(lengthEncoding: lengthEncoding)
             }
+            init(entityType: String, entityName: String?) {
+                self.entityType = entityType
+                self.entityName = entityName
+            }
         
         }
     
@@ -46,8 +50,14 @@ struct AlterClientQuotasResponse: KafkaResponse {
             errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
             entity = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(errorCode: ErrorCode, errorMessage: String?, entity: [EntityData]) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.entity = entity
+        }
     
     }
+    
     let apiKey: APIKey = .alterClientQuotas
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -65,5 +75,13 @@ struct AlterClientQuotasResponse: KafkaResponse {
         self.responseHeader = responseHeader
         throttleTimeMs = try buffer.read()
         entries = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, entries: [EntryData]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.entries = entries
     }
 }

@@ -62,7 +62,7 @@ public class Consumer {
     var clusterClient: ClusterClient
     var autoCommitTask: RepeatedTask?
 
-    private var logger: Logger
+    var logger: Logger
 
     var state: State = .notJoined {
         didSet {
@@ -89,7 +89,8 @@ public class Consumer {
                                        eventLoopGroup: eventLoopGroup,
                                        clientID: configuration.clientID,
                                        tlsConfiguration: configuration.tlsConfiguration,
-                                       topics: configuration.subscribedTopics).map { clusterClient in
+                                       topics: configuration.subscribedTopics,
+                                       logger: logger).map { clusterClient in
             Consumer(configuration: configuration,
                      clusterClient: clusterClient,
                      eventLoop: eventLoopGroup.next(),
@@ -177,7 +178,7 @@ public class Consumer {
         }
     }
 
-    func fetchOffsets(coordinator: BrokerConnection, partitions: [Topic: [PartitionIndex]]) -> EventLoopFuture<[OffsetFetchResponse.OffsetFetchResponseTopic]> {
+    func fetchOffsets(coordinator: BrokerConnectionProtocol, partitions: [Topic: [PartitionIndex]]) -> EventLoopFuture<[OffsetFetchResponse.OffsetFetchResponseTopic]> {
         if logger.logLevel >= .debug {
             let partitionDescriptions = partitions.map { (topic, partitions) -> String in
                 return "\(topic) (\(partitions.map{String($0)}.joined(separator: ", ")))"
@@ -238,7 +239,7 @@ public class Consumer {
     }
 
 
-    func joinKnownGroup(groupCoordinator: BrokerConnection, memberID: String) -> EventLoopFuture<Void> {
+    func joinKnownGroup(groupCoordinator: BrokerConnectionProtocol, memberID: String) -> EventLoopFuture<Void> {
         self.joinGroup(groupCoordinator: groupCoordinator, memberID: memberID)
             .flatMap { groupInfo in
                 self.syncGroup(groupInfo: groupInfo)
@@ -303,12 +304,12 @@ public class Consumer {
     }
 
 
-    private func findGroupCoordinator(groupID: String) -> EventLoopFuture<BrokerConnection> {
+    private func findGroupCoordinator(groupID: String) -> EventLoopFuture<BrokerConnectionProtocol> {
         clusterClient.connectionForAnyNode()
             .flatMap { (connection) -> EventLoopFuture<FindCoordinatorResponse> in
                 self.logger.info("Trying to find coordinator for group: \(groupID)")
                 return connection.requestFindCoordinator(key: groupID, type: .group)
-            }.flatMap { (response) -> EventLoopFuture<BrokerConnection> in
+            }.flatMap { (response) -> EventLoopFuture<BrokerConnectionProtocol> in
                 self.logger.info("Found coordinator for group: \(groupID): \(response.nodeID)")
                 return self.clusterClient.createConnection(forNode: response.nodeID)
             }

@@ -42,9 +42,15 @@ struct UpdateMetadataRequest: KafkaRequest {
             if apiVersion >= 6 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(topicName: String?, partitionStates: [[UInt8]]?) {
+            self.topicName = topicName
+            self.partitionStates = partitionStates
+        }
+    
     }
+    
     
     struct UpdateMetadataBroker: KafkaRequestStruct {
         struct UpdateMetadataEndpoint: KafkaRequestStruct {
@@ -88,8 +94,15 @@ struct UpdateMetadataRequest: KafkaRequest {
                 if apiVersion >= 6 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(port: Int32?, host: String?, listener: String?, securityProtocol: Int16?) {
+                self.port = port
+                self.host = host
+                self.listener = listener
+                self.securityProtocol = securityProtocol
+            }
+        
         }
     
         
@@ -134,9 +147,18 @@ struct UpdateMetadataRequest: KafkaRequest {
             if apiVersion >= 6 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(id: Int32, v0Host: String?, v0Port: Int32?, endpoints: [UpdateMetadataEndpoint]?, rack: String?) {
+            self.id = id
+            self.v0Host = v0Host
+            self.v0Port = v0Port
+            self.endpoints = endpoints
+            self.rack = rack
+        }
+    
     }
+    
     let apiKey: APIKey = .updateMetadata
     let apiVersion: APIVersion
     let clientID: String?

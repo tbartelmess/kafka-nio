@@ -30,6 +30,10 @@ struct DescribeClientQuotasResponse: KafkaResponse {
                 entityType = try buffer.read(lengthEncoding: lengthEncoding)
                 entityName = try buffer.read(lengthEncoding: lengthEncoding)
             }
+            init(entityType: String, entityName: String?) {
+                self.entityType = entityType
+                self.entityName = entityName
+            }
         
         }
         struct ValueData: KafkaResponseStruct {
@@ -44,6 +48,10 @@ struct DescribeClientQuotasResponse: KafkaResponse {
                 key = try buffer.read(lengthEncoding: lengthEncoding)
                 value = try buffer.read()
             }
+            init(key: String, value: Float64) {
+                self.key = key
+                self.value = value
+            }
         
         }
     
@@ -57,8 +65,13 @@ struct DescribeClientQuotasResponse: KafkaResponse {
             entity = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
             values = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(entity: [EntityData], values: [ValueData]) {
+            self.entity = entity
+            self.values = values
+        }
     
     }
+    
     let apiKey: APIKey = .describeClientQuotas
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -84,5 +97,15 @@ struct DescribeClientQuotasResponse: KafkaResponse {
         errorCode = try buffer.read()
         errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
         entries = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, errorCode: ErrorCode, errorMessage: String?, entries: [EntryData]?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.entries = entries
     }
 }

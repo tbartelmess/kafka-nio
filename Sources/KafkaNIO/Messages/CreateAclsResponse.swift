@@ -32,8 +32,13 @@ struct CreateAclsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(errorCode: ErrorCode, errorMessage: String?) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+        }
     
     }
+    
     let apiKey: APIKey = .createAcls
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -57,5 +62,14 @@ struct CreateAclsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [AclCreationResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

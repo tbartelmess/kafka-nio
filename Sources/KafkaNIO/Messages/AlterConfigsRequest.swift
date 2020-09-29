@@ -30,8 +30,13 @@ struct AlterConfigsRequest: KafkaRequest {
                 buffer.write(name, lengthEncoding: lengthEncoding)
                 buffer.write(value, lengthEncoding: lengthEncoding)
         
-            
             }
+        
+            init(name: String, value: String?) {
+                self.name = name
+                self.value = value
+            }
+        
         }
     
         
@@ -47,9 +52,16 @@ struct AlterConfigsRequest: KafkaRequest {
             buffer.write(resourceName, lengthEncoding: lengthEncoding)
             try buffer.write(configs, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(resourceType: Int8, resourceName: String, configs: [AlterableConfig]) {
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+            self.configs = configs
+        }
+    
     }
+    
     let apiKey: APIKey = .alterConfigs
     let apiVersion: APIVersion
     let clientID: String?

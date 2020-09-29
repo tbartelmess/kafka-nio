@@ -32,9 +32,16 @@ struct DescribeConfigsRequest: KafkaRequest {
             buffer.write(resourceName, lengthEncoding: lengthEncoding)
             buffer.write(configurationKeys, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(resourceType: Int8, resourceName: String, configurationKeys: [String]?) {
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+            self.configurationKeys = configurationKeys
+        }
+    
     }
+    
     let apiKey: APIKey = .describeConfigs
     let apiVersion: APIVersion
     let clientID: String?

@@ -26,7 +26,7 @@ extension Consumer {
 
         /// Stop all nodes
         logger.debug("Stopping all consumers in group '\(configuration.groupID)'")
-        let refreshFuture = self.clusterClient.refreshMetadata(connection: oldGroupInfo.coordinator, topics: self.configuration.subscribedTopics)
+        let refreshFuture = self.clusterClient.refreshMetadata(connection: oldGroupInfo.coordinator)
         let shutdownFuture = EventLoopFuture.whenAllComplete(consumers.map { $0.shutdown() }, on: self.eventLoop)
             .flatMapResult { results -> Result<Void, KafkaError> in
             let allOK = results.filter { (result) -> Bool in

@@ -36,8 +36,14 @@ struct IncrementalAlterConfigsRequest: KafkaRequest {
                 if apiVersion >= 1 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(name: String, configOperation: Int8, value: String?) {
+                self.name = name
+                self.configOperation = configOperation
+                self.value = value
+            }
+        
         }
     
         
@@ -56,9 +62,16 @@ struct IncrementalAlterConfigsRequest: KafkaRequest {
             if apiVersion >= 1 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(resourceType: Int8, resourceName: String, configs: [AlterableConfig]) {
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+            self.configs = configs
+        }
+    
     }
+    
     let apiKey: APIKey = .incrementalAlterConfigs
     let apiVersion: APIVersion
     let clientID: String?

@@ -52,9 +52,20 @@ struct CreateAclsRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(resourceType: Int8, resourceName: String, resourcePatternType: Int8?, principal: String, host: String, operation: Int8, permissionType: Int8) {
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+            self.resourcePatternType = resourcePatternType
+            self.principal = principal
+            self.host = host
+            self.operation = operation
+            self.permissionType = permissionType
+        }
+    
     }
+    
     let apiKey: APIKey = .createAcls
     let apiVersion: APIVersion
     let clientID: String?

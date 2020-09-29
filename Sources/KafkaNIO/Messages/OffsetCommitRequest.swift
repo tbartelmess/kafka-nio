@@ -52,8 +52,16 @@ struct OffsetCommitRequest: KafkaRequest {
                 if apiVersion >= 8 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(partitionIndex: Int32, committedOffset: Int64, committedLeaderEpoch: Int32?, commitTimestamp: Int64?, committedMetadata: String?) {
+                self.partitionIndex = partitionIndex
+                self.committedOffset = committedOffset
+                self.committedLeaderEpoch = committedLeaderEpoch
+                self.commitTimestamp = commitTimestamp
+                self.committedMetadata = committedMetadata
+            }
+        
         }
     
         
@@ -69,9 +77,15 @@ struct OffsetCommitRequest: KafkaRequest {
             if apiVersion >= 8 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, partitions: [OffsetCommitRequestPartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .offsetCommit
     let apiVersion: APIVersion
     let clientID: String?

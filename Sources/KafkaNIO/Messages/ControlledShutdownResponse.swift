@@ -32,8 +32,13 @@ struct ControlledShutdownResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(topicName: String, partitionIndex: Int32) {
+            self.topicName = topicName
+            self.partitionIndex = partitionIndex
+        }
     
     }
+    
     let apiKey: APIKey = .controlledShutdown
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -57,5 +62,14 @@ struct ControlledShutdownResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, errorCode: ErrorCode, remainingPartitions: [RemainingPartition]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.errorCode = errorCode
+        self.remainingPartitions = remainingPartitions
     }
 }

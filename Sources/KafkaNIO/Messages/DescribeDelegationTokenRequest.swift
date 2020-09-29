@@ -32,9 +32,15 @@ struct DescribeDelegationTokenRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(principalType: String, principalName: String) {
+            self.principalType = principalType
+            self.principalName = principalName
+        }
+    
     }
+    
     let apiKey: APIKey = .describeDelegationToken
     let apiVersion: APIVersion
     let clientID: String?

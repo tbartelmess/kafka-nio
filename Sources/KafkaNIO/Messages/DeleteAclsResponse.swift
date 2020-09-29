@@ -58,6 +58,17 @@ struct DeleteAclsResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(errorCode: ErrorCode, errorMessage: String?, resourceType: Int8, resourceName: String, patternType: Int8?, principal: String, host: String, operation: Int8, permissionType: Int8) {
+                self.errorCode = errorCode
+                self.errorMessage = errorMessage
+                self.resourceType = resourceType
+                self.resourceName = resourceName
+                self.patternType = patternType
+                self.principal = principal
+                self.host = host
+                self.operation = operation
+                self.permissionType = permissionType
+            }
         
         }
     
@@ -77,8 +88,14 @@ struct DeleteAclsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(errorCode: ErrorCode, errorMessage: String?, matchingAcls: [DeleteAclsMatchingAcl]) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.matchingAcls = matchingAcls
+        }
     
     }
+    
     let apiKey: APIKey = .deleteAcls
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -102,5 +119,14 @@ struct DeleteAclsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, filterResults: [DeleteAclsFilterResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.filterResults = filterResults
     }
 }

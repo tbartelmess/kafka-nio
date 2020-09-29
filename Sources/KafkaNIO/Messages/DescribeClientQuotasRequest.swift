@@ -32,9 +32,16 @@ struct DescribeClientQuotasRequest: KafkaRequest {
             buffer.write(matchType)
             buffer.write(match, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(entityType: String, matchType: Int8, match: String?) {
+            self.entityType = entityType
+            self.matchType = matchType
+            self.match = match
+        }
+    
     }
+    
     let apiKey: APIKey = .describeClientQuotas
     let apiVersion: APIVersion
     let clientID: String?

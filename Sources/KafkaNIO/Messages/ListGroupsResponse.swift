@@ -39,8 +39,14 @@ struct ListGroupsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(groupID: String, protocolType: String, groupState: String?) {
+            self.groupID = groupID
+            self.protocolType = protocolType
+            self.groupState = groupState
+        }
     
     }
+    
     let apiKey: APIKey = .listGroups
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -72,5 +78,15 @@ struct ListGroupsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, errorCode: ErrorCode, groups: [ListedGroup]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.groups = groups
     }
 }

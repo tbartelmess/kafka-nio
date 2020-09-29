@@ -32,9 +32,15 @@ struct ElectLeadersRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(topic: String, partitionID: [Int32]) {
+            self.topic = topic
+            self.partitionID = partitionID
+        }
+    
     }
+    
     let apiKey: APIKey = .electLeaders
     let apiVersion: APIVersion
     let clientID: String?

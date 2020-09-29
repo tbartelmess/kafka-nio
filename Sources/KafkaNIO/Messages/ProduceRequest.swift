@@ -30,8 +30,13 @@ struct ProduceRequest: KafkaRequest {
                 buffer.write(partitionIndex)
                 buffer.write(records, lengthEncoding: lengthEncoding)
         
-            
             }
+        
+            init(partitionIndex: Int32, records: [UInt8]?) {
+                self.partitionIndex = partitionIndex
+                self.records = records
+            }
+        
         }
     
         
@@ -44,9 +49,15 @@ struct ProduceRequest: KafkaRequest {
             buffer.write(name, lengthEncoding: lengthEncoding)
             try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(name: String, partitions: [PartitionProduceData]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .produce
     let apiVersion: APIVersion
     let clientID: String?

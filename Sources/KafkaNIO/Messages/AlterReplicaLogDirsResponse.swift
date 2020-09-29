@@ -29,6 +29,10 @@ struct AlterReplicaLogDirsResponse: KafkaResponse {
                 partitionIndex = try buffer.read()
                 errorCode = try buffer.read()
             }
+            init(partitionIndex: Int32, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+            }
         
         }
     
@@ -42,8 +46,13 @@ struct AlterReplicaLogDirsResponse: KafkaResponse {
             topicName = try buffer.read(lengthEncoding: lengthEncoding)
             partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(topicName: String, partitions: [AlterReplicaLogDirPartitionResult]) {
+            self.topicName = topicName
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .alterReplicaLogDirs
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -61,5 +70,13 @@ struct AlterReplicaLogDirsResponse: KafkaResponse {
         self.responseHeader = responseHeader
         throttleTimeMs = try buffer.read()
         results = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [AlterReplicaLogDirTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

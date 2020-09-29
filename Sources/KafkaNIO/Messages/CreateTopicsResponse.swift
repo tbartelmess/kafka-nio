@@ -62,6 +62,13 @@ struct CreateTopicsResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(name: String?, value: String?, readOnly: Bool?, configSource: Int8?, isSensitive: Bool?) {
+                self.name = name
+                self.value = value
+                self.readOnly = readOnly
+                self.configSource = configSource
+                self.isSensitive = isSensitive
+            }
         
         }
     
@@ -72,8 +79,6 @@ struct CreateTopicsResponse: KafkaResponse {
         let errorCode: ErrorCode    
         /// The error message, or null if there was no error.
         let errorMessage: String?    
-        /// Optional topic config error returned if configs are not returned in the response.
-        let topicConfigErrorCode: Int16?    
         /// Number of partitions of the topic.
         let numPartitions: Int32?    
         /// Replication factor of the topic.
@@ -88,11 +93,6 @@ struct CreateTopicsResponse: KafkaResponse {
                 errorMessage = try buffer.read(lengthEncoding: lengthEncoding)
             } else { 
                 errorMessage = nil
-            }
-            if apiVersion >= 5 {
-                topicConfigErrorCode = try buffer.read()
-            } else { 
-                topicConfigErrorCode = nil
             }
             if apiVersion >= 5 {
                 numPartitions = try buffer.read()
@@ -113,8 +113,17 @@ struct CreateTopicsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String, errorCode: ErrorCode, errorMessage: String?, topicConfigErrorCode: Int16?, numPartitions: Int32?, replicationFactor: Int16?, configs: [CreatableTopicConfigs]?) {
+            self.name = name
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.numPartitions = numPartitions
+            self.replicationFactor = replicationFactor
+            self.configs = configs
+        }
     
     }
+    
     let apiKey: APIKey = .createTopics
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -142,5 +151,14 @@ struct CreateTopicsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, topics: [CreatableTopicResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
     }
 }

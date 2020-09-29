@@ -52,9 +52,20 @@ struct DeleteAclsRequest: KafkaRequest {
             if apiVersion >= 2 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(resourceTypeFilter: Int8, resourceNameFilter: String?, patternTypeFilter: Int8?, principalFilter: String?, hostFilter: String?, operation: Int8, permissionType: Int8) {
+            self.resourceTypeFilter = resourceTypeFilter
+            self.resourceNameFilter = resourceNameFilter
+            self.patternTypeFilter = patternTypeFilter
+            self.principalFilter = principalFilter
+            self.hostFilter = hostFilter
+            self.operation = operation
+            self.permissionType = permissionType
+        }
+    
     }
+    
     let apiKey: APIKey = .deleteAcls
     let apiVersion: APIVersion
     let clientID: String?

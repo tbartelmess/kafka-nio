@@ -15,6 +15,7 @@ import Foundation
 enum KafkaError: Error {
     case notEnoughBytes
     case invalidAPIKey
+    case unsupportedAPIKey
     case invalidEnumValue
     case invalidCoordinatorType
     case responseBeforeRequest
@@ -30,7 +31,12 @@ enum KafkaError: Error {
     case assignmentDecodingError
     case invalidState
     case missingValue
+    case missingMetadata
+
+    case nodeForTopicNotFound
 
     case multiple([Error])
+
+
 }
 

@@ -33,8 +33,13 @@ struct AlterPartitionReassignmentsRequest: KafkaRequest {
                 if apiVersion >= 0 {
                     buffer.write(taggedFields)
                 }
-            
             }
+        
+            init(partitionIndex: Int32, replicas: [Int32]?) {
+                self.partitionIndex = partitionIndex
+                self.replicas = replicas
+            }
+        
         }
     
         
@@ -50,9 +55,15 @@ struct AlterPartitionReassignmentsRequest: KafkaRequest {
             if apiVersion >= 0 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String, partitions: [ReassignablePartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .alterPartitionReassignments
     let apiVersion: APIVersion
     let clientID: String?

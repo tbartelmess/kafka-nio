@@ -39,6 +39,10 @@ struct ProduceResponse: KafkaResponse {
                         batchIndexErrorMessage = nil
                     }
                 }
+                init(batchIndex: Int32?, batchIndexErrorMessage: String?) {
+                    self.batchIndex = batchIndex
+                    self.batchIndexErrorMessage = batchIndexErrorMessage
+                }
             
             }
         
@@ -83,6 +87,15 @@ struct ProduceResponse: KafkaResponse {
                     errorMessage = nil
                 }
             }
+            init(partitionIndex: Int32, errorCode: ErrorCode, baseOffset: Int64, logAppendTimeMs: Int64?, logStartOffset: Int64?, recordErrors: [BatchIndexAndErrorMessage]?, errorMessage: String?) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+                self.baseOffset = baseOffset
+                self.logAppendTimeMs = logAppendTimeMs
+                self.logStartOffset = logStartOffset
+                self.recordErrors = recordErrors
+                self.errorMessage = errorMessage
+            }
         
         }
     
@@ -96,8 +109,13 @@ struct ProduceResponse: KafkaResponse {
             name = try buffer.read(lengthEncoding: lengthEncoding)
             partitions = try buffer.read(apiVersion: apiVersion, lengthEncoding: lengthEncoding)
         }
+        init(name: String, partitions: [PartitionProduceResponse]) {
+            self.name = name
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .produce
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -119,5 +137,13 @@ struct ProduceResponse: KafkaResponse {
         } else { 
             throttleTimeMs = nil
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, responses: [TopicProduceResponse], throttleTimeMs: Int32?) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.responses = responses
+        self.throttleTimeMs = throttleTimeMs
     }
 }

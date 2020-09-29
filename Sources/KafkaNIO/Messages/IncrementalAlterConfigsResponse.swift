@@ -38,8 +38,15 @@ struct IncrementalAlterConfigsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(errorCode: ErrorCode, errorMessage: String?, resourceType: Int8, resourceName: String) {
+            self.errorCode = errorCode
+            self.errorMessage = errorMessage
+            self.resourceType = resourceType
+            self.resourceName = resourceName
+        }
     
     }
+    
     let apiKey: APIKey = .incrementalAlterConfigs
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -63,5 +70,14 @@ struct IncrementalAlterConfigsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, responses: [AlterConfigsResourceResponse]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.responses = responses
     }
 }

@@ -45,8 +45,15 @@ struct ListOffsetRequest: KafkaRequest {
                     buffer.write(maxNumOffsets)
                 }
         
-            
             }
+        
+            init(partitionIndex: Int32, currentLeaderEpoch: Int32?, timestamp: Int64, maxNumOffsets: Int32?) {
+                self.partitionIndex = partitionIndex
+                self.currentLeaderEpoch = currentLeaderEpoch
+                self.timestamp = timestamp
+                self.maxNumOffsets = maxNumOffsets
+            }
+        
         }
     
         
@@ -59,9 +66,15 @@ struct ListOffsetRequest: KafkaRequest {
             buffer.write(name, lengthEncoding: lengthEncoding)
             try buffer.write(partitions, apiVersion: apiVersion, lengthEncoding: lengthEncoding)
     
-        
         }
+    
+        init(name: String, partitions: [ListOffsetPartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
+    
     }
+    
     let apiKey: APIKey = .listOffset
     let apiVersion: APIVersion
     let clientID: String?

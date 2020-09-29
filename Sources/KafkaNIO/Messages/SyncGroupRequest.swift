@@ -32,9 +32,15 @@ struct SyncGroupRequest: KafkaRequest {
             if apiVersion >= 4 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(memberID: String, assignment: [UInt8]) {
+            self.memberID = memberID
+            self.assignment = assignment
+        }
+    
     }
+    
     let apiKey: APIKey = .syncGroup
     let apiVersion: APIVersion
     let clientID: String?

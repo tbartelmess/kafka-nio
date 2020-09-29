@@ -29,9 +29,14 @@ struct MetadataRequest: KafkaRequest {
             if apiVersion >= 9 {
                 buffer.write(taggedFields)
             }
-        
         }
+    
+        init(name: String) {
+            self.name = name
+        }
+    
     }
+    
     let apiKey: APIKey = .metadata
     let apiVersion: APIVersion
     let clientID: String?

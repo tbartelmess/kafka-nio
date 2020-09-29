@@ -39,8 +39,14 @@ struct JoinGroupResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(memberID: String, groupInstanceID: String?, metadata: [UInt8]) {
+            self.memberID = memberID
+            self.groupInstanceID = groupInstanceID
+            self.metadata = metadata
+        }
     
     }
+    
     let apiKey: APIKey = .joinGroup
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -96,5 +102,20 @@ struct JoinGroupResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, errorCode: ErrorCode, generationID: Int32, protocolType: String?, protocolName: String?, leader: String, memberID: String, members: [JoinGroupResponseMember]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.generationID = generationID
+        self.protocolType = protocolType
+        self.protocolName = protocolName
+        self.leader = leader
+        self.memberID = memberID
+        self.members = members
     }
 }

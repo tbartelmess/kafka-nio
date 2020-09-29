@@ -66,4 +66,17 @@ struct FindCoordinatorResponse: KafkaResponse {
             taggedFields = []
         }
     }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32?, errorCode: ErrorCode, errorMessage: String?, nodeID: Int32, host: String, port: Int32) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.nodeID = nodeID
+        self.host = host
+        self.port = port
+    }
 }

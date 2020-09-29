@@ -32,8 +32,13 @@ struct DeleteGroupsResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(groupID: String, errorCode: ErrorCode) {
+            self.groupID = groupID
+            self.errorCode = errorCode
+        }
     
     }
+    
     let apiKey: APIKey = .deleteGroups
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -57,5 +62,14 @@ struct DeleteGroupsResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, results: [DeletableGroupResult]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.results = results
     }
 }

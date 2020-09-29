@@ -32,6 +32,10 @@ struct TxnOffsetCommitResponse: KafkaResponse {
                     let _ : [TaggedField] = try buffer.read()
                 }
             }
+            init(partitionIndex: Int32, errorCode: ErrorCode) {
+                self.partitionIndex = partitionIndex
+                self.errorCode = errorCode
+            }
         
         }
     
@@ -48,8 +52,13 @@ struct TxnOffsetCommitResponse: KafkaResponse {
                 let _ : [TaggedField] = try buffer.read()
             }
         }
+        init(name: String, partitions: [TxnOffsetCommitResponsePartition]) {
+            self.name = name
+            self.partitions = partitions
+        }
     
     }
+    
     let apiKey: APIKey = .txnOffsetCommit
     let apiVersion: APIVersion
     let responseHeader: KafkaResponseHeader
@@ -73,5 +82,14 @@ struct TxnOffsetCommitResponse: KafkaResponse {
         } else {
             taggedFields = []
         }
+    }
+
+
+    init(apiVersion: APIVersion, responseHeader: KafkaResponseHeader, throttleTimeMs: Int32, topics: [TxnOffsetCommitResponseTopic]) {
+        self.apiVersion = apiVersion
+        self.responseHeader = responseHeader
+        self.taggedFields = []
+        self.throttleTimeMs = throttleTimeMs
+        self.topics = topics
     }
 }
