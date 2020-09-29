@@ -353,7 +353,6 @@ final class ClusterClient {
         connection.requestFetchMetadata(topics: Array(self.topics)).map { response in
             self.eventLoop.execute {
                 self.clusterMetadata = ClusterMetadata(metadata: response)
-                print(self.clusterMetadata.topics)
                 let oldMetadataPromise = self.nextMetadataRefresh
                 self.nextMetadataRefresh = self.eventLoop.makePromise()
                 oldMetadataPromise.succeed(())
