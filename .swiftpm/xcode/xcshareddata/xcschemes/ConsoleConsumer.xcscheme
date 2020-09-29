@@ -86,20 +86,20 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--bootstrap-server kafka-02.bartelmess.io:9092"
-            isEnabled = "YES">
+            argument = "--bootstrap-server kafka.service.consul:9092"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--tls tls"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--topic test-topic-6"
+            argument = "--topic test-topic-9993"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--bootstrap-server kafka.service.consul:9092"
-            isEnabled = "NO">
+            argument = "--bootstrap-server kafka-01.bartelmess.io:9092"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--topic access-logs"
