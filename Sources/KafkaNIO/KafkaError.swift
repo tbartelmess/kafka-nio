@@ -31,9 +31,12 @@ enum KafkaError: Error {
     case assignmentDecodingError
     case invalidState
     case missingValue
+    case missingMetadata
 
     case nodeForTopicNotFound
 
     case multiple([Error])
+
+
 }
 
