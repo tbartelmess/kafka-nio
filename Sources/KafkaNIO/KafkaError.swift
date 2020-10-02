@@ -35,9 +35,6 @@ enum KafkaError: Error {
 
     
     case nodeForTopicNotFound
-
     case multiple([Error])
-
-
 }
 
