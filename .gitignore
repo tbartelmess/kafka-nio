@@ -6,3 +6,4 @@ xcuserdata/
 docs/
 servers/*/kafka-bin*
 servers/*/resources/ssl*
+.swiftpm/xcode/
