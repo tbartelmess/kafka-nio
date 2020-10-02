@@ -54,5 +54,10 @@ try consumer.poll().wait()
 ```
 
 
-## Supported Kafka Versions
-Currently, it's only tested against Kafka 2.4, the goal is to provide compatibly with all Kafka Versions from 0.9 and later.
+## Supported Features
+
+| KIP | Status |
+|:--|:--|
+| [KIP-394: Require member.id for initial join group request](https://cwiki.apache.org/confluence/display/KAFKA/KIP-394%3A+Require+member.id+for+initial+join+group+request) |   Supported. |
+|  |  |
+
