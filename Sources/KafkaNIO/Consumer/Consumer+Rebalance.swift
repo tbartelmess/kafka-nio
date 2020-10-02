@@ -44,7 +44,7 @@ extension Consumer {
         let rebalanceFuture = EventLoopFuture.andAllSucceed([shutdownFuture, refreshFuture], on: eventLoop)
 
             .flatMap { result in
-                self.joinKnownGroup(groupCoordinator: oldGroupInfo.coordinator, memberID: oldGroupInfo.memberID)
+                self.joinAndSyncGroup(groupCoordinator: oldGroupInfo.coordinator, memberID: oldGroupInfo.memberID)
             }
         rebalanceFuture.cascade(to: promise)
         return promise.futureResult

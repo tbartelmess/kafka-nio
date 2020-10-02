@@ -33,6 +33,7 @@ enum KafkaError: Error {
     case missingValue
     case missingMetadata
 
+    
     case nodeForTopicNotFound
 
     case multiple([Error])

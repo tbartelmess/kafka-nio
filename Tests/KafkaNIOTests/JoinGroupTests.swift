@@ -39,7 +39,7 @@ class JoinGroupTests: XCTestCase {
         var buffer = try ByteBuffer.from(fixture: "join-group-v7-response-initial")
         let header = try KafkaResponseHeader.read(from: &buffer, correlationID: 1, version: .v1)
         let response = try JoinGroupResponse(from: &buffer, responseHeader: header, apiVersion: 7)
-        XCTAssertEqual(response.errorCode, .memberMemberIdRequired)
+        XCTAssertEqual(response.errorCode, .memberIdRequired)
     }
     func testParsing() throws {
         var buffer = try ByteBuffer.from(fixture: "join-group-v7-response")

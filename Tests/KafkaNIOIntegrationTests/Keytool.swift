@@ -22,7 +22,7 @@ private func keytool(arguments: [String]) throws  {
     let process = Process()
     process.launchPath = path
     process.arguments = arguments
-    process.launch()
+    try process.run()
     process.waitUntilExit()
 
     if process.terminationStatus != 0 {
@@ -91,7 +91,7 @@ private func openssl(arguments: [String]) throws {
     let process = Process()
     process.launchPath = path
     process.arguments = arguments
-    process.launch()
+    try process.run()
     process.waitUntilExit()
 
     if process.terminationStatus != 0 {

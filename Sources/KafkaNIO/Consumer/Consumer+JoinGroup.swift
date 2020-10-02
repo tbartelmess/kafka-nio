@@ -14,7 +14,7 @@
 import NIO
 
 extension Consumer {
-    func joinGroup(groupCoordinator: BrokerConnectionProtocol, memberID: String) -> EventLoopFuture<GroupInfo> {
+    private func _joinGroup(groupCoordinator: BrokerConnectionProtocol, memberID: String = "") -> EventLoopFuture<JoinGroupResponse> {
         logger.info("Joining group as with memberID: \(memberID)")
         return groupCoordinator.requestJoinGroup(groupID: self.configuration.groupID,
                                                  topics: configuration.subscribedTopics,
@@ -22,7 +22,25 @@ extension Consumer {
                                                  rebalanceTimeout: Int32(configuration.rebalanceTimeout),
                                                  memberID: memberID,
                                                  groupInstanceID: nil)
+            .flatMap { response in
+                if response.errorCode == .memberIdRequired {
+                    return self._joinGroup(groupCoordinator: groupCoordinator, memberID: response.memberID)
+                }
+                if response.errorCode != .noError {
+                    return self.eventLoop.makeFailedFuture(KafkaError.unexpectedKafkaErrorCode(response.errorCode))
+                }
+                return self.eventLoop.makeSucceededFuture(response)
+            }
+
+    }
+
+
+    func joinGroup(groupCoordinator: BrokerConnectionProtocol, memberID: String = "") -> EventLoopFuture<GroupInfo> {
+        self._joinGroup(groupCoordinator: groupCoordinator, memberID: memberID)
             .flatMapResult { response -> Result<GroupInfo, KafkaError> in
+                // Older brokers that don't support KIP-394, won't sent a .memberIDRequired error.
+                let assignedMemberID = response.memberID
+
                 guard response.errorCode == .noError else {
                     self.logger.error("Failed to join group: \(response.errorCode)")
                     return .failure(.unexpectedKafkaErrorCode(response.errorCode))
@@ -34,7 +52,7 @@ extension Consumer {
                 }
 
                 let groupStatus: GroupStatus
-                if response.leader == memberID {
+                if response.leader == assignedMemberID {
                     do {
                         let memberMetadata = try response.members.map { responseMember -> MemberMetadata in
                             let subscription = try responseMember.subscription()
@@ -53,7 +71,7 @@ extension Consumer {
                 }
 
                 let groupInfo = GroupInfo(groupID: self.configuration.groupID,
-                                          memberID: memberID,
+                                          memberID: assignedMemberID,
                                           generationID: response.generationID,
                                           assignmentProtocol: assignmentProtocol,
                                           groupStatus: groupStatus,
