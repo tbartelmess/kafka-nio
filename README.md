@@ -59,5 +59,15 @@ try consumer.poll().wait()
 | KIP | Status |
 |:--|:--|
 | [KIP-394: Require member.id for initial join group request](https://cwiki.apache.org/confluence/display/KAFKA/KIP-394%3A+Require+member.id+for+initial+join+group+request) |   Supported. |
-|  |  |
 
+## Supported Kafka Version
+
+All Kafka version starting at 0.8 are supported, however some features are not available on some version of Kafka.
+
+The integration test suite runs tests on the following versions:
+
+- 0.10.2.2
+- 0.11.0.3
+- 1.1.1
+- 2.4.0
+- 2.5.0
