@@ -36,6 +36,7 @@ class Connect: XCTestCase {
                                                                  groupID: "test",
                                                                  sessionTimeout: 10000,
                                                                  rebalanceTimeout: 10000,
+                                                                 autoCommit: .off,
                                                                  tlsConfiguration: nil),
                                             eventLoopGroup: eventLoopGroup).wait()
         try consumer.setup().wait()
