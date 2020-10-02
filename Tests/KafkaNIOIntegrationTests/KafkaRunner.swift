@@ -360,7 +360,7 @@ class ZookeeperController: ServerController {
                                        watcher: zookeeperStartupWatcher,
                                        group: MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount))
         zookeeperProcess = process
-        process.run()
+        try process.run()
         try zookeeperStartupWatcher.waitForStartup()
     }
 
@@ -464,7 +464,7 @@ class KafkaController: ServerController {
                                        watcher: kafkaStartupWatcher,
                                        group: MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount))
         kafkaProcess = process
-        process.run()
+        try process.run()
         try kafkaStartupWatcher.waitForStartup()
     }
     func stopKafka() {
