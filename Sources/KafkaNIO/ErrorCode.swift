@@ -29,7 +29,7 @@ enum ErrorCode: UInt16, ProtocolEnum {
     case offsetOffsetMetadataTooLarge = 12
     case networkNetworkException = 13
     case coordinatorCoordinatorLoadInProgress = 14
-    case coordinatorCoordinatorNotAvailable = 15
+    case coordinatorNotAvailable = 15
     case notCoordinator = 16
     case invalidInvalidTopicException = 17
     case recordRecordListTooLarge = 18
@@ -93,7 +93,7 @@ enum ErrorCode: UInt16, ProtocolEnum {
     case unsupportedUnsupportedCompressionType = 76
     case staleStaleBrokerEpoch = 77
     case offsetOffsetNotAvailable = 78
-    case memberMemberIdRequired = 79
+    case memberIdRequired = 79
     case preferredPreferredLeaderNotAvailable = 80
     case groupGroupMaxSizeReached = 81
     case fencedFencedInstanceId = 82

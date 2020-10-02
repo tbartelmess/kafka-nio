@@ -239,7 +239,7 @@ public class Consumer {
     }
 
 
-    func joinKnownGroup(groupCoordinator: BrokerConnectionProtocol, memberID: String) -> EventLoopFuture<Void> {
+    func joinAndSyncGroup(groupCoordinator: BrokerConnectionProtocol, memberID: String = "") -> EventLoopFuture<Void> {
         self.joinGroup(groupCoordinator: groupCoordinator, memberID: memberID)
             .flatMap { groupInfo in
                 self.syncGroup(groupInfo: groupInfo)
@@ -260,11 +260,7 @@ public class Consumer {
     public func setup() -> EventLoopFuture<Void> {
         findGroupCoordinator(groupID: self.configuration.groupID)
             .flatMap { groupCoordinator in
-                self.joinGroupInitial(groupCoordinator: groupCoordinator)
-                    .flatMap { memberID in
-                        self.joinKnownGroup(groupCoordinator: groupCoordinator, memberID: memberID)
-                    }
-
+                self.joinAndSyncGroup(groupCoordinator: groupCoordinator)
             }
     }
 
@@ -304,12 +300,26 @@ public class Consumer {
     }
 
 
-    private func findGroupCoordinator(groupID: String) -> EventLoopFuture<BrokerConnectionProtocol> {
+    private func findGroupCoordinator(groupID: String, attemps: Int = 5) -> EventLoopFuture<BrokerConnectionProtocol> {
         clusterClient.connectionForAnyNode()
             .flatMap { (connection) -> EventLoopFuture<FindCoordinatorResponse> in
                 self.logger.info("Trying to find coordinator for group: \(groupID)")
                 return connection.requestFindCoordinator(key: groupID, type: .group)
             }.flatMap { (response) -> EventLoopFuture<BrokerConnectionProtocol> in
+                if response.errorCode != .noError {
+                    self.logger.warning("Failed to discover group coordinator.")
+                    if attemps == 0 {
+                        self.logger.error("Failed to discover group coordinator, no attempts left.")
+                        return self.eventLoop.makeFailedFuture(KafkaError.unexpectedKafkaErrorCode(response.errorCode))
+                    }
+                    if response.errorCode == .coordinatorNotAvailable {
+                        return self.eventLoop.flatScheduleTask(in: TimeAmount.seconds(5)) {
+                            return self.findGroupCoordinator(groupID: groupID, attemps: attemps - 1)
+                        }.futureResult
+
+
+                    }
+                }
                 self.logger.info("Found coordinator for group: \(groupID): \(response.nodeID)")
                 return self.clusterClient.createConnection(forNode: response.nodeID)
             }

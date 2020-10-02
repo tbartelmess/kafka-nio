@@ -277,7 +277,7 @@ struct KafkaLogWatcher: LogWatcher {
 
 
 class ServerController {
-    let kafkaVersion = ProcessInfo.processInfo.environment["KAFKA_VERSION"] ?? "0.9.0.1"
+    let kafkaVersion = ProcessInfo.processInfo.environment["KAFKA_VERSION"] ?? "2.5.0"
     let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
                                                    .deletingLastPathComponent()
                                                    .deletingLastPathComponent()
