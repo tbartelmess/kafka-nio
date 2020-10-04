@@ -9,7 +9,9 @@ let package = Package(
         .library(
             name: "KafkaNIO",
             targets: ["KafkaNIO"]),
-        .executable(name: "ConsoleConsumer", targets: ["ConsoleConsumer"])
+        .executable(name: "ConsoleConsumer", targets: ["ConsoleConsumer"]),
+        .executable(name: "ConsoleProducer", targets: ["ConsoleProducer"])
+
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
@@ -34,6 +36,10 @@ let package = Package(
         .testTarget(name: "KafkaNIOIntegrationTests",
                     dependencies: ["KafkaNIO", "Stencil"]),
         .target(name: "ConsoleConsumer",
+                dependencies: [.byName(name: "KafkaNIO"),
+                               .product(name: "ArgumentParser", package: "swift-argument-parser")
+                               ]),
+        .target(name: "ConsoleProducer",
                 dependencies: [.byName(name: "KafkaNIO"),
                                .product(name: "ArgumentParser", package: "swift-argument-parser")
                                ])
