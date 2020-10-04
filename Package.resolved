@@ -38,6 +38,15 @@
         }
       },
       {
+        "package": "swift-crc32c",
+        "repositoryURL": "https://github.com/tbartelmess/swift-crc32c",
+        "state": {
+          "branch": null,
+          "revision": "53e5f6ed1c37ea08b32e73380e45a9ba17390ec3",
+          "version": "0.2.3"
+        }
+      },
+      {
         "package": "swift-log",
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {

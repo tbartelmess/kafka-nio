@@ -13,6 +13,7 @@
 
 import NIO
 import Foundation
+import CRC32CNIOSupport
 
 enum CompressionAlgorithm: Int8, ProtocolEnum {
     case none = 0
@@ -69,7 +70,7 @@ public struct RecordBatch {
                 throw KafkaError.crcValidationFailed
             }
         }
-        attributes = try buffer.read()
+        attributes  = try buffer.read()
         lastOffsetDelta = try buffer.read()
         firstTimestamp = try buffer.read()
         maxTimestamp = try buffer.read()
