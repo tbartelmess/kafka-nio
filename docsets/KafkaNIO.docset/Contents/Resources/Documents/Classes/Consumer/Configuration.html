@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Configuration Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../../js/jquery.min.js" defer></script>
+    <script src="../../js/jazzy.js" defer></script>
+    
+    <script src="../../js/lunr.min.js" defer></script>
+    <script src="../../js/typeahead.jquery.js" defer></script>
+    <script src="../../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Struct/Configuration" class="dashAnchor"></a>
+    <a title="Configuration Structure Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../../index.html">KafkaNIO Docs</a> (39% documented)</p>
+        <p class="header-right">
+          <form role="search" action="../../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../../index.html">KafkaNIO Reference</a>
+        <img id="carat" src="../../img/carat.png" />
+        Configuration Structure Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Classes/BrokerConnection.html">BrokerConnection</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Consumer.html">Consumer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Consumer/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Consumer/FetchConfiguration.html">– FetchConfiguration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Structs/Record.html">Record</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/Record/Header.html">– Header</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/RecordBatch.html">RecordBatch</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Typealiases.html#/s:8KafkaNIO10ConsumerIDa">ConsumerID</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Typealiases.html#/s:8KafkaNIO14MessageHandlera">MessageHandler</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Typealiases.html#/s:8KafkaNIO5Topica">Topic</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Configuration</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">Configuration</span></code></pre>
+
+                </div>
+              </div>
+            <p><code><a href="../../Classes/Consumer.html">Consumer</a></code> configuration.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV10AutoCommitO"></a>
+                    <a name="//apple_ref/swift/Enum/AutoCommit" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV10AutoCommitO">AutoCommit</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="../../Classes/Consumer/Configuration/AutoCommit.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">AutoCommit</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV16bootstrapServersSay0B013SocketAddressOGvp"></a>
+                    <a name="//apple_ref/swift/Property/bootstrapServers" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV16bootstrapServersSay0B013SocketAddressOGvp">bootstrapServers</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>List of bootstrap servers. The bootstrap server is used to fetch the initial cluster state.
+Bootstrap servers are contacted sequentially, if first server that is reachable will be used
+to discover all relevant nodes in the cluster.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">bootstrapServers</span><span class="p">:</span> <span class="p">[</span><span class="kt">SocketAddress</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV16subscribedTopicsSaySSGvp"></a>
+                    <a name="//apple_ref/swift/Property/subscribedTopics" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV16subscribedTopicsSaySSGvp">subscribedTopics</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>List of topics the consumer is subscribed to</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">subscribedTopics</span><span class="p">:</span> <span class="p">[</span><span class="kt"><a href="../../Typealiases.html#/s:8KafkaNIO5Topica">Topic</a></span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV8clientIDSSvp"></a>
+                    <a name="//apple_ref/swift/Property/clientID" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV8clientIDSSvp">clientID</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A name for this client. This string is passed in each request to servers and can be used to identify specific
+server-side log entries that correspond to this client.
+Also submitted to GroupCoordinator for logging with respect to consumer group administration.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">clientID</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV7groupIDSSvp"></a>
+                    <a name="//apple_ref/swift/Property/groupID" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV7groupIDSSvp">groupID</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The name of the consumer group to join for dynamic partition assignment
+and to use for fetching and committing offsets.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">groupID</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV15groupInstanceIDSSSgvp"></a>
+                    <a name="//apple_ref/swift/Property/groupInstanceID" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV15groupInstanceIDSSSgvp">groupInstanceID</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Group Instance ID of the group</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">groupInstanceID</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV14sessionTimeoutSivp"></a>
+                    <a name="//apple_ref/swift/Property/sessionTimeout" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV14sessionTimeoutSivp">sessionTimeout</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Session timeout for the consumer. When the broker doesn&rsquo;t receive a heartbeat from the consumer
+within this interval, the coordinator will declare the node as dead.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">sessionTimeout</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV16rebalanceTimeoutSivp"></a>
+                    <a name="//apple_ref/swift/Property/rebalanceTimeout" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV16rebalanceTimeoutSivp">rebalanceTimeout</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Timeout for rebalance operations</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">rebalanceTimeout</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV10autoCommitAE04AutoF0Ovp"></a>
+                    <a name="//apple_ref/swift/Property/autoCommit" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV10autoCommitAE04AutoF0Ovp">autoCommit</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Auto commit settings.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">autoCommit</span><span class="p">:</span> <span class="kt"><a href="../../Classes/Consumer/Configuration/AutoCommit.html">AutoCommit</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV03tlsD06NIOSSL16TLSConfigurationVSgvp"></a>
+                    <a name="//apple_ref/swift/Property/tlsConfiguration" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV03tlsD06NIOSSL16TLSConfigurationVSgvp">tlsConfiguration</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>TLS Configuration to connect to the Kafka broker.
+See the <a href="https://apple.github.io/swift-nio-ssl/docs/current/NIOSSL/Structs/TLSConfiguration.html">swift-nio-ssl configuration</a> for details</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">tlsConfiguration</span><span class="p">:</span> <span class="kt">TLSConfiguration</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV13crcValidationSbvp"></a>
+                    <a name="//apple_ref/swift/Property/crcValidation" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV13crcValidationSbvp">crcValidation</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Control if the CRC checksum on record batches recieved from the servers should
+be validated to detect corruption. Unless you have very high throughput requirements
+and can handle invalid data, it&rsquo;s recommended enable CRC validation.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">crcValidation</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV16bootstrapServers16subscribedTopics8clientID05groupJ00k8InstanceJ014sessionTimeout09rebalanceN010autoCommit13crcValidation03tlsD0AESay0B013SocketAddressOG_SaySSGS3SSgS2iAE04AutoQ0OSb6NIOSSL16TLSConfigurationVSgtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(bootstrapServers:subscribedTopics:clientID:groupID:groupInstanceID:sessionTimeout:rebalanceTimeout:autoCommit:crcValidation:tlsConfiguration:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV16bootstrapServers16subscribedTopics8clientID05groupJ00k8InstanceJ014sessionTimeout09rebalanceN010autoCommit13crcValidation03tlsD0AESay0B013SocketAddressOG_SaySSGS3SSgS2iAE04AutoQ0OSb6NIOSSL16TLSConfigurationVSgtcfc">init(bootstrapServers:<wbr>subscribedTopics:<wbr>clientID:<wbr>groupID:<wbr>groupInstanceID:<wbr>sessionTimeout:<wbr>rebalanceTimeout:<wbr>autoCommit:<wbr>crcValidation:<wbr>tlsConfiguration:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">bootstrapServers</span><span class="p">:</span> <span class="p">[</span><span class="kt">SocketAddress</span><span class="p">],</span>
+            <span class="nv">subscribedTopics</span><span class="p">:</span> <span class="p">[</span><span class="kt"><a href="../../Typealiases.html#/s:8KafkaNIO5Topica">Topic</a></span><span class="p">],</span>
+            <span class="nv">clientID</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"kafka-nio"</span><span class="p">,</span>
+            <span class="nv">groupID</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+            <span class="nv">groupInstanceID</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+            <span class="nv">sessionTimeout</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span>
+            <span class="nv">rebalanceTimeout</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span>
+            <span class="nv">autoCommit</span><span class="p">:</span> <span class="kt">Configuration</span><span class="o">.</span><span class="kt"><a href="../../Classes/Consumer/Configuration/AutoCommit.html">AutoCommit</a></span> <span class="o">=</span> <span class="o">.</span><span class="nf">interval</span><span class="p">(</span><span class="nv">amount</span><span class="p">:</span> <span class="o">.</span><span class="nf">seconds</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
+            <span class="nv">crcValidation</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+            <span class="nv">tlsConfiguration</span><span class="p">:</span> <span class="kt">TLSConfiguration</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2020 <a class="link" href="" target="_blank" rel="external">Thomas</a>. All rights reserved. (Last updated: 2020-10-04)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.5</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

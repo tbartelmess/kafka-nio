@@ -1,0 +1,208 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/Consumer.swift",
+      "line": 20,
+      "symbol": "Topic",
+      "symbol_kind": "source.lang.swift.decl.typealias",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/Consumer.swift",
+      "line": 21,
+      "symbol": "ConsumerID",
+      "symbol_kind": "source.lang.swift.decl.typealias",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/Consumer.swift",
+      "line": 23,
+      "symbol": "MessageHandler",
+      "symbol_kind": "source.lang.swift.decl.typealias",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/Consumer.swift",
+      "line": 57,
+      "symbol": "Consumer.configuration",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/Consumer.swift",
+      "line": 135,
+      "symbol": "Consumer.updateOffets(recordBatch:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/Consumer.swift",
+      "line": 143,
+      "symbol": "Consumer.updateOffsets(recordBatches:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/Consumer.swift",
+      "line": 147,
+      "symbol": "Consumer.poll(configuration:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/Consumer.swift",
+      "line": 260,
+      "symbol": "Consumer.setup()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/ConsumerConfiguration.swift",
+      "line": 20,
+      "symbol": "Consumer.Configuration.AutoCommit",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/ConsumerConfiguration.swift",
+      "line": 21,
+      "symbol": "Consumer.Configuration.AutoCommit.off",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/ConsumerConfiguration.swift",
+      "line": 22,
+      "symbol": "Consumer.Configuration.AutoCommit.interval(amount:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/ConsumerConfiguration.swift",
+      "line": 64,
+      "symbol": "Consumer.Configuration.init(bootstrapServers:subscribedTopics:clientID:groupID:groupInstanceID:sessionTimeout:rebalanceTimeout:autoCommit:crcValidation:tlsConfiguration:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/FetchConfiguration.swift",
+      "line": 15,
+      "symbol": "Consumer.FetchConfiguration",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/FetchConfiguration.swift",
+      "line": 16,
+      "symbol": "Consumer.FetchConfiguration.init(maxWaitTime:minBytes:maxBytes:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/FetchConfiguration.swift",
+      "line": 21,
+      "symbol": "Consumer.FetchConfiguration.maxWaitTime",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/FetchConfiguration.swift",
+      "line": 22,
+      "symbol": "Consumer.FetchConfiguration.minBytes",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/FetchConfiguration.swift",
+      "line": 23,
+      "symbol": "Consumer.FetchConfiguration.maxBytes",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Consumer/FetchConfiguration.swift",
+      "line": 25,
+      "symbol": "Consumer.FetchConfiguration.default",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 35,
+      "symbol": "RecordBatch",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 49,
+      "symbol": "RecordBatch.records",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 87,
+      "symbol": "Record",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 88,
+      "symbol": "Record.Header",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 89,
+      "symbol": "Record.Header.key",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 90,
+      "symbol": "Record.Header.value",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 97,
+      "symbol": "Record.key",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 98,
+      "symbol": "Record.value",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 99,
+      "symbol": "Record.headers",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 101,
+      "symbol": "Record.data",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/kafka-nio/kafka-nio/Sources/KafkaNIO/Record.swift",
+      "line": 108,
+      "symbol": "Record.utf8String",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/runner/work/kafka-nio/kafka-nio"
+}

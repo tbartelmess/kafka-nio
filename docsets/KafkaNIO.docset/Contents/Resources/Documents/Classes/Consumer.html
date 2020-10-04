@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Consumer Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/Consumer" class="dashAnchor"></a>
+    <a title="Consumer Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">KafkaNIO Docs</a> (39% documented)</p>
+        <p class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">KafkaNIO Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        Consumer Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/BrokerConnection.html">BrokerConnection</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Consumer.html">Consumer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Consumer/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Consumer/FetchConfiguration.html">– FetchConfiguration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/Record.html">Record</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/Record/Header.html">– Header</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/RecordBatch.html">RecordBatch</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Typealiases.html#/s:8KafkaNIO10ConsumerIDa">ConsumerID</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Typealiases.html#/s:8KafkaNIO14MessageHandlera">MessageHandler</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Typealiases.html#/s:8KafkaNIO5Topica">Topic</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Consumer</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Consumer</span></code></pre>
+
+                </div>
+              </div>
+            <p>A client that consumes records from a Kafka cluster.
+This client transparently handles the failure of Kafka brokers, and transparently adapts as topic partitions it fetches migrate within the cluster.
+This client also interacts with the broker to allow groups of consumers to load balance consumption using consumer groups.</p>
+
+<p>The consumer maintains TCP connections to the necessary brokers to fetch data.</p>
+<h2 id='general' class='heading'>General</h2>
+
+<p>The consumer will transparently handle the failure of servers in the Kafka cluster, and adapt as topic-partitions are created or migrate between brokers.
+It also interacts with the assigned kafka Group Coordinator node to allow multiple consumers to load balance consumption of topics.</p>
+<h2 id='consumer-groups-and-subscriptions' class='heading'>Consumer Groups and Subscriptions</h2>
+
+<p>Kafka maintains an offset for each record in a partition.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13configurationAC13ConfigurationVvp"></a>
+                    <a name="//apple_ref/swift/Property/configuration" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13configurationAC13ConfigurationVvp">configuration</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">configuration</span><span class="p">:</span> <span class="kt"><a href="../Classes/Consumer/Configuration.html">Configuration</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC7connect13configuration14eventLoopGroup6logger0B005EventG6FutureCyACGAC13ConfigurationV_AH0jgH0_p7Logging6LoggerVtKFZ"></a>
+                    <a name="//apple_ref/swift/Method/connect(configuration:eventLoopGroup:logger:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC7connect13configuration14eventLoopGroup6logger0B005EventG6FutureCyACGAC13ConfigurationV_AH0jgH0_p7Logging6LoggerVtKFZ">connect(configuration:<wbr>eventLoopGroup:<wbr>logger:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Connect to the cluster</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">public</span> <span class="kd">func</span> <span class="nf">connect</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="kt"><a href="../Classes/Consumer/Configuration.html">Configuration</a></span><span class="p">,</span>
+                           <span class="nv">eventLoopGroup</span><span class="p">:</span> <span class="kt">EventLoopGroup</span><span class="p">,</span>
+                           <span class="nv">logger</span><span class="p">:</span> <span class="kt">Logger</span> <span class="o">=</span> <span class="kt">Logger</span><span class="p">(</span><span class="nv">label</span><span class="p">:</span> <span class="s">"io.bartelmess.KafkaNIO"</span><span class="p">))</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">EventLoopFuture</span><span class="o">&lt;</span><span class="kt">Consumer</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC12updateOffets11recordBatchyAA06RecordG0V_tKF"></a>
+                    <a name="//apple_ref/swift/Method/updateOffets(recordBatch:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC12updateOffets11recordBatchyAA06RecordG0V_tKF">updateOffets(recordBatch:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">updateOffets</span><span class="p">(</span><span class="nv">recordBatch</span><span class="p">:</span> <span class="kt"><a href="../Structs/RecordBatch.html">RecordBatch</a></span><span class="p">)</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13updateOffsets13recordBatchesySayAA11RecordBatchVG_tKF"></a>
+                    <a name="//apple_ref/swift/Method/updateOffsets(recordBatches:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13updateOffsets13recordBatchesySayAA11RecordBatchVG_tKF">updateOffsets(recordBatches:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">updateOffsets</span><span class="p">(</span><span class="nv">recordBatches</span><span class="p">:</span> <span class="p">[</span><span class="kt"><a href="../Structs/RecordBatch.html">RecordBatch</a></span><span class="p">])</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC4poll13configuration0B015EventLoopFutureCySayAA11RecordBatchVGGAC18FetchConfigurationV_tF"></a>
+                    <a name="//apple_ref/swift/Method/poll(configuration:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC4poll13configuration0B015EventLoopFutureCySayAA11RecordBatchVGGAC18FetchConfigurationV_tF">poll(configuration:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">poll</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="kt">Consumer</span><span class="o">.</span><span class="kt"><a href="../Classes/Consumer/FetchConfiguration.html">FetchConfiguration</a></span> <span class="o">=</span> <span class="o">.</span><span class="k">default</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">EventLoopFuture</span><span class="o">&lt;</span><span class="p">[</span><span class="kt"><a href="../Structs/RecordBatch.html">RecordBatch</a></span><span class="p">]</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC5setup0B015EventLoopFutureCyytGyF"></a>
+                    <a name="//apple_ref/swift/Method/setup()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC5setup0B015EventLoopFutureCyytGyF">setup()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">setup</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">EventLoopFuture</span><span class="o">&lt;</span><span class="kt">Void</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC8shutdown0B015EventLoopFutureCyytGyF"></a>
+                    <a name="//apple_ref/swift/Method/shutdown()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC8shutdown0B015EventLoopFutureCyytGyF">shutdown()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Shuts down the consumer, returning an event loop future when consuming stopped.
+When the consumer is not in the .consuming state, the event loop future will fail with <code>ProtocolError.invalidState</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">shutdown</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">EventLoopFuture</span><span class="o">&lt;</span><span class="kt">Void</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC13ConfigurationV"></a>
+                    <a name="//apple_ref/swift/Struct/Configuration" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC13ConfigurationV">Configuration</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code><a href="../Classes/Consumer.html">Consumer</a></code> configuration.</p>
+
+                        <a href="../Classes/Consumer/Configuration.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">Configuration</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:8KafkaNIO8ConsumerC18FetchConfigurationV"></a>
+                    <a name="//apple_ref/swift/Struct/FetchConfiguration" class="dashAnchor"></a>
+                    <a class="token" href="#/s:8KafkaNIO8ConsumerC18FetchConfigurationV">FetchConfiguration</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="../Classes/Consumer/FetchConfiguration.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">FetchConfiguration</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2020 <a class="link" href="" target="_blank" rel="external">Thomas</a>. All rights reserved. (Last updated: 2020-10-04)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.5</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>
