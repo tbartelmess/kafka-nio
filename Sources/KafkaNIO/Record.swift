@@ -46,6 +46,7 @@ public struct RecordBatch {
     let producerID: Int64
     let producerEpoch: Int16
     let baseSequence: Int32
+
     public let records: [Record]
 
     let topic: String
@@ -146,5 +147,17 @@ extension Record: RawDecodable {
         value = buffer.readBytes(length: valueLength)
 
         headers = try buffer.read(lengthEncoding: .varint)
+    }
+}
+
+extension Record {
+    init(key: [UInt8], value: [UInt8], headers: [Header]?, timestampDelta: Int, offsetDelta: Int) {
+        self.key = key
+        self.value = value
+        self.headers = headers
+        self.timestampDelta = timestampDelta
+        self.offsetDelta = offsetDelta
+        self.attributes = 0
+        self.length = 0
     }
 }
