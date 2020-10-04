@@ -36,7 +36,7 @@ public struct RecordBatch {
     let baseOffset: Int64
     let batchLength: Int32
     let partitionLeaderEpoch: Int32
-    let magic: Int8
+    let magic: Magic
     let crc: UInt32
     let attributes: Int16
     //let compressionAlgorithm: CompressionAlgorithm
@@ -81,6 +81,17 @@ public struct RecordBatch {
 
 
         records = try buffer.read()
+    }
+}
+
+extension RecordBatch {
+    /// The "magic" values for Record Batches
+    enum Magic: UInt8, ProtocolEnum {
+        case v0 = 0
+        case v1 = 1
+        case v2 = 2
+
+        static let current = Magic.v2
     }
 }
 
