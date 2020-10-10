@@ -26,7 +26,7 @@ class RecordBatchBuilderTests: XCTestCase {
                                            crcValidation: true)
         XCTAssertEqual(decodedBatch.baseOffset, 0)
         XCTAssertEqual(decodedBatch.magic, .v2)
-        XCTAssertEqual(decodedBatch.crc, 0xFFFFFFFF)
+        XCTAssertEqual(decodedBatch.crc, 0x595FB7DD)
         XCTAssertEqual(decodedBatch.firstTimestamp, 0)
         XCTAssertEqual(decodedBatch.maxTimestamp, 0)
         XCTAssertEqual(decodedBatch.producerID, 0)
