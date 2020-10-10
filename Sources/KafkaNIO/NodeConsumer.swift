@@ -64,6 +64,8 @@ class NodeConsumer {
                         
                     } catch KafkaError.notEnoughBytes {
                         break
+                    } catch KafkaError.crcValidationFailed {
+                        print("CRC validation failed")
                     } catch {
                         fatalError("Unexpected Error: \(error)")
                     }
