@@ -12,7 +12,12 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
-enum KafkaError: Error {
+
+struct PollError: Error {
+    var errors: [Error]
+}
+
+enum KafkaError: Error, Equatable {
     case notEnoughBytes
     case invalidAPIKey
     case unsupportedAPIKey
@@ -32,9 +37,7 @@ enum KafkaError: Error {
     case invalidState
     case missingValue
     case missingMetadata
-
-    
+    case invalidCompressionAlgorithm
     case nodeForTopicNotFound
-    case multiple([Error])
 }
 

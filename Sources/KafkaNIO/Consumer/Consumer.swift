@@ -149,7 +149,7 @@ public class Consumer {
 
         case .consuming(groupInfo: _, consumers: let consumers, consumerCoordinator: _):
             let futures = consumers.map { $0.poll(fetchConfiguration: configuration) }
-            return EventLoopFuture.whenAllComplete(futures, on: eventLoop).flatMapResult { result -> Result<[RecordBatch], KafkaError> in
+            return EventLoopFuture.whenAllComplete(futures, on: eventLoop).flatMapResult { result -> Result<[RecordBatch], PollError> in
                 let batches = result.compactMap { result -> [RecordBatch]? in
                     if case .success(let batches) = result {
                         return batches
@@ -165,7 +165,7 @@ public class Consumer {
                 if errors.isEmpty {
                     return .success(batches)
                 }
-                return .failure(KafkaError.multiple(errors))
+                return .failure(.init(errors: errors))
             }
         case .rebalancing(rebalanceFuture: let future):
             logger.info("Group is rebalancing, parking poll() until the rebalance is completed")
