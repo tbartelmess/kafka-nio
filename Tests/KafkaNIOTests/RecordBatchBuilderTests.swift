@@ -34,4 +34,24 @@ class RecordBatchBuilderTests: XCTestCase {
         XCTAssertEqual(decodedBatch.baseSequence, 0)
         XCTAssertTrue(decodedBatch.records.isEmpty)
     }
+
+    func testOneRecord() throws {
+        let builder = RecordBatchBuilder()
+        builder.append(key: [], value: Array<UInt8>("Hello World".data(using: .utf8)!), headers: nil, timestamp: Date().kafkaTimestamp)
+        var buffer = builder.build()
+
+        let decodedBatch = try RecordBatch(from: &buffer,
+                                           topic: "test",
+                                           partitionIndex: 1,
+                                           crcValidation: true)
+        XCTAssertEqual(decodedBatch.records.count, 1)
+        XCTAssertEqual(decodedBatch.baseOffset, 0)
+        XCTAssertEqual(decodedBatch.magic, .v2)
+        XCTAssertNotEqual(decodedBatch.firstTimestamp, 0)
+        XCTAssertNotEqual(decodedBatch.maxTimestamp, 0)
+        XCTAssertEqual(decodedBatch.producerID, 0)
+        XCTAssertEqual(decodedBatch.producerEpoch, 0)
+        XCTAssertEqual(decodedBatch.baseSequence, 0)
+        XCTAssertEqual(decodedBatch.records.count, 1)
+    }
 }
