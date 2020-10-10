@@ -166,7 +166,7 @@ class Bootstrapper {
             let broker = try nextServer()
             logger.info("Attempting to bootstrap with Server: \(broker.host):\(broker.port)")
             broker.connect(on: eventLoop, clientID: clientID, tlsConfiguration: tlsConfiguration, logger: logger)
-                .flatMapError { _ in
+                .flatMapError { error in
                     return self.bootstrapRecursive()
                 }
                 .cascade(to: promise)
