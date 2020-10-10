@@ -67,34 +67,42 @@ class RecordBatchBuilder {
 
     init() {
         buffer = RecordBatchBuilder.allocator.buffer(capacity: RecordBatchBuilder.headerLength)
-        startTimestamp = Date().kafkaTimestamp
         buffer.moveWriterIndex(forwardBy: RecordBatchBuilder.headerLength)
     }
 
-    private var startTimestamp: Int
+    private var startTimestamp: Int = 0
+    private var maxTimestamp: Int = 0
+
     private var buffer: ByteBuffer
     private var numberOfRecords: Int = 0
 
-    private var crcBufferView: ByteBufferView? {
-        buffer.viewBytes(at: RecordBatchBuilder.checksummedStart,
-                        length: buffer.readableBytes - RecordBatchBuilder.checksummedStart)
-    }
 
-    func append(key: [UInt8], value: [UInt8], headers: [Record.Header]?, timestamp: Int) {
+
+    func append(key: [UInt8], value: [UInt8], headers: [Record.Header]?, timestamp: Int = Date().kafkaTimestamp) {
         let offset = self.numberOfRecords
+        let timestampDelta: Int
+        if numberOfRecords == 0 {
+            self.startTimestamp = timestamp
+            timestampDelta = 0
+        } else {
+            timestampDelta = timestamp - startTimestamp
+        }
+        self.maxTimestamp = timestamp
         self.numberOfRecords += 1
-        let timestampDelta = startTimestamp - timestamp
+
+
         let record = Record(key: key,
                             value: value,
                             headers: headers,
                             timestampDelta: timestampDelta,
                             offsetDelta: offset)
-        record.write(into: &self.buffer)
+        buffer.write(record)
     }
 
 
     private func calculateCRC() -> UInt32 {
-        buffer.crc32(at: RecordBatchBuilder.checksummedStart, length: buffer.readableBytes - RecordBatchBuilder.crcOffset)
+
+        buffer.crc32(at: RecordBatchBuilder.checksummedStart, length: buffer.readableBytes - (RecordBatchBuilder.crcOffset + RecordBatchBuilder.crcLength))
     }
 
     private func writeHeader() {
@@ -110,11 +118,11 @@ class RecordBatchBuilder {
 
         buffer.setInteger(0 as Int16, at: RecordBatchBuilder.attributesLength)
 
-        buffer.setInteger(0 as Int32, at: RecordBatchBuilder.lastOffsetDeltaOffset)
+        buffer.setInteger(max(Int32(numberOfRecords - 1),0) as Int32, at: RecordBatchBuilder.lastOffsetDeltaOffset)
 
-        buffer.setInteger(0 as Int64, at: RecordBatchBuilder.firstTimestampOffset)
+        buffer.setInteger(Int64(startTimestamp), at: RecordBatchBuilder.firstTimestampOffset)
 
-        buffer.setInteger(0 as Int64, at: RecordBatchBuilder.maxTimestampOffset)
+        buffer.setInteger(Int64(maxTimestamp), at: RecordBatchBuilder.maxTimestampOffset)
 
         buffer.setInteger(0 as Int64, at: RecordBatchBuilder.producerIDOffset)
 
@@ -122,39 +130,17 @@ class RecordBatchBuilder {
 
         buffer.setInteger(0 as Int32, at: RecordBatchBuilder.baseSequenceOffset)
         
-        buffer.setInteger(0 as Int32, at: RecordBatchBuilder.recordsLengthOffset)
+        buffer.setInteger(Int32(numberOfRecords), at: RecordBatchBuilder.recordsLengthOffset)
+
         // Write CRC
         buffer.setInteger(calculateCRC(), at: RecordBatchBuilder.crcOffset)
+        
+
+
     }
 
     func build() -> ByteBuffer {
         self.writeHeader()
         return self.buffer
     }
-}
-
-public class RecordAccumulator {
-
-    init() {
-
-    }
-
-    private var buffers: [TopicPartition: ByteBuffer] = [:]
-
-    func append(topicPartition: TopicPartition,
-                timestamp: Int64,
-                key: [UInt8],
-                value: [UInt8]) {
-
-    }
-
-    func getBuffer(for topicPartition: TopicPartition) -> ByteBuffer {
-        guard let buffer = buffers[topicPartition] else {
-            let newBuffer = ByteBufferAllocator().buffer(capacity: 0)
-            self.buffers[topicPartition] = newBuffer
-            return newBuffer
-        }
-        return buffer
-    }
-
 }
