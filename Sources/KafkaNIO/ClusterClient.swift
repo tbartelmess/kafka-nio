@@ -101,7 +101,18 @@ protocol ClusterMetadataProtocol: CustomStringConvertible {
     var topics: [MetadataResponse.MetadataResponseTopic] {get}
 
     func nodeID(forTopic topic: String, partition: Int) -> NodeID?
+
+    /// Returns the known partitions for a topic
+    /// - Parameter topic: name of the topic
+    func partitions(forTopic topic: String) -> [MetadataResponse.MetadataResponseTopic.MetadataResponsePartition]?
+
+    /// Returns topic metadata for a given topic.
+    ///
+    /// - Parameter topic: topic to return information for
+    func topic(_ topic: Topic) -> MetadataResponse.MetadataResponseTopic?
 }
+
+
 
 extension ClusterMetadataProtocol {
     var description: String {
@@ -111,6 +122,15 @@ extension ClusterMetadataProtocol {
     func nodeID(forTopic topic: String, partition: Int) -> NodeID? {
         topics.first(where: {$0.name == topic})?.partitions.first(where: {$0.partitionIndex == partition})?.leaderID
     }
+
+    func topic(_ topic: Topic) -> MetadataResponse.MetadataResponseTopic? {
+        topics.first(where: {$0.name == topic})
+    }
+
+    func partitions(forTopic topic: String) -> [MetadataResponse.MetadataResponseTopic.MetadataResponsePartition]? {
+        self.topic(topic)?.partitions
+    }
+
 }
 
 struct ClusterMetadata: ClusterMetadataProtocol, CustomStringConvertible {
