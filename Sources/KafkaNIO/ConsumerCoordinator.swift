@@ -42,11 +42,11 @@ struct PartitionInfo {
     let logStartOffset: Int64
 }
 
-/// The consumer coordiantor manages the coordination process.
+/// The consumer coordinator manages the coordination process.
 /// When the consumer is the group leader it handles assignment process when a rebalance is needed,
 /// and performs periodic heartbeats check if new members joined the group and a sync is needed.
 ///
-/// It manages the offsets for `NodeConsumers` and handles the periodic commiting of offsets to the Group Coordinator.
+/// It manages the offsets for `NodeConsumers` and handles the periodic committing of offsets to the Group Coordinator.
 class ConsumerCoordinator {
     var offsets: [Topic: [PartitionIndex : PartitionInfo]]
     let groupInfo: GroupInfo
