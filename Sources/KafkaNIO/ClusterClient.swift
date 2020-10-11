@@ -230,7 +230,7 @@ final class ClusterClient {
 
     /// Create a new cluster from a set of servers.
     /// At least one the servers needs to be reachable. During the bootstrap the we try to connection to each server in a sequential order
-    /// the first server where the connection suceeds is used to discover the rest of the cluster.
+    /// the first server where the connection succeeds is used to discover the rest of the cluster.
     /// - Parameters:
     ///   - servers: lists of brokers that can be used to bootstrap
     ///   - eventLoopGroup: `EventLoopGroup` that is used for creating new `EventLoop` instances.
@@ -251,9 +251,9 @@ final class ClusterClient {
             .flatMap { (bootstrapConnection) in
                 bootstrapConnection.requestFetchMetadata(topics: topics).map { ($0, bootstrapConnection) }
             }.map { (response, connection) -> (ClusterClient, BrokerConnectionProtocol) in
-                let initalMetadata = ClusterMetadata(metadata: response)
+                let initialMetadata = ClusterMetadata(metadata: response)
 
-                return (ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initalMetadata, topics: topics, tlsConfiguration: tlsConfiguration, logger: logger), connection)
+                return (ClusterClient(clientID: clientID, eventLoopGroup: eventLoopGroup, clusterMetadata: initialMetadata, topics: topics, tlsConfiguration: tlsConfiguration, logger: logger), connection)
             }.flatMap { clusterClient, connection in
                 connection.close().map { clusterClient }
             }
@@ -275,7 +275,7 @@ final class ClusterClient {
     }
 
     deinit {
-        // Suceed the nextMetadata promise, otherwise it'll "leak".
+        // Succeed the nextMetadata promise, otherwise it'll "leak".
         nextMetadataRefresh.succeed(())
     }
 

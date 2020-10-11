@@ -171,17 +171,15 @@ struct TestableMetadata: ClusterMetadataProtocol {
     var brokers: [NodeID : BrokerProtocol]
 
     var topics: [MetadataResponse.MetadataResponseTopic]
-
-
 }
 
 extension ClusterClient {
     static func testable(eventLoopGroup: EventLoopGroup,
                          clientID: String,
-                         initalMetadata: TestableMetadata) -> ClusterClient {
+                         initialMetadata: TestableMetadata) -> ClusterClient {
         ClusterClient(clientID: clientID,
                       eventLoopGroup: eventLoopGroup,
-                      clusterMetadata: initalMetadata,
+                      clusterMetadata: initialMetadata,
                       topics: [],
                       tlsConfiguration: nil,
                       logger: Logger(label: "test-logger"),
@@ -197,7 +195,7 @@ class ClusterClientTests: XCTestCase {
 
     override func setUpWithError() throws {
         let metadata = TestableMetadata(clusterID: "test-cluster", controllerID: 1, brokers: [1: testBroker], topics: [])
-        client = ClusterClient.testable(eventLoopGroup: eventLoopGroup, clientID: "test-cluster", initalMetadata: metadata)
+        client = ClusterClient.testable(eventLoopGroup: eventLoopGroup, clientID: "test-cluster", initialMetadata: metadata)
         testBrokerConnection = try client.connection(forNode: 1).wait() as? TestableBrokerConnection
         testBrokerConnection.supportedVersions[APIKey.apiVersions] = 3
         testBrokerConnection.supportedVersions[APIKey.metadata] = 9
@@ -322,7 +320,7 @@ class ClusterClientTests: XCTestCase {
         testBrokerConnection.enqueueResponse(metadataResponseOK(), forKey: .metadata)
 
         let futureFulfilledExpectation = expectation(description: "ensureHasMetadataFor(topics:) called")
-        let future = client.ensureHasMetadataFor(topics: ["my-topic"]).whenComplete { result in
+        let _ = client.ensureHasMetadataFor(topics: ["my-topic"]).whenComplete { result in
             if case .failure(let error) = result {
                 XCTFail("ensureHasMetadataFor(topics:) failed with \(error)")
             }
